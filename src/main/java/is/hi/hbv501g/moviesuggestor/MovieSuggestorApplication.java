@@ -10,4 +10,8 @@ public class MovieSuggestorApplication {
         SpringApplication.run(MovieSuggestorApplication.class, args);
     }
 
+
 }
+
+
+
