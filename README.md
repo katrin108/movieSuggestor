@@ -9,7 +9,7 @@ Hópur 21
 
 meðlimir:
 
-Ármann Schelander
-Jóhann Chanse Sigurðsson
-Katrín Sigurðardóttir
-Máni Eiðsson
+- Ármann Schelander
+- Jóhann Chanse Sigurðsson
+- Katrín Sigurðardóttir
+- Máni Eiðsson
