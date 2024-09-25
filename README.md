@@ -3,7 +3,7 @@ Hugbúnaðarverkefni 1
 
 repo til að halda utan um kóða og gögn fyrir verkefnið
 
-(deploya repo t.d. á netlify eða react til að gera verkið aðgengilegt á netinu)
+(deploya repo t.d. á netlify  til að gera verkið aðgengilegt á netinu)
 
 Hópur 21
 
