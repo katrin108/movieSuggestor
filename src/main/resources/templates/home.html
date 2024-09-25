@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns: th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Þetta er test</h1>
+<div th:switch="${movies}">
+    <h2 th:case="null">no movies yet!</h2>
+    <div th:case="*">
+        <h2>Movies</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Rating</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="movie:${movies}">
+                <td th:text="${movie.title}"></td>
+                <td th:text="${movie.description}"></td>
+                <td th:text="${movie.rating}"></td>
+                <td><a th:href="@{/delete/{id}(id=${movie.id})}">Delete</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p><a href="/addmovie">Add a new movie</a></p>
+</div>
+
+</body>
+</html>

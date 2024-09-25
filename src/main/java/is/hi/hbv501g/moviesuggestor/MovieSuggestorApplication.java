@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MovieSuggestorApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(MovieSuggestorApplication.class, args);
     }
 
