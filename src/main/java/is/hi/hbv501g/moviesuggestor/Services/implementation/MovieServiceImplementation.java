@@ -30,6 +30,7 @@ public class MovieServiceImplementation implements MovieService {
 
     @Override
     public List<Movie> findAllMovies() {
+
         return movieRepository.findAll();
     }
 

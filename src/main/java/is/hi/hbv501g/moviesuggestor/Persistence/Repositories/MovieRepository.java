@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface MovieRepository extends JpaRepository<Movie,Long> {
-    Movie safe(Movie movie);
+    Movie save(Movie movie);
     void delete(Movie movie);
 
     List<Movie> findAll();
