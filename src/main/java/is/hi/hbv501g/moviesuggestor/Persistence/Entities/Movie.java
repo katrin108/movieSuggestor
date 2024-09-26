@@ -1,15 +1,36 @@
 package is.hi.hbv501g.moviesuggestor.Persistence.Entities;
 
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
+
+
+@Entity
+@Table(name = "movies")
+
 public class Movie {
-    private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;        //primary key
+
+
     private String title;
+
+    @ElementCollection(targetClass = Genre.class)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "movie_genres",joinColumns = @JoinColumn(name = "movie_id"))
+    @Column(name = "genra")
     private List<Genre> genre;
     private String description;
     private String releaseDate;
     private double runtime;
     private double rating;
+
+
+    @OneToMany(mappedBy = "movie",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<movieList> movieLists=new ArrayList<>();
 
     public Movie() {
     }

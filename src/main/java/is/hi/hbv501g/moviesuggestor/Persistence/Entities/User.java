@@ -1,0 +1,41 @@
+package is.hi.hbv501g.moviesuggestor.Persistence.Entities;
+
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+
+    private String username;
+    private String password;
+    private String email;
+    //can add more
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    List<movieList> movieListList = new ArrayList<>();
+
+    public User() {
+
+    }
+
+    public List<movieList> getMovieListList() {
+        return movieListList;
+    }
+
+    public void setMovieListList(List<movieList> movieListList) {
+        this.movieListList = movieListList;
+    }
+
+    public User(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
+}
