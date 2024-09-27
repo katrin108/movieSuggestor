@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns: th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Þetta er test</h1>
+
+<div>
+    <form action="#" th:action="@{/login}" method="post">
+        <label for ="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for ="password">password:</label>
+        <input type="text" id="password" name="password" required>
+        <input type="submit" value="Login"/>
+
+        <div th:switch="${users}">
+            <h2 th:case="null">no users yet!</h2>
+            <div th:case="*">
+                <h2>Users</h2>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>user name</th>
+                        <th>id</th>
+                        <th>email</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user:${users}">
+                        <td th:text="${user.getUsername()}"></td>
+                        <td th:text="${user.getId()}"></td>
+                        <td th:text="${user.getEmail()}"></td>
+                        <td><a th:href="@{/delete/{id}(id=${user.id})}">Delete</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </form>
+    <p>Create a new account <a th:href="@{/register}">here</a></p>
+</div>
+<div th:switch="${movies}">
+    <h2 th:case="null">no movies yet!</h2>
+    <div th:case="*">
+        <h2>Movies</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Rating</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="movie:${movies}">
+                <td th:text="${movie.title}"></td>
+                <td th:text="${movie.description}"></td>
+                <td th:text="${movie.rating}"></td>
+                <td><a th:href="@{/delete/{id}(id=${movie.id})}">Delete</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p><a href="/addmovie">Add a new movie</a></p>
+</div>
+
+</body>
+</html>
