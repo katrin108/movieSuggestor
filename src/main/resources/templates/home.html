@@ -6,6 +6,19 @@
 </head>
 <body>
 <h1>Þetta er test</h1>
+
+<div>
+    <form action="#" th:action="@{/login}" method="post">
+        <label for ="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for ="password">password:</label>
+        <input type="text" id="password" name="password" required>
+        <input type="submit" value="Login"/>
+
+    </form>
+    <p>Create a new account <a th:href="@{/register}">here</a></p>
+</div>
 <div th:switch="${movies}">
     <h2 th:case="null">no movies yet!</h2>
     <div th:case="*">
