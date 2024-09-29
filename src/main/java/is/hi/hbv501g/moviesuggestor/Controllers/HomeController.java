@@ -30,7 +30,6 @@ public class HomeController {
         this.userService = userService;
     }
 
-
     @RequestMapping("/")
     public String homePage(Model model) {
         //Call a method in Service Class

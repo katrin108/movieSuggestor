@@ -15,12 +15,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class UserController {
     UserService userService;
 
-
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
-
 
     //
     @RequestMapping(value = "/signup",method = RequestMethod.GET)
