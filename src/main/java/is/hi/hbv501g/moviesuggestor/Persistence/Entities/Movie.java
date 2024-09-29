@@ -11,6 +11,7 @@ import java.util.List;
 @Table(name = "movies")
 
 public class Movie {
+    //baeta vid meira seinna
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;        //primary key
