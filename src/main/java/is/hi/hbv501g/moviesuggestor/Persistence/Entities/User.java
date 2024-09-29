@@ -1,6 +1,7 @@
 package is.hi.hbv501g.moviesuggestor.Persistence.Entities;
 
 import jakarta.persistence.*;
+import org.antlr.v4.runtime.misc.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +13,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-
+    @Column(unique = true, nullable = false)
     private String username;
+    @Column(nullable = false)
     private String password;
+    @Column(unique = true, nullable = false)
     private String email;
     //can add more
 
