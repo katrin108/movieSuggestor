@@ -8,6 +8,7 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User {
+    //baeta vid meira seinna
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

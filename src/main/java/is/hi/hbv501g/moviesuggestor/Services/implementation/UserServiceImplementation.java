@@ -28,10 +28,7 @@ public class UserServiceImplementation implements UserService {
         return userRepository.findAll();
     }
 
-    @Override
-    public User login(User user) {
-        return null;
-    }
+
 
     @Override
     public User findUserByUsername(String username) {
@@ -56,5 +53,16 @@ public class UserServiceImplementation implements UserService {
     @Override
     public void deleteUser(User user) {
         userRepository.delete(user);
+    }
+
+    @Override
+    public User login(User user){
+        User doseExist =findUserByUsername(user.getUsername());
+        if(doseExist != null){
+            if(doseExist.getPassword().equals(user.getPassword())){
+                return doseExist;
+            }
+        }
+        return null;
     }
 }

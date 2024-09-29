@@ -25,6 +25,7 @@ public class UserController {
     //
     @RequestMapping(value = "/signup",method = RequestMethod.GET)
     public String signup(Model model) {
+        model.addAttribute("user", new User());
         return "signup";
     }
 
@@ -46,6 +47,7 @@ public class UserController {
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String loginGet(User user) {
+
         return "login";
     }
 
@@ -63,12 +65,12 @@ public class UserController {
         return "redirect:/";
     }
 
-    @RequestMapping(value = "/loggedIn", method = RequestMethod.GET)
+    @RequestMapping(value = "/loggedin", method = RequestMethod.GET)
     public String loggedInGet(Model model, HttpSession session) {
         User sessionUser= (User) session.getAttribute("LoggedInUser");
         if(sessionUser != null) {
             model.addAttribute("LoggedInUser", sessionUser);
-            return "LoggedInUser";
+            return "loggedInUser";
         }
         return "redirect:/";
     }
