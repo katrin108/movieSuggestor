@@ -15,68 +15,55 @@ import java.util.Objects;
 
 @Service
 public class UserServiceImplementation implements UserService {
-   // private UserRepository userRepository;
-    private List<User> usersRepository=new ArrayList<>();//just test
-    private int id_counter=0;
 
-   @Autowired
-    public UserServiceImplementation() {
-        //test
-        usersRepository.add(new User("U1","123","test1@email"));
-        usersRepository.add(new User("U2","abc","test2@email"));
-        usersRepository.add(new User("U3","123","test3@email"));
+    private UserRepository userRepository;
 
-        // manual id
-        for(User user:usersRepository){
-            user.setId(id_counter++);
-        }
+    @Autowired
+    public UserServiceImplementation(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
+
 
     @Override
     public List<User> findAllUsers() {
-
-        return usersRepository;
+        return userRepository.findAll();
     }
+
+
+
     @Override
     public User findUserByUsername(String username) {
-        for(User user:usersRepository){
-            if(Objects.equals(user.getUsername(), username)){
-                return user;
-            }
-        }
-        return null;
+        return userRepository.findByUsername(username);
     }
 
     @Override
     public User findUserByEmail(String email) {
-        for(User user:usersRepository){
-            if(Objects.equals(user.getEmail(), email)){
-                return user;
-            }
-        }
-        return null;
+        return userRepository.findByUsername(email);
     }
 
     @Override
     public User findUserById(long id) {
-        for(User user:usersRepository){
-            if(user.getId()==id){
-                return user;
-            }
-        }
-        return null;
+        return userRepository.findById(id).orElse(null);
     }
 
     @Override
-    public User saveUser(User use) {
-        use.setId(id_counter++);
-        usersRepository.add(use);
-        return use;
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 
     @Override
     public void deleteUser(User user) {
-        usersRepository.remove(user);
+        userRepository.delete(user);
+    }
 
+    @Override
+    public User login(User user){
+        User doseExist =findUserByUsername(user.getUsername());
+        if(doseExist != null){
+            if(doseExist.getPassword().equals(user.getPassword())){
+                return doseExist;
+            }
+        }
+        return null;
     }
 }
