@@ -81,6 +81,7 @@ public class UserController {
         User sessionUser= (User) session.getAttribute("LoggedInUser");
         if(sessionUser != null) {
             model.addAttribute("LoggedInUser", sessionUser);
+            model.addAttribute("genres", sessionUser.getGenres());
             return "loggedInUser";
         }
         return "redirect:/login";
@@ -90,6 +91,31 @@ public class UserController {
     public String logoutPost(HttpSession session) {
         session.invalidate();
         return "redirect:/";
+    }
+    @RequestMapping(value = "/loggedin/preferences", method = RequestMethod.GET)
+    public String preferencesGet(HttpSession session,@RequestParam(value = "genres",required = false) List<Genre> selectedGenres, Model model,@RequestParam(value = "action",required = false) String action) {
+        User sessionUser= (User) session.getAttribute("LoggedInUser");
+        if(sessionUser != null) {
+            model.addAttribute("LoggedInUser", sessionUser);
+            model.addAttribute("UserGenres", sessionUser.getGenres());
+            model.addAttribute("genres", Genre.values());
+            return "preferences";
+        }
+        return "redirect:/loggedin";
+
+    }
+
+
+        @RequestMapping(value = "/loggedin/preferences", method = RequestMethod.POST)
+    public String preferencesPost(HttpSession session,@RequestParam(value = "genres",required = false) List<Genre> selectedGenres, Model model,@RequestParam(value = "action",required = false) String action) {
+
+        User sessionUser= (User) session.getAttribute("LoggedInUser");
+        if(sessionUser != null) {
+
+            userService.setGenres(sessionUser,selectedGenres != null ? selectedGenres : new ArrayList<>());
+
+        }
+        return "redirect:/loggedin";
     }
 
 

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns: th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>preferences</title>
+</head>
+<body>
+  <form action="#" th:action="@{/loggedin/preferences}" method="post">
+    <h2>Update preferences</h2>
+
+    <div th:each="genre : ${genres}">
+      <label>
+        <input type="checkbox" name="genres" th:value="${genre}" th:id="${genre}" th:checked="${UserGenres.contains(genre)}"/>
+        <span th:text="${genre}">Genre Name</span>
+      </label>
+    </div>
+    <input type="submit" value="Safe preferences">
+  </form>
+  <p><a href="#" th:href="@{/loggedin}"> Cancel</a></p>
+
+</body>
+</html>

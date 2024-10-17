@@ -8,9 +8,17 @@
 <h2>You are now logged in </h2>
 <p>Your username is: <span th:text=" ${LoggedInUser.username}"></span></p>
 <p>Your email is: <span th:text=" ${LoggedInUser.email}"></span></p>
+<p>Your preferences are:</p>
+<ul>
+    <li th:each="genre : ${genres}">
+        <span th:text="${genre}"></span>
+    </li>
+</ul>
 <form action="#" th:action="@{logout}" method="post">
-    <button type="submit">Sign out</button>
+    <button type="submit">Log out</button>
 </form>
+
+<p><a href="/loggedin/preferences">Update preferences</a></p>
 
 
 </body>

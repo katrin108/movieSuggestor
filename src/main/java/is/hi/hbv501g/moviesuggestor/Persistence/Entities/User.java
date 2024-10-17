@@ -3,6 +3,8 @@ package is.hi.hbv501g.moviesuggestor.Persistence.Entities;
 
 import jakarta.persistence.*;
 import org.antlr.v4.runtime.misc.NotNull;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "user_genres", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "Genre")
+    @Fetch(FetchMode.JOIN)
     private List<Genre> genres=new ArrayList<>();
 
 
@@ -42,6 +45,7 @@ public class User {
         this.email = email;
         this.genres =genres != null ? genres : new ArrayList<>();
     }
+
 
 
     public List<Genre> getGenres() {
