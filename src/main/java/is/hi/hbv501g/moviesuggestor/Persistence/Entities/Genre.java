@@ -9,5 +9,6 @@ public enum Genre {
     ADVENTURE,
     THRILLER,
     SCIFI,
-    DOCUMENTARY
-}
+    DOCUMENTARY;
+
+    }

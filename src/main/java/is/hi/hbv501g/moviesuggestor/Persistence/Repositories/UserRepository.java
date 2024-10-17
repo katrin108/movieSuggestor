@@ -1,6 +1,7 @@
 package is.hi.hbv501g.moviesuggestor.Persistence.Repositories;
 
 
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +14,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findAll();
     User findByUsername(String username);
     User findAllById(Long id);
-
 
 }

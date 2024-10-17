@@ -1,5 +1,6 @@
 package is.hi.hbv501g.moviesuggestor.Controllers;
 
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -10,6 +11,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class UserController {
@@ -24,23 +29,31 @@ public class UserController {
     @RequestMapping(value = "/signup",method = RequestMethod.GET)
     public String signup(Model model) {
         model.addAttribute("user", new User());
+        model.addAttribute("genres", Genre.values());
         return "signup";
     }
 
     @RequestMapping(value = "/signup",method = RequestMethod.POST)
-    public String signupPost(@ModelAttribute("user") User user, BindingResult result, Model model) {
+    public String signupPost(@ModelAttribute("user") User user, BindingResult result, Model model, @RequestParam(value = "genres",required = false) List<Genre> selectedGenres, HttpSession session) {
+        model.addAttribute("genres", Genre.values());
         if(result.hasErrors()) {
-            return "redirect:/signup";
+            return "signup";
         }
         User exists= userService.findUserByUsername(user.getUsername());
         if(exists == null) {
+            user.setGenres(selectedGenres != null ? selectedGenres : new ArrayList<>());
             userService.saveUser(user);
+            session.setAttribute("LoggedInUser", user);
+            model.addAttribute("LoggedInUser", user);
+            return "redirect:/loggedin";
         }
         else {
+            model.addAttribute("user", exists);
             result.rejectValue("username", "username.exists");
-            return "signup";
         }
-        return "redirect:/";
+        return "signup";
+
+
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
@@ -58,9 +71,9 @@ public class UserController {
         if(exists != null) {
             session.setAttribute("LoggedInUser", exists);
             model.addAttribute("LoggedInUser", exists);
-            return "LoggedInUser";
+            return "redirect:/loggedin";
         }
-        return "redirect:/";
+        return "redirect:/login";
     }
 
     @RequestMapping(value = "/loggedin", method = RequestMethod.GET)
@@ -68,11 +81,42 @@ public class UserController {
         User sessionUser= (User) session.getAttribute("LoggedInUser");
         if(sessionUser != null) {
             model.addAttribute("LoggedInUser", sessionUser);
+            model.addAttribute("genres", sessionUser.getGenres());
             return "loggedInUser";
         }
-        return "redirect:/";
+        return "redirect:/login";
     }
 
+    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    public String logoutPost(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
+    @RequestMapping(value = "/loggedin/preferences", method = RequestMethod.GET)
+    public String preferencesGet(HttpSession session,@RequestParam(value = "genres",required = false) List<Genre> selectedGenres, Model model,@RequestParam(value = "action",required = false) String action) {
+        User sessionUser= (User) session.getAttribute("LoggedInUser");
+        if(sessionUser != null) {
+            model.addAttribute("LoggedInUser", sessionUser);
+            model.addAttribute("UserGenres", sessionUser.getGenres());
+            model.addAttribute("genres", Genre.values());
+            return "preferences";
+        }
+        return "redirect:/loggedin";
+
+    }
+
+
+        @RequestMapping(value = "/loggedin/preferences", method = RequestMethod.POST)
+    public String preferencesPost(HttpSession session,@RequestParam(value = "genres",required = false) List<Genre> selectedGenres, Model model,@RequestParam(value = "action",required = false) String action) {
+
+        User sessionUser= (User) session.getAttribute("LoggedInUser");
+        if(sessionUser != null) {
+
+            userService.setGenres(sessionUser,selectedGenres != null ? selectedGenres : new ArrayList<>());
+
+        }
+        return "redirect:/loggedin";
+    }
 
 
 
