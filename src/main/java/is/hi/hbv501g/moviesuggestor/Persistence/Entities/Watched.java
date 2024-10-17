@@ -2,6 +2,7 @@ package is.hi.hbv501g.moviesuggestor.Persistence.Entities;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,16 +18,12 @@ public class Watched {
     @OneToMany
     private List<Movie> movies;
 
-    public ToWatch() {
-
-    }
-
-    public ToWatch(User user) {
+    public Watched(User user) {
         this.user = user;
 
     }
 
-    public getID() { return id; }
+    public long getID() { return id; }
 
     public void setID(long id) { this.id = id; }
 
@@ -36,7 +33,10 @@ public class Watched {
 
     public List<Movie> getMovies() { return movies; }
 
-    public List<Movie> getMoviesByTitle(String title) {}
+    public List<Movie> getMoviesByTitle(String title) {
+        List<Movie> placeholder = new ArrayList<Movie>();
+        return placeholder;
+    }
 
-    public Movie getMovieByID(long id) {}
+    public Movie getMovieByID(long id) { return new Movie();}
 }
