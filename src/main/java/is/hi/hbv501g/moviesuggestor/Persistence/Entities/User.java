@@ -24,8 +24,18 @@ public class User {
 
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
-    List<movieList> UserListList = new ArrayList<>();
+    Favorites userFavorites;
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    Watched userWatched;
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    ToWatch userToWatch;
+    
     public User() {}
+
+
+
 
     public User(String username, String password, String email) {
         this.username = username;
