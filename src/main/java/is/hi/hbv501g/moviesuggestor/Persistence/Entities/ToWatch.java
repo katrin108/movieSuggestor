@@ -12,12 +12,12 @@ public class ToWatch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
+    @OneToOne
     private User user;
 
     @OneToMany
     private List<Movie> movies;
-
+    public ToWatch(){}
     public ToWatch(User user) {
         this.user = user;
 

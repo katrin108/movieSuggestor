@@ -34,7 +34,7 @@ public class User {
 
 
 
-
+/* Það þarf að laga þetta !
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     Favorites userFavorites;
 
@@ -42,7 +42,7 @@ public class User {
     Watched userWatched;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
-    ToWatch userToWatch;
+    ToWatch userToWatch;*/
     
     public User() {}
 

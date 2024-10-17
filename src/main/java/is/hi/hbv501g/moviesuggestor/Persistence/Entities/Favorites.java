@@ -13,11 +13,12 @@ public class Favorites {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @OneToOne
     private User user;
 
     @OneToMany
     private List<Movie> movies;
-
+    public Favorites(){};
     public Favorites(User user) {
         this.user = user;
 
