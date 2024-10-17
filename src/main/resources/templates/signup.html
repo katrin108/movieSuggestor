@@ -13,6 +13,13 @@
     <input type="text" name="password" id="password" th:value="*{password}">
     <label for="email">Email</label>
     <input type="text" name="email" id="email" th:value="*{email}">
+    <h3>Your preferences</h3>
+    <div th:each="genre : ${genres}">
+        <label>
+            <input type="checkbox" name="genres" th:value="${genre}" th:id="${genre}"/>
+            <span th:text="${genre}">Genre Name</span>
+        </label>
+    </div>
     <input type="submit" value="Sign up"/>
 </form>
 
