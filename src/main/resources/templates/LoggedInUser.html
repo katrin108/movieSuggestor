@@ -8,6 +8,9 @@
 <h2>You are now logged in </h2>
 <p>Your username is: <span th:text=" ${LoggedInUser.username}"></span></p>
 <p>Your email is: <span th:text=" ${LoggedInUser.email}"></span></p>
+<form action="#" th:action="@{logout}" method="post">
+    <button type="submit">Sign out</button>
+</form>
 
 
 </body>

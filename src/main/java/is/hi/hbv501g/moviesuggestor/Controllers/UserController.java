@@ -71,9 +71,9 @@ public class UserController {
         if(exists != null) {
             session.setAttribute("LoggedInUser", exists);
             model.addAttribute("LoggedInUser", exists);
-            return "LoggedInUser";
+            return "redirect:/loggedin";
         }
-        return "redirect:/";
+        return "redirect:/login";
     }
 
     @RequestMapping(value = "/loggedin", method = RequestMethod.GET)
@@ -83,9 +83,14 @@ public class UserController {
             model.addAttribute("LoggedInUser", sessionUser);
             return "loggedInUser";
         }
-        return "redirect:/";
+        return "redirect:/login";
     }
 
+    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    public String logoutPost(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
 
 
 
