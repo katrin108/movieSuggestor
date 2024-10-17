@@ -1,5 +1,6 @@
 package is.hi.hbv501g.moviesuggestor.Controllers;
 
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -10,6 +11,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class UserController {
@@ -34,6 +38,7 @@ public class UserController {
         }
         User exists= userService.findUserByUsername(user.getUsername());
         if(exists == null) {
+
             userService.saveUser(user);
         }
         else {

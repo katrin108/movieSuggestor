@@ -1,6 +1,7 @@
 package is.hi.hbv501g.moviesuggestor.Services.implementation;
 
 
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 
 import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.UserRepository;
@@ -56,6 +57,7 @@ public class UserServiceImplementation implements UserService {
         userRepository.delete(user);
     }
 
+
     @Override
     public User login(User user){
         User doseExist =findUserByUsername(user.getUsername());
@@ -66,4 +68,15 @@ public class UserServiceImplementation implements UserService {
         }
         return null;
     }
+    @Override
+    public void setGenres(User user, List<Genre> genres){
+        user.setGenres(genres);
+        userRepository.save(user);
+    }
+
+
+
+
+
+
 }
