@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<html xmlns: th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
 </head>
 <body>
 <h2>Log in to your account</h2>
+
+<!-- Birtir villuskilaboð ef þau eru til staðar -->
+<p th:if="${loginError}" th:text="${loginError}" style="color:red;"></p>
+
 <form action="#" th:action ="@{login}" th:object="${user}" method="post">
     <label for="username">Username</label>
     <input type="text" name="username" id="username" th:field="*{username}">
     <label for="password">Password</label>
-    <input type="text" name="password" id="password" th:field="*{password}">
+    <input type="password" name="password" id="password" th:field="*{password}"> <!-- Notað password input -->
     <input type="submit" value="Login"/>
 </form>
 

@@ -1,20 +1,31 @@
 <!DOCTYPE html>
-<html xmlns: th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Movie Suggestor</title>
 </head>
 <body>
 <h1>Movie Suggestor</h1>
+
+<!-- Sýnir hvort notandi sé skráður inn eða ekki -->
+<p th:text="${loggedInMessage}"></p>
+
+<!-- Sýnir innskráning og skráning hnappar eða útskráning hnappar -->
 <div>
-    <p><a href="/login">Log in</a></p>
-    <p>Signup <a href="/signup">here</a></p>
+    <div th:if="${isLoggedIn}">
+        <form action="#" th:action="@{/logout}" method="post">
+            <button type="submit">Log out</button>
+        </form>
+    </div>
+    <div th:if="${!isLoggedIn}">
+        <p><a href="/login">Log in</a></p>
+        <p>Signup <a href="/signup">here</a></p>
+    </div>
 </div>
 
-
-
+<!-- Myndir -->
 <div th:switch="${movies}">
-    <h2 th:case="null">no movies yet!</h2>
+    <h2 th:case="null">No movies yet!</h2>
     <div th:case="*">
         <h2>Movies</h2>
         <table>
@@ -27,7 +38,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="movie:${movies}">
+            <tr th:each="movie : ${movies}">
                 <td th:text="${movie.title}"></td>
                 <td th:text="${movie.description}"></td>
                 <td th:text="${movie.rating}"></td>

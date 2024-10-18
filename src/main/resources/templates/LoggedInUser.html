@@ -1,25 +1,28 @@
 <!DOCTYPE html>
-<html xmlns: th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>What user is logged in?</title>
 </head>
 <body>
-<h2>You are now logged in </h2>
-<p>Your username is: <span th:text=" ${LoggedInUser.username}"></span></p>
-<p>Your email is: <span th:text=" ${LoggedInUser.email}"></span></p>
+<h2>You are now logged in</h2>
+<p>Your username is: <span th:text="${LoggedInUser.username}"></span></p>
+<p>Your email is: <span th:text="${LoggedInUser.email}"></span></p>
 <p>Your preferences are:</p>
 <ul>
     <li th:each="genre : ${genres}">
         <span th:text="${genre}"></span>
     </li>
 </ul>
+
 <form action="#" th:action="@{logout}" method="post">
     <button type="submit">Log out</button>
 </form>
 
 <p><a href="/loggedin/preferences">Update preferences</a></p>
 
+<!-- Hnappur til að fara á heimasíðuna -->
+<p><a href="/" th:href="@{/}">Return to home</a></p>
 
 </body>
 </html>
