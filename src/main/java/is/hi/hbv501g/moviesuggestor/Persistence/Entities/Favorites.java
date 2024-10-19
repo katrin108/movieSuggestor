@@ -2,6 +2,7 @@ package is.hi.hbv501g.moviesuggestor.Persistence.Entities;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,12 +14,11 @@ public class Favorites {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToOne
-    private User user;
-
     @OneToMany
     private List<Movie> movies;
+
     public Favorites(){};
+
     public Favorites(User user) {
         this.user = user;
 
@@ -40,4 +40,5 @@ public class Favorites {
     }
 
     public Movie getMovieByID(long id) { return new Movie();}
+
 }
