@@ -6,26 +6,23 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "watchHistory")
 
-public class movieList {
+public class MovieList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    //margir listar tilheyra einum notanda
-    @ManyToOne(fetch = FetchType.LAZY)
-
-    private User user;
+    private String name;
 
     //Hver listi hefur margar myndir
     @ManyToOne(fetch = FetchType.LAZY)
-
     private Movie movie;
 
-    public movieList() {
+    public MovieList(String name) {
+        this.name = name;
     }
 
-    public movieList(User user, Movie movie) {
-        this.user = user;
+    public MovieList(String name, Movie movie) {
+        this.name = name;
         this.movie = movie;
     }
 
@@ -37,13 +34,9 @@ public class movieList {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
-    }
+    public String getName() { return name; }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public void setName(String name) { this.name = name; }
 
     public Movie getMovie() {
         return movie;

@@ -33,17 +33,17 @@ public class User {
     private List<Genre> genres=new ArrayList<>();
 
 
-
 /* Það þarf að laga þetta !
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
-    Favorites userFavorites;
+    private Favorites userFavorites;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     Watched userWatched;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     ToWatch userToWatch;*/
-    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private MovieList movieLists;
+
     public User() {}
 
 
