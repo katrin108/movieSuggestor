@@ -42,6 +42,7 @@ public class UserController {
         User exists= userService.findUserByUsername(user.getUsername());
         if(exists == null) {
             user.setGenres(selectedGenres != null ? selectedGenres : new ArrayList<>());
+            user.setMovieLists(new ArrayList<MovieList>());
             userService.saveUser(user);
             session.setAttribute("LoggedInUser", user);
             model.addAttribute("LoggedInUser", user);
