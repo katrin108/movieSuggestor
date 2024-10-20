@@ -14,7 +14,7 @@ public class Watched {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -46,5 +46,6 @@ public class Watched {
             movies.remove(movie);
         }
     }
+
 
 }

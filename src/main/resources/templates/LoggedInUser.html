@@ -22,12 +22,11 @@
 
 <h2>Your watch history</h2>
 
-<div th:if="${watched.getMovies().size() == 0}">
+<div th:if="${watched?.movies?.size() == 0}">
     <p>You have no movies in your watch history</p>
 </div>
 
-<div th:if="${watched.getMovies().size() > 0}">
-    <table>
+<div th:if="${watched?.movies?.size() == 0}">
         <table>
             <thead>
             <tr>
