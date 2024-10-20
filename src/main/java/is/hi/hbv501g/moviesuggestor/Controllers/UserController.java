@@ -87,6 +87,7 @@ public class UserController {
             model.addAttribute("LoggedInUser", sessionUser);
             model.addAttribute("genres", sessionUser.getGenres());
             model.addAttribute("movieLists", sessionUser.getMovieLists());
+            model.addAttribute("watched", sessionUser.getWatched());
             return "loggedInUser";
         }
         return "redirect:/login";
