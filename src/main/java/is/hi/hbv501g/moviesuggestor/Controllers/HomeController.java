@@ -17,13 +17,9 @@ import java.util.List;
 
 @Controller
 public class HomeController {
-    private MovieService movieService;
+
     private UserService userService;
 
-    @Autowired
-    public HomeController(MovieService movieService) {
-        this.movieService = movieService;
-    }
 
     @Autowired
     public void setUserService(UserService userService) {
@@ -32,38 +28,16 @@ public class HomeController {
 
     @RequestMapping("/")
     public String homePage(Model model) {
-        //Call a method in Service Class
-        List<Movie> allMovies =movieService.findAllMovies();
+
+
 
         List<User> allUsers =userService.findAllUsers();
         model.addAttribute("users", allUsers);
 
         //Add some data to the model
-        model.addAttribute("movies", allMovies);
+
         return "home";
     }
 
-    @RequestMapping(value = "/addmovie",method = RequestMethod.GET)
-    public String addmovie(Movie movie) {
 
-        return "newMovie";
-    }
-
-    @RequestMapping(value = "/addmovie",method = RequestMethod.POST)
-    public String addMovie(Movie movie, BindingResult result, Model model) {
-        if(result.hasErrors()) {
-            return "newMovie";
-        }
-        movieService.saveMovie(movie);
-        return "redirect:/";
-    }
-
-
-
-    @RequestMapping(value = "/delete/{id}",method = RequestMethod.GET)
-    public String deleteMovie(@PathVariable ("id") long id, Model model) {
-        Movie movieToDelete=movieService.findMovieById(id);
-        movieService.deleteMovie(movieToDelete);
-        return "redirect:/";
-    }
 }

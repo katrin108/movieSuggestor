@@ -2,26 +2,32 @@ package is.hi.hbv501g.moviesuggestor.Services.implementation;
 
 
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 
+import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.MovieListRepository;
 import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.UserRepository;
+import is.hi.hbv501g.moviesuggestor.Services.MovieListService;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 
 @Service
 public class UserServiceImplementation implements UserService {
 
     private UserRepository userRepository;
+    private MovieListRepository movieListRepository;
+    private MovieListService movieListService;
 
     @Autowired
-    public UserServiceImplementation(UserRepository userRepository) {
+    public UserServiceImplementation(UserRepository userRepository, MovieListRepository movieListRepository, MovieListService movieListService) {
+
         this.userRepository = userRepository;
+        this.movieListRepository = movieListRepository;
+        this.movieListService = movieListService;
     }
 
 
@@ -74,7 +80,26 @@ public class UserServiceImplementation implements UserService {
         userRepository.save(user);
     }
 
+    @Override
+    public MovieList findMovieListById(long id) {
+        return movieListRepository.findMovieListById(id);
+    }
 
+
+    @Override
+    public MovieList findMoveListByTitle(String name) {
+        return movieListRepository.findMoveListByName(name);
+    }
+
+    @Override
+    public MovieList saveMovieList(MovieList movieList) {
+        return movieListService.saveMovieList(movieList);
+    }
+
+    @Override
+    public void deleteMovieList(MovieList movieList) {
+        movieListService.deleteMovieList(movieList);
+    }
 
 
 

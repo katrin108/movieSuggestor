@@ -16,7 +16,6 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;        //primary key
 
-
     private String title;
 
     @ElementCollection(targetClass = Genre.class)
@@ -30,8 +29,9 @@ public class Movie {
     private double rating;
 
 
-    @OneToMany(mappedBy = "movie",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<movieList> movieLists=new ArrayList<>();
+
+    @ManyToMany(mappedBy = "movies",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private List<MovieList> MovieLists =new ArrayList<>();
 
     public Movie() {
     }

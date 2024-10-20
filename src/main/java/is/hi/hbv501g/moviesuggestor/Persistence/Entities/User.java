@@ -33,17 +33,12 @@ public class User {
     private List<Genre> genres=new ArrayList<>();
 
 
+    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<MovieList> movieLists;
 
-/* Það þarf að laga þetta !
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
-    Favorites userFavorites;
-
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
-    Watched userWatched;
-
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
-    ToWatch userToWatch;*/
-    
+    /*@ManyToOne
+    Watched watched = new Watched();
+*/
     public User() {}
 
 
@@ -55,6 +50,13 @@ public class User {
         this.genres =genres != null ? genres : new ArrayList<>();
     }
 
+    public List<MovieList> getMovieLists() {
+        return movieLists;
+    }
+
+    public void setMovieLists(List<MovieList> movieLists) {
+        this.movieLists = movieLists;
+    }
 
 
     public List<Genre> getGenres() {
@@ -98,4 +100,7 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+
+
+
 }
