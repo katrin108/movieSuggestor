@@ -4,7 +4,7 @@ package is.hi.hbv501g.moviesuggestor.Persistence.Entities;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "watchHistory")
+@Table(name = "MovieList")
 
 public class MovieList {
     @Id

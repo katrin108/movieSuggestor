@@ -15,9 +15,15 @@ public class Watched {
     private long id;
 
     @OneToMany
-    private List<Movie> movies;
+    private List<Movie> movies = new ArrayList<Movie>();
 
-    public Watched(){}
+    public Watched() {
+        movies = new ArrayList<Movie>();
+    }
+
+    public Watched(List<Movie> movies) { this.movies = movies; }
+
+    public Watched(Movie movie) { this.movies.add(movie); }
 
     public long getID() { return id; }
 
@@ -25,10 +31,18 @@ public class Watched {
 
     public List<Movie> getMovies() { return movies; }
 
-    public List<Movie> getMoviesByTitle(String title) {
+    public void setMovies(List<Movie> movies) { this.movies = movies; }
+
+    public void addMovie(Movie movie) { this.movies.add(movie); }
+
+    public void addMovies(List<Movie> movies) { this.movies.addAll(movies); }
+
+    /*public List<Movie> getMoviesByTitle(String title) {
         List<Movie> placeholder = new ArrayList<Movie>();
         return placeholder;
     }
 
     public Movie getMovieByID(long id) { return new Movie();}
+
+     */
 }
