@@ -3,6 +3,9 @@ package is.hi.hbv501g.moviesuggestor.Persistence.Entities;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "MovieList")
 
@@ -13,17 +16,22 @@ public class MovieList {
 
     private String name;
 
-    //Hver listi hefur margar myndir
     @ManyToOne(fetch = FetchType.LAZY)
-    private Movie movie;
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    public MovieList(String name) {
-        this.name = name;
+    //Hver listi hefur margar myndir
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "movie_list_movies",joinColumns = @JoinColumn(name = "movie_list_id"),inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    private List<Movie> movies;
+
+    public MovieList() {
+
     }
 
-    public MovieList(String name, Movie movie) {
+    public MovieList(String name, List<Movie> movies) {
         this.name = name;
-        this.movie = movie;
+        this.movies = movies;
     }
 
     public long getId() {
@@ -38,11 +46,14 @@ public class MovieList {
 
     public void setName(String name) { this.name = name; }
 
-    public Movie getMovie() {
-        return movie;
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+
+    public List<Movie> getMovies() {
+        return movies;
     }
 
-    public void setMovie(Movie movie) {
-        this.movie = movie;
+    public void setMovies(List<Movie> movies) {
+        this.movies = movies;
     }
 }

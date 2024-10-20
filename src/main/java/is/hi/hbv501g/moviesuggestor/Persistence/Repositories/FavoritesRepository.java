@@ -12,8 +12,8 @@ public interface FavoritesRepository extends JpaRepository<Favorites, Long> {
     Favorites save(Favorites favorites);
     void delete(Favorites favorites);
 
-    List<Favorites> findAllFavorites();
+    //List<Favorites> findAllFavorites();
 
-    Favorites findFavoritesById(long id);
-    Favorites findFavoritesByUser(User user);
+   // Favorites findFavoritesById(long id);
+    //Favorites findFavoritesByUser(User user);
 }

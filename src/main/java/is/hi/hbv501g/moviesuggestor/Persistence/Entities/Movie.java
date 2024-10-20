@@ -29,7 +29,8 @@ public class Movie {
     private double rating;
 
 
-    @OneToMany(mappedBy = "movie",cascade = CascadeType.ALL,orphanRemoval = true)
+
+    @ManyToMany(mappedBy = "movies",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<MovieList> MovieLists =new ArrayList<>();
 
     public Movie() {

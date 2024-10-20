@@ -33,12 +33,12 @@ public class User {
     private List<Genre> genres=new ArrayList<>();
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private MovieList movieLists;
+    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<MovieList> movieLists;
 
-    @ManyToOne
+    /*@ManyToOne
     Watched watched = new Watched();
-
+*/
     public User() {}
 
 
@@ -50,6 +50,13 @@ public class User {
         this.genres =genres != null ? genres : new ArrayList<>();
     }
 
+    public List<MovieList> getMovieLists() {
+        return movieLists;
+    }
+
+    public void setMovieLists(List<MovieList> movieLists) {
+        this.movieLists = movieLists;
+    }
 
 
     public List<Genre> getGenres() {
@@ -93,4 +100,7 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+
+
+
 }
