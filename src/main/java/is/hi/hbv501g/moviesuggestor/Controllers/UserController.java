@@ -3,6 +3,7 @@ package is.hi.hbv501g.moviesuggestor.Controllers;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Watched;
 import is.hi.hbv501g.moviesuggestor.Services.MovieListService;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -42,6 +43,8 @@ public class UserController {
         User exists= userService.findUserByUsername(user.getUsername());
         if(exists == null) {
             user.setGenres(selectedGenres != null ? selectedGenres : new ArrayList<>());
+            user.setMovieLists(new ArrayList<MovieList>());
+            user.setWatched(new Watched());
             userService.saveUser(user);
             session.setAttribute("LoggedInUser", user);
             model.addAttribute("LoggedInUser", user);
@@ -84,6 +87,7 @@ public class UserController {
             model.addAttribute("LoggedInUser", sessionUser);
             model.addAttribute("genres", sessionUser.getGenres());
             model.addAttribute("movieLists", sessionUser.getMovieLists());
+            model.addAttribute("watched", sessionUser.getWatched());
             return "loggedInUser";
         }
         return "redirect:/login";

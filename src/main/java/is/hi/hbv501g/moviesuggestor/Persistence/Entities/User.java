@@ -36,14 +36,13 @@ public class User {
     @OneToMany(mappedBy = "user",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<MovieList> movieLists;
 
-    /*@ManyToOne
-    Watched watched = new Watched();
-*/
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Watched watched;
+
     public User() {}
 
 
     public User(String username, String password, String email, List<Genre> genres) {
-
         this.username = username;
         this.password = password;
         this.email = email;
@@ -58,6 +57,8 @@ public class User {
         this.movieLists = movieLists;
     }
 
+    public Watched getWatched() { return watched; }
+    public void setWatched(Watched watched) { this.watched = watched; }
 
     public List<Genre> getGenres() {
         return genres;
@@ -67,12 +68,9 @@ public class User {
         this.genres = genres;
     }
 
-
-
     public long getId() {
         return id;
     }
-
     public void setId(long id) {
         this.id = id;
     }
@@ -80,7 +78,6 @@ public class User {
     public String getUsername() {
         return username;
     }
-
     public void setUsername(String username) {
         this.username = username;
     }
@@ -88,7 +85,6 @@ public class User {
     public String getPassword() {
         return password;
     }
-
     public void setPassword(String password) {
         this.password = password;
     }
@@ -96,11 +92,7 @@ public class User {
     public String getEmail() {
         return email;
     }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
+    public void setEmail(String email) { this.email = email; }
 
 
 }

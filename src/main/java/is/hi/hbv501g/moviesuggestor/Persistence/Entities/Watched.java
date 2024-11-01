@@ -14,35 +14,38 @@ public class Watched {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToMany
-    private List<Movie> movies = new ArrayList<Movie>();
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    public Watched() {
-        movies = new ArrayList<Movie>();
-    }
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "movie_list_movies", joinColumns = @JoinColumn(name = "movie_list_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    private List<Movie> movies;
+
+    public Watched() { movies = new ArrayList<Movie>(); }
 
     public Watched(List<Movie> movies) { this.movies = movies; }
 
-    public Watched(Movie movie) { this.movies.add(movie); }
-
     public long getID() { return id; }
-
     public void setID(long id) { this.id = id; }
 
-    public List<Movie> getMovies() { return movies; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
+    public List<Movie> getMovies() { return movies; }
     public void setMovies(List<Movie> movies) { this.movies = movies; }
 
-    public void addMovie(Movie movie) { this.movies.add(movie); }
-
-    public void addMovies(List<Movie> movies) { this.movies.addAll(movies); }
-
-    /*public List<Movie> getMoviesByTitle(String title) {
-        List<Movie> placeholder = new ArrayList<Movie>();
-        return placeholder;
+    public void addMovie(Movie movie) {
+        if (!movies.contains(movie)) {
+            movies.add(movie);
+        }
     }
 
-    public Movie getMovieByID(long id) { return new Movie();}
+    public void removeMovie(Movie movie) {
+        if (movies.contains(movie)) {
+            movies.remove(movie);
+        }
+    }
 
-     */
+
 }
