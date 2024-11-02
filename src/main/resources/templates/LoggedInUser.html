@@ -8,6 +8,7 @@
 <h2>You are now logged in </h2>
 <p>Your username is: <span th:text=" ${LoggedInUser.username}"></span></p>
 <p>Your email is: <span th:text=" ${LoggedInUser.email}"></span></p>
+<p>Your chil is: <span th:text=" ${LoggedInUser.child}"></span></p>
 <p>Your preferences are:</p>
 <ul>
     <li th:each="genre : ${genres}">
@@ -17,6 +18,21 @@
 <form action="#" th:action="@{logout}" method="post">
     <button type="submit">Log out</button>
 </form>
+
+<form action="#" th:action="@{/loggedin}" method="post">
+    <button type="submit" id="Settings">Settings</button>
+</form>
+
+<div th:if="${DivSettings}" id="userSettings">
+
+    <form th:action="@{/loggedin}" method="post">
+        <label class="switch">child-safe mode
+            <input id= "childCheckbox" type="checkbox" th:name="child" th:checked="${LoggedInUser.child}">
+        </label>
+        <button type="submit">Save Settings</button>
+    </form>
+</div>
+
 
 <p><a href="/loggedin/preferences">Update preferences</a></p>
 

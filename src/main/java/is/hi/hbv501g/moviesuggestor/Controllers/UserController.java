@@ -13,8 +13,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 public class UserController {
@@ -43,6 +45,7 @@ public class UserController {
         User exists= userService.findUserByUsername(user.getUsername());
         if(exists == null) {
             user.setGenres(selectedGenres != null ? selectedGenres : new ArrayList<>());
+            user.setChild(false);
             user.setMovieLists(new ArrayList<MovieList>());
             user.setWatched(new Watched());
             userService.saveUser(user);
@@ -88,6 +91,9 @@ public class UserController {
             model.addAttribute("genres", sessionUser.getGenres());
             model.addAttribute("movieLists", sessionUser.getMovieLists());
             model.addAttribute("watched", sessionUser.getWatched());
+
+            Boolean showSettings=(Boolean) session.getAttribute("DivSettings");
+            model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
             return "loggedInUser";
         }
         return "redirect:/login";
@@ -146,7 +152,7 @@ public class UserController {
         MovieList movieList= movieListService.findMovieListById(movieListId);
         if (sessionUser != null && movieList != null) {
 
-                movieListService.deleteMovieList(movieList);
+            movieListService.deleteMovieList(movieList);
             sessionUser.getMovieLists().removeIf(existingList -> existingList.getId() == movieListId);
             session.setAttribute("LoggedInUser", sessionUser);
 
@@ -154,6 +160,36 @@ public class UserController {
 
         return "redirect:/loggedin";
     }
+
+
+
+    @RequestMapping(value = "/loggedin",method = RequestMethod.POST)
+    public String userSettings( HttpSession session, @RequestParam(value="child" ,required = false) Boolean child) {
+
+        Boolean showSettings=(Boolean) session.getAttribute("DivSettings");
+
+        if(showSettings==null){
+            showSettings=false;
+        }
+        showSettings = !showSettings;
+
+        session.setAttribute("DivSettings", showSettings);
+
+        User sessionUser= (User) session.getAttribute("LoggedInUser");
+        if(sessionUser != null) {
+            if(child ==null) {
+                child=false;
+            }
+            sessionUser.setChild(child);
+
+            session.setAttribute("LoggedInUser", sessionUser);
+            userService.saveUser(sessionUser);
+        }
+
+        return "redirect:/loggedin";
+    }
+
+
 
 
 
