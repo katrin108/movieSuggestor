@@ -25,7 +25,7 @@ public class User {
     private String email;
 
     @Column(nullable = true)
-    private boolean child = false;
+    private boolean child ;
 
     //can add more
 

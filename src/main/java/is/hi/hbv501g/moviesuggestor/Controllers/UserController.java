@@ -164,7 +164,7 @@ public class UserController {
 
 
     @RequestMapping(value = "/loggedin",method = RequestMethod.POST)
-    public String userSettings( HttpSession session, @RequestParam(value="child" ,required = false) Boolean child) {
+    public String userSettings( HttpSession session) {
 
         Boolean showSettings=(Boolean) session.getAttribute("DivSettings");
 
@@ -175,20 +175,24 @@ public class UserController {
 
         session.setAttribute("DivSettings", showSettings);
 
+
+        return "redirect:/loggedin";
+    }
+    @RequestMapping(value = "/safeSettings",method = RequestMethod.POST)
+    public String safeSettings( HttpSession session, @RequestParam(value="child" ,required = false) Boolean child) {
         User sessionUser= (User) session.getAttribute("LoggedInUser");
         if(sessionUser != null) {
-            if(child ==null) {
+            if(child==null) {
                 child=false;
             }
             sessionUser.setChild(child);
 
+
             session.setAttribute("LoggedInUser", sessionUser);
             userService.saveUser(sessionUser);
         }
-
         return "redirect:/loggedin";
     }
-
 
 
 

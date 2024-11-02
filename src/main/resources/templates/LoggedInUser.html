@@ -25,9 +25,9 @@
 
 <div th:if="${DivSettings}" id="userSettings">
 
-    <form th:action="@{/loggedin}" method="post">
+    <form action="#" th:action="@{/safeSettings}" method="post">
         <label class="switch">child-safe mode
-            <input id= "childCheckbox" type="checkbox" th:name="child" th:checked="${LoggedInUser.child}">
+            <input id= "childCheckbox" type="checkbox" th:name="child" th:checked="${LoggedInUser.child ? 'checked':null}">
         </label>
         <button type="submit">Save Settings</button>
     </form>
