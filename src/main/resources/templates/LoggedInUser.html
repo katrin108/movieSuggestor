@@ -96,7 +96,7 @@
 </div>
 
 <div th:if="${movieLists.size() > 0}">
-    <! -- kannski að færa þetta inn í nýtt html -->
+
     <div th:each="movieList : ${movieLists}">
         <h3 th:text="${movieList.name}">Movie List Name</h3>
         <form th:action="@{/deleteMovieList}" method="post">
