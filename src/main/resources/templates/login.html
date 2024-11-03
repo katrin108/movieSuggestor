@@ -6,6 +6,7 @@
 </head>
 <body>
 <h2>Log in to your account</h2>
+<p><a href="#" th:href="@{/}"> home</a></p>
 <form action="#" th:action ="@{login}" th:object="${user}" method="post">
     <label for="username">Username</label>
     <input type="text" name="username" id="username" th:field="*{username}">

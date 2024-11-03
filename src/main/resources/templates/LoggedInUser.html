@@ -8,7 +8,7 @@
 <h2>You are now logged in </h2>
 <p>Your username is: <span th:text=" ${LoggedInUser.username}"></span></p>
 <p>Your email is: <span th:text=" ${LoggedInUser.email}"></span></p>
-<p>Your chil is: <span th:text=" ${LoggedInUser.child}"></span></p>
+<p>child-safe mode: <span th:text=" ${LoggedInUser.child ? 'on':'off'}"></span></p>
 <p>Your preferences are:</p>
 <ul>
     <li th:each="genre : ${genres}">
@@ -85,10 +85,18 @@
 
 <h2>Your movielists</h2>
 
+<form action="#" th:action="@{/addMovieList}" method="post">
+    <label for="name">Movie List Name:</label>
+    <input type="text" id="name" name="name" required />
+    <button type="submit">Add Movie List</button>
+</form>
+
 <div th:if="${movieLists.size() == 0}">
     <p>You have no movie lists yet.</p>
 </div>
+
 <div th:if="${movieLists.size() > 0}">
+    <! -- kannski að færa þetta inn í nýtt html -->
     <div th:each="movieList : ${movieLists}">
         <h3 th:text="${movieList.name}">Movie List Name</h3>
         <form th:action="@{/deleteMovieList}" method="post">
@@ -122,11 +130,7 @@
     </div>
 </div>
 
-<form action="#" th:action="@{/addMovieList}" method="post">
-    <label for="name">Movie List Name:</label>
-    <input type="text" id="name" name="name" required />
-    <button type="submit">Add Movie List</button>
-</form>
+
 
 
 
