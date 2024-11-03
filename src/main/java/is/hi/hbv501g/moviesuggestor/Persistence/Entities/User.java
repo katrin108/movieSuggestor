@@ -21,8 +21,12 @@ public class User {
     private String username;
     @Column(nullable = false)
     private String password;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
+
+    @Column(nullable = false)
+    private boolean child = false;
+
     //can add more
 
     @ElementCollection(targetClass = Genre.class)
@@ -42,11 +46,12 @@ public class User {
     public User() {}
 
 
-    public User(String username, String password, String email, List<Genre> genres) {
+    public User(String username, String password, String email, List<Genre> genres,boolean child) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.genres =genres != null ? genres : new ArrayList<>();
+        this.child=child;
     }
 
     public List<MovieList> getMovieLists() {
@@ -94,5 +99,11 @@ public class User {
     }
     public void setEmail(String email) { this.email = email; }
 
+    public boolean getChild() {
+        return child;
+    }
 
+    public void setChild(boolean child) {
+        this.child = child;
+    }
 }

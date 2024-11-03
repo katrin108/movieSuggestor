@@ -8,6 +8,7 @@
 <h2>You are now logged in </h2>
 <p>Your username is: <span th:text=" ${LoggedInUser.username}"></span></p>
 <p>Your email is: <span th:text=" ${LoggedInUser.email}"></span></p>
+<p>child-safe mode: <span th:text=" ${LoggedInUser.child ? 'on':'off'}"></span></p>
 <p>Your preferences are:</p>
 <ul>
     <li th:each="genre : ${genres}">
@@ -17,6 +18,40 @@
 <form action="#" th:action="@{logout}" method="post">
     <button type="submit">Log out</button>
 </form>
+
+<form action="#" th:action="@{/loggedin}" method="post">
+    <button type="submit" id="Settings">Settings</button>
+</form>
+
+<div th:if="${DivSettings}" id="userSettings">
+
+
+    <form action="#" th:action="@{/saveSettings}" method="post">
+
+        <label for="username">Username
+            <input type="text" name="username" id="username" th:field="*{LoggedInUser.username}">
+        </label>
+
+        <label for="password">Password
+            <input type="text" name="password" id="password" th:field="*{LoggedInUser.password}">
+        </label>
+
+        <label for="email">Email
+            <input type="text" name="email" id="email" th:value="*{LoggedInUser.email}">
+        </label>
+
+
+        <label class="switch">child-safe mode
+            <input id= "childCheckbox" type="checkbox" th:name="child" th:checked="${LoggedInUser.child ? 'checked':null}">
+        </label>
+        <button type="submit">Save changes</button>
+
+    </form>
+    <form action="#" th:action="@{/deleteUser}" method="post" onsubmit="return confirm('Are you sure?')" >
+        <button type="submit">Delete Account</button>
+    </form>
+</div>
+
 
 <p><a href="/loggedin/preferences">Update preferences</a></p>
 
@@ -50,10 +85,18 @@
 
 <h2>Your movielists</h2>
 
+<form action="#" th:action="@{/addMovieList}" method="post">
+    <label for="name">Movie List Name:</label>
+    <input type="text" id="name" name="name" required />
+    <button type="submit">Add Movie List</button>
+</form>
+
 <div th:if="${movieLists.size() == 0}">
     <p>You have no movie lists yet.</p>
 </div>
+
 <div th:if="${movieLists.size() > 0}">
+
     <div th:each="movieList : ${movieLists}">
         <h3 th:text="${movieList.name}">Movie List Name</h3>
         <form th:action="@{/deleteMovieList}" method="post">
@@ -87,11 +130,7 @@
     </div>
 </div>
 
-<form action="#" th:action="@{/addMovieList}" method="post">
-    <label for="name">Movie List Name:</label>
-    <input type="text" id="name" name="name" required />
-    <button type="submit">Add Movie List</button>
-</form>
+
 
 
 

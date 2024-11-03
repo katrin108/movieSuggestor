@@ -13,8 +13,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 public class UserController {
@@ -43,6 +45,7 @@ public class UserController {
         User exists= userService.findUserByUsername(user.getUsername());
         if(exists == null) {
             user.setGenres(selectedGenres != null ? selectedGenres : new ArrayList<>());
+            user.setChild(false);
             user.setMovieLists(new ArrayList<MovieList>());
             user.setWatched(new Watched());
             userService.saveUser(user);
@@ -52,7 +55,10 @@ public class UserController {
             return "redirect:/loggedin";
         }
         else {
-            model.addAttribute("user", exists);
+
+
+            model.addAttribute("errorMessage","Username already exists");
+
             result.rejectValue("username", "username.exists");
         }
         return "signup";
@@ -88,6 +94,9 @@ public class UserController {
             model.addAttribute("genres", sessionUser.getGenres());
             model.addAttribute("movieLists", sessionUser.getMovieLists());
             model.addAttribute("watched", sessionUser.getWatched());
+
+            Boolean showSettings=(Boolean) session.getAttribute("DivSettings");
+            model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
             return "loggedInUser";
         }
         return "redirect:/login";
@@ -146,7 +155,7 @@ public class UserController {
         MovieList movieList= movieListService.findMovieListById(movieListId);
         if (sessionUser != null && movieList != null) {
 
-                movieListService.deleteMovieList(movieList);
+            movieListService.deleteMovieList(movieList);
             sessionUser.getMovieLists().removeIf(existingList -> existingList.getId() == movieListId);
             session.setAttribute("LoggedInUser", sessionUser);
 
@@ -154,6 +163,79 @@ public class UserController {
 
         return "redirect:/loggedin";
     }
+
+
+
+    @RequestMapping(value = "/loggedin",method = RequestMethod.POST)
+    public String userSettings( HttpSession session) {
+
+        Boolean showSettings=(Boolean) session.getAttribute("DivSettings");
+
+        if(showSettings==null){
+            showSettings=false;
+        }
+        showSettings = !showSettings;
+
+        session.setAttribute("DivSettings", showSettings);
+
+
+        return "redirect:/loggedin";
+    }
+    @RequestMapping(value = "/saveSettings",method = RequestMethod.POST)
+    public String saveSettings(HttpSession session, @RequestParam(value="child" ,required = false) Boolean child, @RequestParam(value = "username") String username, @RequestParam(value = "password") String password, @RequestParam(value = "email",required = false) String email, Model model) {
+
+        Boolean showSettings=(Boolean) session.getAttribute("DivSettings");
+
+        User sessionUser= (User) session.getAttribute("LoggedInUser");
+        username= username != null ? username.trim():"";
+        password= password != null ? password.trim():"";
+
+        if(sessionUser != null) {
+            if(!username.isEmpty() && !password.isEmpty() ){
+                User exists= userService.findUserByUsername(username);
+                if(exists == null||sessionUser.getUsername().equals(exists.getUsername())) {
+                    if(child==null) {
+                        child=false;
+                    }
+                    sessionUser.setChild(child);
+
+                    sessionUser.setUsername(username);
+                    sessionUser.setPassword(password);
+                    sessionUser.setEmail(email);
+                    userService.saveUser(sessionUser);
+
+
+                    session.setAttribute("LoggedInUser", sessionUser);
+
+                    showSettings = !showSettings;
+
+                }
+                else {
+                    //user exists
+
+                }
+
+            }
+            else {
+                //you need a username and password
+            }
+        }
+
+
+        session.setAttribute("DivSettings", showSettings);
+        return "redirect:/loggedin";
+    }
+
+    @RequestMapping(value = "/deleteUser",method = RequestMethod.POST)
+    public String deleteUser(HttpSession session) {
+        User sessionUser= (User) session.getAttribute("LoggedInUser");
+        if(sessionUser!=null) {
+            userService.deleteUser(sessionUser);
+            session.invalidate();
+        }
+        return "redirect:/loggedin";
+    }
+
 
 
 
