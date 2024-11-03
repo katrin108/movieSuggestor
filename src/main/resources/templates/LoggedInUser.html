@@ -25,11 +25,26 @@
 
 <div th:if="${DivSettings}" id="userSettings">
 
-    <form action="#" th:action="@{/safeSettings}" method="post">
+
+    <form action="#" th:action="@{/saveSettings}" method="post">
+
+        <label for="username">Username
+            <input type="text" name="username" id="username" th:field="*{LoggedInUser.username}">
+        </label>
+
+        <label for="password">Password
+            <input type="text" name="password" id="password" th:field="*{LoggedInUser.password}">
+        </label>
+
+        <label for="email">Email
+            <input type="text" name="email" id="email" th:value="*{LoggedInUser.email}">
+        </label>
+
+
         <label class="switch">child-safe mode
             <input id= "childCheckbox" type="checkbox" th:name="child" th:checked="${LoggedInUser.child ? 'checked':null}">
         </label>
-        <button type="submit">Save Settings</button>
+        <button type="submit">Save changes</button>
     </form>
 </div>
 

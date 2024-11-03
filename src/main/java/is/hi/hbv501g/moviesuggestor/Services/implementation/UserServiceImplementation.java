@@ -54,8 +54,8 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public User saveUser(User user) {
-        return userRepository.save(user);
+    public void saveUser(User user) {
+        userRepository.save(user);
     }
 
     @Override
@@ -100,6 +100,8 @@ public class UserServiceImplementation implements UserService {
     public void deleteMovieList(MovieList movieList) {
         movieListService.deleteMovieList(movieList);
     }
+
+
 
 
 

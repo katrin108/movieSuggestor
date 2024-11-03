@@ -14,7 +14,7 @@ public interface UserService {
     User findUserByEmail(String email);
     User findUserById(long id);
 
-    User saveUser(User user);
+    void saveUser(User user);
     void deleteUser(User user);
     void setGenres(User user,List<Genre> genres);
 

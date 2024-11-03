@@ -55,7 +55,10 @@ public class UserController {
             return "redirect:/loggedin";
         }
         else {
-            model.addAttribute("user", exists);
+
+
+            model.addAttribute("errorMessage","Username already exists");
+
             result.rejectValue("username", "username.exists");
         }
         return "signup";
@@ -178,19 +181,45 @@ public class UserController {
 
         return "redirect:/loggedin";
     }
-    @RequestMapping(value = "/safeSettings",method = RequestMethod.POST)
-    public String safeSettings( HttpSession session, @RequestParam(value="child" ,required = false) Boolean child) {
+    @RequestMapping(value = "/saveSettings",method = RequestMethod.POST)
+    public String saveSettings(HttpSession session, @RequestParam(value="child" ,required = false) Boolean child, @RequestParam(value = "username") String username, @RequestParam(value = "password") String password, @RequestParam(value = "email",required = false) String email, Model model) {
+
+        Boolean showSettings=(Boolean) session.getAttribute("DivSettings");
+
         User sessionUser= (User) session.getAttribute("LoggedInUser");
         if(sessionUser != null) {
-            if(child==null) {
-                child=false;
+            if(username!=null||password!=null) {
+                User exists= userService.findUserByUsername(username);
+                if(exists == null||sessionUser.getUsername().equals(exists.getUsername())) {
+                    if(child==null) {
+                        child=false;
+                    }
+                    sessionUser.setChild(child);
+
+                    sessionUser.setUsername(username);
+                    sessionUser.setPassword(password);
+                    sessionUser.setEmail(email);
+                    userService.saveUser(sessionUser);
+
+
+                    session.setAttribute("LoggedInUser", sessionUser);
+
+                    showSettings = !showSettings;
+
+                }
+                else {
+                    //user exists
+
+                }
+
             }
-            sessionUser.setChild(child);
-
-
-            session.setAttribute("LoggedInUser", sessionUser);
-            userService.saveUser(sessionUser);
+            else {
+                //you need a username and password
+            }
         }
+
+
+        session.setAttribute("DivSettings", showSettings);
         return "redirect:/loggedin";
     }
 
