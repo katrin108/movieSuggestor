@@ -187,8 +187,11 @@ public class UserController {
         Boolean showSettings=(Boolean) session.getAttribute("DivSettings");
 
         User sessionUser= (User) session.getAttribute("LoggedInUser");
+        username= username != null ? username.trim():"";
+        password= password != null ? password.trim():"";
+
         if(sessionUser != null) {
-            if(username!=null||password!=null) {
+            if(!username.isEmpty() && !password.isEmpty() ){
                 User exists= userService.findUserByUsername(username);
                 if(exists == null||sessionUser.getUsername().equals(exists.getUsername())) {
                     if(child==null) {
@@ -220,6 +223,16 @@ public class UserController {
 
 
         session.setAttribute("DivSettings", showSettings);
+        return "redirect:/loggedin";
+    }
+
+    @RequestMapping(value = "/deleteUser",method = RequestMethod.POST)
+    public String deleteUser(HttpSession session) {
+        User sessionUser= (User) session.getAttribute("LoggedInUser");
+        if(sessionUser!=null) {
+            userService.deleteUser(sessionUser);
+            session.invalidate();
+        }
         return "redirect:/loggedin";
     }
 

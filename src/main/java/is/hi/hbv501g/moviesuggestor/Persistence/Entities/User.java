@@ -21,11 +21,11 @@ public class User {
     private String username;
     @Column(nullable = false)
     private String password;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
 
-    @Column(nullable = true)
-    private boolean child ;
+    @Column(nullable = false)
+    private boolean child = false;
 
     //can add more
 

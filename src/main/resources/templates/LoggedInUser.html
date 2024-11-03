@@ -45,6 +45,10 @@
             <input id= "childCheckbox" type="checkbox" th:name="child" th:checked="${LoggedInUser.child ? 'checked':null}">
         </label>
         <button type="submit">Save changes</button>
+
+    </form>
+    <form action="#" th:action="@{/deleteUser}" method="post" onsubmit="return confirm('Are you sure?')" >
+        <button type="submit">Delete Account</button>
     </form>
 </div>
 
