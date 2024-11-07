@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 
 @Service
 public class TmdbService {
@@ -30,7 +30,6 @@ public class TmdbService {
      */
     public Map<String, Object> getRandomPopularMovie() {
         try {
-
             Map<String, Object> initialResponse = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/movie/popular")
@@ -44,7 +43,6 @@ public class TmdbService {
             Integer totalPages = (Integer) initialResponse.get("total_pages");
             int maxPages = totalPages != null ? Math.min(totalPages, 500) : 1;
             final int randomPage = new Random().nextInt(maxPages) + 1;
-
 
             Map<String, Object> response = webClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -64,10 +62,8 @@ public class TmdbService {
                 return results.get(new Random().nextInt(results.size()));
             }
         } catch (WebClientResponseException e) {
-
             System.err.println("Error fetching popular movies: " + e.getMessage());
         } catch (Exception e) {
-
             System.err.println("Unexpected error: " + e.getMessage());
         }
 
@@ -90,7 +86,6 @@ public class TmdbService {
                     .map(genre -> String.valueOf(genre.getTmdbId()))
                     .collect(Collectors.joining(","));
 
-
             Map<String, Object> initialResponse = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/discover/movie")
@@ -105,7 +100,6 @@ public class TmdbService {
             Integer totalPages = (Integer) initialResponse.get("total_pages");
             int maxPages = totalPages != null ? Math.min(totalPages, 500) : 1;
             final int randomPage = new Random().nextInt(maxPages) + 1;
-
 
             Map<String, Object> response = webClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -152,7 +146,6 @@ public class TmdbService {
                     .map(genre -> String.valueOf(genre.getTmdbId()))
                     .collect(Collectors.joining(","));
 
-
             Map<String, Object> initialResponse = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/discover/movie")
@@ -169,7 +162,7 @@ public class TmdbService {
             int pagesToFetch = Math.min(maxPages, 5); // Limit to first 5 pages
 
             for (int currentPage = 1; currentPage <= pagesToFetch; currentPage++) {
-                final int page = currentPage; // Declare as final to use inside lambda
+                final int page = currentPage;
 
                 Map<String, Object> response = webClient.get()
                         .uri(uriBuilder -> uriBuilder
@@ -216,7 +209,6 @@ public class TmdbService {
                     .map(genre -> String.valueOf(genre.getTmdbId()))
                     .collect(Collectors.joining(","));
 
-
             Map<String, Object> initialResponse = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/discover/movie")
@@ -233,7 +225,7 @@ public class TmdbService {
             int pagesToFetch = Math.min(maxPages, 5); // Limit to first 5 pages
 
             for (int currentPage = 1; currentPage <= pagesToFetch; currentPage++) {
-                final int page = currentPage; // Declare as final to use inside lambda
+                final int page = currentPage;
 
                 Map<String, Object> response = webClient.get()
                         .uri(uriBuilder -> uriBuilder
@@ -261,4 +253,46 @@ public class TmdbService {
 
         return allResults;
     }
+
+    /**
+     * Fetches movie details from TMDB API based on a list of movie titles.
+     *
+     * @param titles List of movie titles.
+     * @return A list of maps, each representing movie details.
+     */
+    public List<Map<String, Object>> getMovieDetailsFromTitles(List<String> titles) {
+        List<Map<String, Object>> movieDetailsList = new ArrayList<>();
+
+        for (String title : titles) {
+            try {
+                System.out.println("Searching TMDB for title: " + title);
+
+                Map<String, Object> response = webClient.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/search/movie")
+                                .queryParam("api_key", apiKey)
+                                .queryParam("language", "en-US")
+                                .queryParam("query", title)
+                                .build())
+                        .retrieve()
+                        .bodyToMono(Map.class)
+                        .block();
+
+                System.out.println("TMDB Response for '" + title + "': " + response);
+
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
+
+                if (results != null && !results.isEmpty()) {
+                    movieDetailsList.add(results.get(0));
+                }
+            } catch (Exception e) {
+                System.err.println("Error fetching details for title '" + title + "': " + e.getMessage());
+            }
+        }
+
+        return movieDetailsList;
+    }
+
+
 }
