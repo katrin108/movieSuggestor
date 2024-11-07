@@ -5,7 +5,7 @@ import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 import is.hi.hbv501g.moviesuggestor.Services.TasteDiveService;
 import is.hi.hbv501g.moviesuggestor.Services.MovieListService;
-import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
+import is.hi.hbv501g.moviesuggestor.Services.implementation.TmdbServiceImplementation;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +20,15 @@ import java.util.Map;
 
 @Controller
 public class UserController {
+    @Autowired
     private final UserService userService;
+
     private final TmdbService tmdbService;
     private final TasteDiveService tasteDiveService;
 
     @Autowired
     public UserController(UserService userService, TmdbService tmdbService, TasteDiveService tasteDiveService) {
+
         this.userService = userService;
         this.tmdbService = tmdbService;
         this.tasteDiveService = tasteDiveService;
@@ -91,12 +94,14 @@ public class UserController {
         if (sessionUser != null) {
             User loggedInUser = userService.findUserById(sessionUser.getId());
             model.addAttribute("LoggedInUser", loggedInUser);
-            model.addAttribute("genres", loggedInUser.getGenres());
+            model.addAttribute("Usergenres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
             model.addAttribute("recommendedMovie", null);
             model.addAttribute("hasSuggestedMovie", false);
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
             model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
+
+            model.addAttribute("genres", Genre.values());
             return "loggedInUser";
         }
         return "redirect:/login";
@@ -107,6 +112,98 @@ public class UserController {
         session.invalidate();
         return "redirect:/";
     }
+
+
+    @GetMapping("/loggedin/preferences")
+    public String preferencesGet(HttpSession session, Model model) {
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        if (sessionUser != null) {
+            User loggedInUser = userService.findUserById(sessionUser.getId());
+
+            model.addAttribute("LoggedInUser", loggedInUser);
+            model.addAttribute("UserGenres", loggedInUser.getGenres());
+            model.addAttribute("genres", Genre.values());
+            return "preferences";
+        }
+        return "redirect:/login";
+    }
+
+    @PostMapping("/loggedin/preferences")
+    public String preferencesPost(HttpSession session,
+                                  @RequestParam(value = "genres", required = false) List<Genre> selectedGenres
+    , @RequestParam(value = "action") String action, Model model) {
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        if (sessionUser != null) {
+            if("Clear Preferences".equals(action)) {
+                userService.setGenres(sessionUser,new ArrayList<>());
+            }
+            if("Save Preferences".equals(action)) {
+                userService.setGenres(sessionUser, selectedGenres != null ? selectedGenres : new ArrayList<>());
+            }
+        }
+        return "redirect:/loggedin";
+    }
+
+    @PostMapping("/addMovieList")
+    public String addMovieList(@RequestParam("name") String name, HttpSession session) {
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        if (sessionUser != null) {
+            MovieList newMovieList = new MovieList();
+            newMovieList.setName(name);
+            newMovieList.setUser(sessionUser);
+            movieListService.saveMovieList(newMovieList);
+            sessionUser.getMovieLists().add(newMovieList);
+        }
+        return "redirect:/loggedin";
+    }
+
+    @PostMapping("/deleteMovieList")
+    public String deleteMovieList(@RequestParam("movieListId") long movieListId, HttpSession session) {
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        MovieList movieList = movieListService.findMovieListById(movieListId);
+        if (sessionUser != null && movieList != null) {
+            movieListService.deleteMovieList(movieList);
+            sessionUser.getMovieLists().removeIf(existingList -> existingList.getId() == movieListId);
+            session.setAttribute("LoggedInUser", sessionUser);
+        }
+        return "redirect:/loggedin";
+    }
+
+    @PostMapping("/toggleSettings")
+    public String userSettings(HttpSession session) {
+        Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
+        showSettings = showSettings == null || !showSettings;
+        session.setAttribute("DivSettings", showSettings);
+        return "redirect:/loggedin";
+    }
+
+    @PostMapping("/saveSettings")
+    public String saveSettings(HttpSession session, @RequestParam(value = "child", required = false) Boolean child,
+                               @RequestParam(value = "username") String username,
+                               @RequestParam(value = "password") String password,
+                               @RequestParam(value = "email", required = false) String email) {
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        if (sessionUser != null) {
+            sessionUser.setChild(child != null && child);
+            sessionUser.setUsername(username.trim());
+            sessionUser.setPassword(password.trim());
+            sessionUser.setEmail(email);
+            userService.saveUser(sessionUser);
+            session.setAttribute("LoggedInUser", sessionUser);
+        }
+        return "redirect:/loggedin";
+    }
+
+    @PostMapping("/deleteUser")
+    public String deleteUser(HttpSession session) {
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        if (sessionUser != null) {
+            userService.deleteUser(sessionUser);
+            session.invalidate();
+        }
+        return "redirect:/";
+    }
+
 
     @PostMapping("/getSuggestedMovie")
     public String getSuggestedMovie(HttpSession session, Model model) {
@@ -156,4 +253,5 @@ public class UserController {
         }
         return "home";
     }
+
 }
