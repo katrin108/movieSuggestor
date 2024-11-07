@@ -50,7 +50,7 @@ public class UserController {
             user.setGenres(selectedGenres != null ? selectedGenres : new ArrayList<>());
             user.setChild(false);
             user.setMovieLists(new ArrayList<>());
-            // Removed: user.setWatched(new Watched());
+
             userService.saveUser(user);
             session.setAttribute("LoggedInUser", user);
             model.addAttribute("LoggedInUser", user);
@@ -94,7 +94,6 @@ public class UserController {
             model.addAttribute("LoggedInUser", loggedInUser);
             model.addAttribute("genres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
-            // Removed: model.addAttribute("watched", loggedInUser.getWatched());
             model.addAttribute("recommendedMovie", null);
             model.addAttribute("hasSuggestedMovie", false);
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
@@ -219,15 +218,14 @@ public class UserController {
         return "loggedInUser";
     }
 
-    // Additional method to add movie to a list
+
     @PostMapping("/addMovieToList")
     public String addMovieToList(@RequestParam("movieId") Long movieId,
                                  @RequestParam("movieListId") Long movieListId,
                                  HttpSession session, Model model) {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         if (sessionUser != null) {
-            // Implement logic to add movie to the selected list
-            // For now, you can leave this unimplemented or add a placeholder comment
+            // implementa til að bæta mynd á lista
             return "redirect:/loggedin";
         }
         return "redirect:/login";

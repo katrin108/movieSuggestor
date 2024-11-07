@@ -10,6 +10,7 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User {
+    //baeta vid meira seinna
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -26,6 +27,7 @@ public class User {
 
     @Column(nullable = true)
     private Boolean child;
+    //can add more
 
     @ElementCollection(targetClass = Genre.class)
     @Enumerated(EnumType.STRING)
@@ -115,3 +117,29 @@ public class User {
         this.watched = watched;
     }
 }
+
+/*
+public User(String username, String password, String email, List<Genre> genres,boolean child) {
+    public User(String username, String password, String email, List<Genre> genres, Boolean child) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.genres =genres != null ? genres : new ArrayList<>();
+        this.child=child;
+    }
+    public List<MovieList> getMovieLists() {
+        return movieLists;
+    }
+    public void setMovieLists(List<MovieList> movieLists) {
+        this.movieLists = movieLists;
+    }
+    public Watched getWatched() { return watched; }
+    public void setWatched(Watched watched) { this.watched = watched; }
+    public List<Genre> getGenres() {
+        return genres;
+    }
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres;
+        this.genres = genres != null ? genres : new ArrayList<>();
+        this.child = child;
+    }*/

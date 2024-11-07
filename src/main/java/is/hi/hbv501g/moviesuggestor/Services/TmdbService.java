@@ -30,7 +30,7 @@ public class TmdbService {
      */
     public Map<String, Object> getRandomPopularMovie() {
         try {
-            // Fetch initial response to get total pages
+
             Map<String, Object> initialResponse = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/movie/popular")
@@ -45,7 +45,7 @@ public class TmdbService {
             int maxPages = totalPages != null ? Math.min(totalPages, 500) : 1;
             final int randomPage = new Random().nextInt(maxPages) + 1;
 
-            // Fetch movies from the random page
+
             Map<String, Object> response = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/movie/popular")
@@ -64,10 +64,10 @@ public class TmdbService {
                 return results.get(new Random().nextInt(results.size()));
             }
         } catch (WebClientResponseException e) {
-            // Handle client-side errors
+
             System.err.println("Error fetching popular movies: " + e.getMessage());
         } catch (Exception e) {
-            // Handle other exceptions
+
             System.err.println("Unexpected error: " + e.getMessage());
         }
 
@@ -90,7 +90,7 @@ public class TmdbService {
                     .map(genre -> String.valueOf(genre.getTmdbId()))
                     .collect(Collectors.joining(","));
 
-            // Fetch initial response to get total pages
+
             Map<String, Object> initialResponse = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/discover/movie")
@@ -106,7 +106,7 @@ public class TmdbService {
             int maxPages = totalPages != null ? Math.min(totalPages, 500) : 1;
             final int randomPage = new Random().nextInt(maxPages) + 1;
 
-            // Fetch movies from the random page
+
             Map<String, Object> response = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/discover/movie")
@@ -152,7 +152,7 @@ public class TmdbService {
                     .map(genre -> String.valueOf(genre.getTmdbId()))
                     .collect(Collectors.joining(","));
 
-            // Fetch initial response to get total pages
+
             Map<String, Object> initialResponse = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/discover/movie")
@@ -216,7 +216,7 @@ public class TmdbService {
                     .map(genre -> String.valueOf(genre.getTmdbId()))
                     .collect(Collectors.joining(","));
 
-            // Fetch initial response to get total pages
+
             Map<String, Object> initialResponse = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/discover/movie")
