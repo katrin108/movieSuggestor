@@ -72,7 +72,6 @@ public class HomeController {
             User sessionUser = (User) session.getAttribute("LoggedInUser");
             if (sessionUser != null) {
                 randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser.getGenres());
-                model.addAttribute("LoggedInUser",sessionUser);
             }
             else {
                 return "redirect:/loggedin";
@@ -81,6 +80,11 @@ public class HomeController {
         else {
             randomMovie = tmdbService.getRandomPopularMovie();
         }
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        if (sessionUser != null) {
+            model.addAttribute("LoggedInUser",sessionUser);
+        }
+        model.addAttribute("LoggedInUser",sessionUser);
         model.addAttribute("tmdbMovie", randomMovie);
         model.addAttribute("movieGenre", tmdbService.getGenre(randomMovie));
 
