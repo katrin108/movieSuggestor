@@ -6,6 +6,8 @@
 </head>
 <body>
 <h1>Movie Suggestor</h1>
+
+<!-- Login and Signup Links -->
 <div>
     <p><a href="/login">Log in</a></p>
     <p>Signup <a href="/signup">here</a></p>
@@ -13,8 +15,7 @@
 
 <!-- Random Movie from TMDB -->
 <div>
-    <p>*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-</p>
-    <h2>Hér fyrir neðan ætti að koma random mynd frá TMDB</h2>
+    <hr>
     <h2>Featured Movie from TMDB</h2>
     <div th:if="${tmdbMovie != null}">
         <img th:src="'https://image.tmdb.org/t/p/w500' + ${tmdbMovie.poster_path}" alt="Movie Poster" style="max-width: 200px;">
@@ -23,11 +24,12 @@
         <a th:href="'https://www.themoviedb.org/movie/' + ${tmdbMovie.id}" target="_blank">View on TMDB</a>
     </div>
     <p th:if="${tmdbMovie == null}">No featured movie available at the moment.</p>
+    <hr>
 </div>
-<p>*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-</p>
-<!-- Local movies -->
+
+<!-- Local Movies -->
 <div>
-    <h2>Movies</h2>
+    <h2>Movies (Local - Not from Database)</h2>
     <p th:if="${movies == null}">No movies yet!</p>
     <div th:if="${movies != null}">
         <table>
@@ -50,6 +52,30 @@
         </table>
     </div>
     <p><a href="/addmovie">Add a new movie</a></p>
+</div>
+
+<!-- Sentence-Based Movie Search -->
+<div>
+    <h2>Search for Movies by Sentence</h2>
+    <form th:action="@{/api/movies/recommend}" method="get">
+        <label for="query">Describe the type of movie you want:</label>
+        <input type="text" id="query" name="query" placeholder="I want a thrilling sci-fi movie about space exploration" required>
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+<!-- Recommended Movies from Sentence-Based Search -->
+<div th:if="${recommendedMovies != null}">
+    <h3>Recommended Movie</h3>
+    <div th:if="${recommendedMovies.isEmpty()}">
+        <p>No movie found for your search query.</p>
+    </div>
+    <div th:each="movie : ${recommendedMovies}">
+        <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster_path}" alt="Movie Poster" style="max-width: 200px;">
+        <h4 th:text="${movie.title}"></h4>
+        <p th:text="${movie.overview}"></p>
+        <a th:href="'https://www.themoviedb.org/movie/' + ${movie.id}" target="_blank">View on TMDB</a>
+    </div>
 </div>
 </body>
 </html>
