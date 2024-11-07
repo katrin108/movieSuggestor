@@ -92,12 +92,14 @@ public class UserController {
             User loggedInUser = userService.findUserById(sessionUser.getId());
 
             model.addAttribute("LoggedInUser", loggedInUser);
-            model.addAttribute("genres", loggedInUser.getGenres());
+            model.addAttribute("Usergenres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
             model.addAttribute("recommendedMovie", null);
             model.addAttribute("hasSuggestedMovie", false);
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
             model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
+
+            model.addAttribute("genres", Genre.values());
             return "loggedInUser";
         }
         return "redirect:/login";
@@ -236,4 +238,5 @@ public class UserController {
         }
         return "redirect:/login";
     }
+
 }

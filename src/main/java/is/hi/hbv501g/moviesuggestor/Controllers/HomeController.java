@@ -35,7 +35,7 @@ public class HomeController {
         // allir notendur
         List<User> allUsers = userService.findAllUsers();
         model.addAttribute("users", allUsers);
-
+        model.addAttribute("genres", Genre.values());
 
         User sessionUser = (User) session.getAttribute("LoggedInUser"); // Retrieve the logged-in user
         if (sessionUser != null) {
@@ -54,14 +54,32 @@ public class HomeController {
         if("Random Movie".equals(action)) {
             randomMovie = tmdbService.getRandomPopularMovie();
         }
-        if("Movie based on preferences".equals(action)) {
-            randomMovie = tmdbService.getRandomPopularMovie();
+        else if("Movie based on selected genres".equals(action)) {
+            if (selectedGenres != null) {
+                randomMovie= tmdbService.getRandomPersonalizedMovie(selectedGenres);
+            }
+            else {
+                randomMovie = tmdbService.getRandomPopularMovie();
+            }
+            System.out.println("Selected Genres: " + selectedGenres);
         }
-        if (randomMovie == null) {
+        else if("Movie based on saved genres".equals(action)) {
+            User sessionUser = (User) session.getAttribute("LoggedInUser");
+            if (sessionUser != null) {
+                randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser.getGenres());
+            }
+            else {
+                return "redirect:/loggedin";
+            }
+        }
+        else {
             randomMovie = tmdbService.getRandomPopularMovie();
         }
         model.addAttribute("tmdbMovie", randomMovie);
         model.addAttribute("movieGenre", tmdbService.getGenre(randomMovie));
+
+        model.addAttribute("genres", Genre.values());
+        model.addAttribute("selectedGenres", selectedGenres);
 
         return "home";
     }

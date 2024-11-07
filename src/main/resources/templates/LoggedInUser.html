@@ -11,7 +11,7 @@
 <p>Child-safe mode: <span th:text="${LoggedInUser.child ? 'on' : 'off'}"></span></p>
 <p>Your preferences are:</p>
 <ul>
-    <li th:each="genre : ${genres}">
+    <li th:each="genre : ${Usergenres}">
         <span th:text="${genre}"></span>
     </li>
 </ul>
@@ -46,6 +46,7 @@
 </div>
 
 <p><a href="/loggedin/preferences">Update preferences</a></p>
+
 
 <h2>Your watch history</h2>
 <div th:if="${watched?.movies?.size() == 0}">

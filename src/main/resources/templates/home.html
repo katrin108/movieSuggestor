@@ -30,8 +30,16 @@
     </div>
     <p th:if="${tmdbMovie == null}">No featured movie available at the moment.</p>
 
+    <div>
+        <p>Select genres:</p>
+        <div th:each="genre : ${genres}">
+            <input type="checkbox" name="genres" th:value="${genre}" th:id="${genre}" th:checked="${selectedGenres != null and selectedGenres.contains(genre)}"/>
+            <span th:text="${genre.name()}"></span>
+        </div>
+    </div>
     <input type="submit" name = "action" value="Random Movie">
-    <input type="submit" name = "action" value="Movie based on preferences">
+    <input type="submit" name = "action" value="Movie based on selected genres">
+    <input type="submit" name = "action" value="Movie based on saved genres">
 </form>
 <p>*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-</p>
 <!-- Local movies -->
