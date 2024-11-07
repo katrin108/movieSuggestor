@@ -34,14 +34,19 @@ public class HomeController {
 
         // allir notendur
         List<User> allUsers = userService.findAllUsers();
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+
         model.addAttribute("users", allUsers);
         model.addAttribute("genres", Genre.values());
 
-        User sessionUser = (User) session.getAttribute("LoggedInUser"); // Retrieve the logged-in user
         if (sessionUser != null) {
-
+            System.out.println(sessionUser+" test");
+            model.addAttribute("LoggedInUser",sessionUser);
             List<Map<String, Object>> personalizedMovies = userService.moviePreferenceSuggest(sessionUser);
             model.addAttribute("personalizedMovies", personalizedMovies);
+        }
+        else {
+            System.out.println(sessionUser+" test2");
         }
 
         return "home";
@@ -67,6 +72,7 @@ public class HomeController {
             User sessionUser = (User) session.getAttribute("LoggedInUser");
             if (sessionUser != null) {
                 randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser.getGenres());
+                model.addAttribute("LoggedInUser",sessionUser);
             }
             else {
                 return "redirect:/loggedin";
