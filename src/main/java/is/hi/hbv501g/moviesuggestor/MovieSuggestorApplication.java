@@ -14,6 +14,7 @@ public class MovieSuggestorApplication {
 
 //  Katrín
 //  Ármann Schelander
+//  máni
 }
 
 
