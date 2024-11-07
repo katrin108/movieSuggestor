@@ -167,7 +167,7 @@ public class UserController {
     @PostMapping("/toggleSettings")
     public String userSettings(HttpSession session) {
         Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
-        showSettings = showSettings == null ? true : !showSettings;
+        showSettings = showSettings == null || !showSettings;
         session.setAttribute("DivSettings", showSettings);
         return "redirect:/loggedin";
     }

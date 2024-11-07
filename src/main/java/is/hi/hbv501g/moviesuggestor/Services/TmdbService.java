@@ -9,6 +9,6 @@ public interface TmdbService {
     Map<String,Object> getRandomPersonalizedMovie(List<Genre> genres);
     List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres);
     List<Map<String, Object>> getMoviesByGenres(List<Genre> genres);
-
+    List<Genre> getGenre(Map<String, Object> movie);
 
 }

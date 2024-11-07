@@ -12,7 +12,7 @@
 </div>
 
 <!-- Random Movie from TMDB -->
-<div>
+<form action="#" th:action="@{/}" method="post">
     <p>*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-</p>
     <h2>Hér fyrir neðan ætti að koma random mynd frá TMDB</h2>
     <h2>Featured Movie from TMDB</h2>
@@ -20,10 +20,19 @@
         <img th:src="'https://image.tmdb.org/t/p/w500' + ${tmdbMovie.poster_path}" alt="Movie Poster" style="max-width: 200px;">
         <h3 th:text="${tmdbMovie.title}"></h3>
         <p th:text="${tmdbMovie.overview}"></p>
+        <div>
+            <p>Genres:</p>
+            <ul>
+                <li th:each="genre : ${movieGenre}" th:text="${genre}"></li>
+            </ul>
+        </div>
         <a th:href="'https://www.themoviedb.org/movie/' + ${tmdbMovie.id}" target="_blank">View on TMDB</a>
     </div>
     <p th:if="${tmdbMovie == null}">No featured movie available at the moment.</p>
-</div>
+
+    <input type="submit" name = "action" value="Random Movie">
+    <input type="submit" name = "action" value="Movie based on preferences">
+</form>
 <p>*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-</p>
 <!-- Local movies -->
 <div>

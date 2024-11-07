@@ -262,4 +262,25 @@ public class TmdbServiceImplementation implements TmdbService {
 
         return allResults;
     }
+
+    public List<Genre> getGenre(Map<String, Object> movie){
+        List<Genre> genres = new ArrayList<>();
+
+        @SuppressWarnings("unchecked")
+                List<Integer> genreIds = (List<Integer>) movie.get("genre_ids");
+
+        if (genreIds != null && !genreIds.isEmpty()) {
+            for (Integer genreId : genreIds) {
+                try {
+                    Genre genre=Genre.fromTmdbId(genreId);
+                    genres.add(genre);
+                }
+                catch (Exception e) {
+                    System.err.println("Unexpected error: " + e.getMessage());
+                }
+            }
+        }
+        return genres;
+    }
+
 }
