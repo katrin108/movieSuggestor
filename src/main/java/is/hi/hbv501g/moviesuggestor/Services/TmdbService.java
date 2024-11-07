@@ -1,8 +1,10 @@
 package is.hi.hbv501g.moviesuggestor.Services;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 public interface TmdbService {
     Map<String,Object> getRandomPopularMovie();
 

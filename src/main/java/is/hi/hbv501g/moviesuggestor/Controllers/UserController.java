@@ -3,6 +3,7 @@ package is.hi.hbv501g.moviesuggestor.Controllers;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
+import is.hi.hbv501g.moviesuggestor.Services.TasteDiveService;
 import is.hi.hbv501g.moviesuggestor.Services.MovieListService;
 import is.hi.hbv501g.moviesuggestor.Services.implementation.TmdbServiceImplementation;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
@@ -21,14 +22,16 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private final UserService userService;
-    private final MovieListService movieListService;
-    private final TmdbServiceImplementation tmdbService;
+
+    private final TmdbService tmdbService;
+    private final TasteDiveService tasteDiveService;
 
     @Autowired
-    public UserController(UserService userService, MovieListService movieListService, TmdbServiceImplementation tmdbService) {
+    public UserController(UserService userService, TmdbService tmdbService, TasteDiveService tasteDiveService) {
+
         this.userService = userService;
-        this.movieListService = movieListService;
         this.tmdbService = tmdbService;
+        this.tasteDiveService = tasteDiveService;
     }
 
     @GetMapping("/signup")
@@ -89,9 +92,7 @@ public class UserController {
     public String loggedInGet(Model model, HttpSession session) {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         if (sessionUser != null) {
-            // Fetch fresh data from the database
             User loggedInUser = userService.findUserById(sessionUser.getId());
-
             model.addAttribute("LoggedInUser", loggedInUser);
             model.addAttribute("Usergenres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
@@ -111,6 +112,7 @@ public class UserController {
         session.invalidate();
         return "redirect:/";
     }
+
 
     @GetMapping("/loggedin/preferences")
     public String preferencesGet(HttpSession session, Model model) {
@@ -202,6 +204,7 @@ public class UserController {
         return "redirect:/";
     }
 
+
     @PostMapping("/getSuggestedMovie")
     public String getSuggestedMovie(HttpSession session, Model model) {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
@@ -220,24 +223,35 @@ public class UserController {
             model.addAttribute("LoggedInUser", loggedInUser);
             model.addAttribute("genres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
-            // Removed: model.addAttribute("watched", loggedInUser.getWatched());
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
             model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
         }
         return "loggedInUser";
     }
 
+    /**
+     * Endpoint to handle movie recommendations based on a user-input sentence.
+     *
+     * @param query The input sentence describing the type of movie the user wants.
+     * @param model The model to pass data to the Thymeleaf template.
+     * @return The name of the Thymeleaf template to render.
+     */
+    @GetMapping("/api/movies/recommend")
+    public String recommendMovies(@RequestParam String query, Model model) {
+        try {
 
-    @PostMapping("/addMovieToList")
-    public String addMovieToList(@RequestParam("movieId") Long movieId,
-                                 @RequestParam("movieListId") Long movieListId,
-                                 HttpSession session, Model model) {
-        User sessionUser = (User) session.getAttribute("LoggedInUser");
-        if (sessionUser != null) {
-            // implementa til að bæta mynd á lista
-            return "redirect:/loggedin";
+            List<String> recommendedTitles = tasteDiveService.getRecommendedMovies(query);
+
+
+            List<Map<String, Object>> recommendedMovies = tmdbService.getMovieDetailsFromTitles(recommendedTitles);
+
+            model.addAttribute("recommendedMovies", recommendedMovies);
+            model.addAttribute("query", query);
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Failed to fetch recommendations. Please try again later.");
+            e.printStackTrace();
         }
-        return "redirect:/login";
+        return "home";
     }
 
 }
