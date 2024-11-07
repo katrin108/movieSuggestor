@@ -12,5 +12,7 @@ public interface TmdbService {
     List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres);
     List<Map<String, Object>> getMoviesByGenres(List<Genre> genres);
     List<Genre> getGenre(Map<String, Object> movie);
+    List<Map<String, Object>> getMovieDetailsFromTitles(List<String> titles);
+    List<String> getRecommendedMovies(String query);
 
 }

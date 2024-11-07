@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -16,12 +17,19 @@ import java.util.ArrayList;
 @Service
 public class TmdbServiceImplementation implements TmdbService {
     private final WebClient webClient;
+    private static final String BASE_URL = "https://tastedive.com/api";
 
     @Value("${tmdb.api.key}")
     private String apiKey;
 
+
+
+    private static final String API_KEY = "1039593-MovieSug-B6A0F246";
+
+
     public TmdbServiceImplementation(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl("https://api.themoviedb.org/3").build();
+
     }
 
     /**
@@ -282,6 +290,73 @@ public class TmdbServiceImplementation implements TmdbService {
             }
         }
         return genres;
+    }
+
+    /* Fetches movie details from TMDB API based on a list of movie titles. */
+    public List<Map<String, Object>> getMovieDetailsFromTitles(List<String> titles) {
+        List<Map<String, Object>> movieDetailsList = new ArrayList<>();
+
+        for (String title : titles) {
+            try {
+                Map<String, Object> response = webClient.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/search/movie")
+                                .queryParam("api_key", apiKey)
+                                .queryParam("language", "en-US")
+                                .queryParam("query", title)
+                                .build())
+                        .retrieve()
+                        .bodyToMono(Map.class)
+                        .block();
+
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
+
+                if (results != null && !results.isEmpty()) {
+                    movieDetailsList.add(results.get(0));
+                }
+            } catch (Exception e) {
+                System.err.println("Error fetching details for title '" + title + "': " + e.getMessage());
+            }
+        }
+
+        return movieDetailsList;
+    }
+
+    public List<String> getRecommendedMovies(String query) {
+        try {
+            String cleanedQuery = query.trim().replace(" ", "+");
+            if (cleanedQuery.isEmpty()) {
+                throw new IllegalArgumentException("Query cannot be empty or null");
+            }
+
+            String requestUrl = BASE_URL + "/similar?q=" + cleanedQuery + "&type=movie&k=" + API_KEY;
+
+            Map<String, Object> response = webClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/similar")
+                            .queryParam("q", cleanedQuery)
+                            .queryParam("type", "movie")
+                            .queryParam("k", API_KEY)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+            if (response != null && response.containsKey("similar")) {
+                Map<String, Object> similar = (Map<String, Object>) response.get("similar");
+                List<Map<String, String>> results = (List<Map<String, String>>) similar.get("results");
+
+                return results.stream()
+                        .map(movie -> movie.get("name"))
+                        .limit(5)
+                        .collect(Collectors.toList());
+            } else {
+                throw new RuntimeException("Invalid response structure from TasteDive API");
+            }
+        } catch (Exception e) {
+            return List.of("No recommendations available. Please try again later.");
+        }
     }
 
 }

@@ -5,6 +5,7 @@ import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 import is.hi.hbv501g.moviesuggestor.Services.TasteDiveService;
 import is.hi.hbv501g.moviesuggestor.Services.MovieListService;
+import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
 import is.hi.hbv501g.moviesuggestor.Services.implementation.TmdbServiceImplementation;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -25,13 +26,15 @@ public class UserController {
 
     private final TmdbService tmdbService;
     private final TasteDiveService tasteDiveService;
+    private final MovieListService movieListService;
 
     @Autowired
-    public UserController(UserService userService, TmdbService tmdbService, TasteDiveService tasteDiveService) {
+    public UserController(UserService userService, TmdbService tmdbService, TasteDiveService tasteDiveService, MovieListService movieListService) {
 
         this.userService = userService;
         this.tmdbService = tmdbService;
         this.tasteDiveService = tasteDiveService;
+        this.movieListService = movieListService;
     }
 
     @GetMapping("/signup")
@@ -237,7 +240,7 @@ public class UserController {
      * @return The name of the Thymeleaf template to render.
      */
     @GetMapping("/api/movies/recommend")
-    public String recommendMovies(@RequestParam String query, Model model) {
+    public String recommendMovies(@RequestParam String query, Model model,HttpSession session) {
         try {
 
             List<String> recommendedTitles = tasteDiveService.getRecommendedMovies(query);
@@ -250,6 +253,10 @@ public class UserController {
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Failed to fetch recommendations. Please try again later.");
             e.printStackTrace();
+        }
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        if (sessionUser != null) {
+            model.addAttribute("LoggedInUser",sessionUser);
         }
         return "home";
     }
