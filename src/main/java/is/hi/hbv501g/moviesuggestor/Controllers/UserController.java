@@ -4,7 +4,7 @@ import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 import is.hi.hbv501g.moviesuggestor.Services.MovieListService;
-import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
+import is.hi.hbv501g.moviesuggestor.Services.implementation.TmdbServiceImplementation;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +21,10 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
     private final MovieListService movieListService;
-    private final TmdbService tmdbService;
+    private final TmdbServiceImplementation tmdbService;
 
     @Autowired
-    public UserController(UserService userService, MovieListService movieListService, TmdbService tmdbService) {
+    public UserController(UserService userService, MovieListService movieListService, TmdbServiceImplementation tmdbService) {
         this.userService = userService;
         this.movieListService = movieListService;
         this.tmdbService = tmdbService;
@@ -125,10 +125,16 @@ public class UserController {
 
     @PostMapping("/loggedin/preferences")
     public String preferencesPost(HttpSession session,
-                                  @RequestParam(value = "genres", required = false) List<Genre> selectedGenres) {
+                                  @RequestParam(value = "genres", required = false) List<Genre> selectedGenres
+    , @RequestParam(value = "action") String action, Model model) {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         if (sessionUser != null) {
-            userService.setGenres(sessionUser, selectedGenres != null ? selectedGenres : new ArrayList<>());
+            if("Clear Preferences".equals(action)) {
+                userService.setGenres(sessionUser,new ArrayList<>());
+            }
+            if("Save Preferences".equals(action)) {
+                userService.setGenres(sessionUser, selectedGenres != null ? selectedGenres : new ArrayList<>());
+            }
         }
         return "redirect:/loggedin";
     }

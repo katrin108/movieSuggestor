@@ -1,7 +1,7 @@
 package is.hi.hbv501g.moviesuggestor.Controllers;
 
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
-import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
+import is.hi.hbv501g.moviesuggestor.Services.implementation.TmdbServiceImplementation;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
 import jakarta.servlet.http.HttpSession; // Import HttpSession
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +16,10 @@ import java.util.Map;
 public class HomeController {
 
     private final UserService userService;
-    private final TmdbService tmdbService;
+    private final TmdbServiceImplementation tmdbService;
 
     @Autowired
-    public HomeController(UserService userService, TmdbService tmdbService) {
+    public HomeController(UserService userService, TmdbServiceImplementation tmdbService) {
         this.userService = userService;
         this.tmdbService = tmdbService;
     }
