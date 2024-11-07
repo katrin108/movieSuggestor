@@ -61,31 +61,6 @@
 <p>*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-</p>
 <!-- Local movies -->
 
-<div>
-    <h2>Movies (Local - Not from Database)</h2>
-    <p th:if="${movies == null}">No movies yet!</p>
-    <div th:if="${movies != null}">
-        <table>
-            <thead>
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Rating</th>
-                <th>Delete</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="movie : ${movies}">
-                <td th:text="${movie.title}"></td>
-                <td th:text="${movie.description}"></td>
-                <td th:text="${movie.rating}"></td>
-                <td><a th:href="@{/delete/{id}(id=${movie.id})}">Delete</a></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <p><a href="/addmovie">Add a new movie</a></p>
-</div>
 
 <!-- Sentence-Based Movie Search -->
 <div>
