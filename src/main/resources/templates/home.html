@@ -59,14 +59,24 @@
     <h2>Search for Movies by Sentence</h2>
     <form th:action="@{/api/movies/recommend}" method="get">
         <label for="query">Describe the type of movie you want:</label>
-        <input type="text" id="query" name="query" placeholder="I want a thrilling sci-fi movie about space exploration" required>
+        <input
+                type="text"
+                id="query"
+                name="query"
+                th:placeholder="${query == null ? 'e.g., a thrilling sci-fi movie about space exploration' : query}"
+                required>
         <button type="submit">Search</button>
     </form>
 </div>
 
-<!-- Recommended Movies from Sentence-Based Search -->
+<!-- Search Results Information -->
+<div th:if="${query != null}">
+    <p>Results for: <strong th:text="${query}"></strong></p>
+</div>
+
+<!-- með setningu -result-->
 <div th:if="${recommendedMovies != null}">
-    <h3>Recommended Movie</h3>
+    <h3>Recommended Movies</h3>
     <div th:if="${recommendedMovies.isEmpty()}">
         <p>No movie found for your search query.</p>
     </div>
