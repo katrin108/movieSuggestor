@@ -1,90 +1,78 @@
 <!DOCTYPE html>
-<html xmlns: th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>What user is logged in?</title>
+    <title>Your Profile</title>
 </head>
 <body>
-<h2>You are now logged in </h2>
-<p>Your username is: <span th:text=" ${LoggedInUser.username}"></span></p>
-<p>Your email is: <span th:text=" ${LoggedInUser.email}"></span></p>
-<p>child-safe mode: <span th:text=" ${LoggedInUser.child ? 'on':'off'}"></span></p>
+<h2>You are now logged in</h2>
+<p>Your username is: <span th:text="${LoggedInUser.username}"></span></p>
+<p>Your email is: <span th:text="${LoggedInUser.email}"></span></p>
+<p>Child-safe mode: <span th:text="${LoggedInUser.child ? 'on' : 'off'}"></span></p>
 <p>Your preferences are:</p>
 <ul>
     <li th:each="genre : ${genres}">
         <span th:text="${genre}"></span>
     </li>
 </ul>
-<form action="#" th:action="@{logout}" method="post">
+
+<form action="#" th:action="@{/logout}" method="post">
     <button type="submit">Log out</button>
 </form>
 
-<form action="#" th:action="@{/loggedin}" method="post">
+<form action="#" th:action="@{/toggleSettings}" method="post">
     <button type="submit" id="Settings">Settings</button>
 </form>
 
 <div th:if="${DivSettings}" id="userSettings">
-
-
     <form action="#" th:action="@{/saveSettings}" method="post">
-
         <label for="username">Username
-            <input type="text" name="username" id="username" th:field="*{LoggedInUser.username}">
+            <input type="text" name="username" id="username" th:value="${LoggedInUser.username}">
         </label>
-
         <label for="password">Password
-            <input type="text" name="password" id="password" th:field="*{LoggedInUser.password}">
+            <input type="password" name="password" id="password" th:value="${LoggedInUser.password}">
         </label>
-
         <label for="email">Email
-            <input type="text" name="email" id="email" th:value="*{LoggedInUser.email}">
+            <input type="email" name="email" id="email" th:value="${LoggedInUser.email}">
         </label>
-
-
-        <label class="switch">child-safe mode
-            <input id= "childCheckbox" type="checkbox" th:name="child" th:checked="${LoggedInUser.child ? 'checked':null}">
+        <label class="switch">Child-safe mode
+            <input id="childCheckbox" type="checkbox" name="child" th:checked="${LoggedInUser.child}">
         </label>
         <button type="submit">Save changes</button>
-
     </form>
-    <form action="#" th:action="@{/deleteUser}" method="post" onsubmit="return confirm('Are you sure?')" >
+    <form action="#" th:action="@{/deleteUser}" method="post" onsubmit="return confirm('Are you sure?')">
         <button type="submit">Delete Account</button>
     </form>
 </div>
 
-
 <p><a href="/loggedin/preferences">Update preferences</a></p>
 
 <h2>Your watch history</h2>
-
 <div th:if="${watched?.movies?.size() == 0}">
     <p>You have no movies in your watch history</p>
 </div>
-
 <div th:if="${watched?.movies?.size() > 0}">
-        <table>
-            <thead>
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Rating</th>
-                <th>Delete</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="movie : ${watched.movies}">
-                <td th:text="${movie.title}"></td>
-                <td th:text="${movie.description}"></td>
-                <td th:text="${movie.rating}"></td>
-                <td><a th:href="@{/delete/{id}(id=${movie.id})}">Delete</a></td>
-            </tr>
-            </tbody>
-        </table>
+    <table>
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Rating</th>
+            <th>Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="movie : ${watched.movies}">
+            <td th:text="${movie.title}"></td>
+            <td th:text="${movie.description}"></td>
+            <td th:text="${movie.rating}"></td>
+            <td><a th:href="@{/delete/{id}(id=${movie.id})}">Delete</a></td>
+        </tr>
+        </tbody>
     </table>
 </div>
 
 <h2>Your movielists</h2>
-
 <form action="#" th:action="@{/addMovieList}" method="post">
     <label for="name">Movie List Name:</label>
     <input type="text" id="name" name="name" required />
@@ -96,16 +84,15 @@
 </div>
 
 <div th:if="${movieLists.size() > 0}">
-
     <div th:each="movieList : ${movieLists}">
         <h3 th:text="${movieList.name}">Movie List Name</h3>
         <form th:action="@{/deleteMovieList}" method="post">
-            <input type="hidden" th:name="movieListId" th:value="${movieList.id}"/>
+            <input type="hidden" name="movieListId" th:value="${movieList.id}"/>
             <button type="submit">Delete</button>
         </form>
-        <div th:switch="${movieList.movies}">
-            <h2 th:case="null">no movies yet!</h2>
-            <div th:case="*">
+        <div th:if="${movieList.movies != null}">
+            <h2 th:if="${movieList.movies.size() == 0}">No movies yet!</h2>
+            <div th:if="${movieList.movies.size() > 0}">
                 <h2>Movies</h2>
                 <table>
                     <thead>
@@ -130,9 +117,27 @@
     </div>
 </div>
 
+<h2>Get a Movie Recommendation</h2>
+<form action="#" th:action="@{/getSuggestedMovie}" method="post">
+    <button type="submit" th:text="${(hasSuggestedMovie ?: false) ? 'Reroll Suggested Movie' : 'Get Suggested Movie'}"></button>
+</form>
 
-
-
+<div th:if="${hasSuggestedMovie ?: false}">
+    <h2>Recommended Movie</h2>
+    <div th:if="${recommendedMovie != null}">
+        <h3 th:text="${recommendedMovie.title}"></h3>
+        <p th:text="${recommendedMovie.overview}"></p>
+        <img th:src="'https://image.tmdb.org/t/p/w500' + ${recommendedMovie.poster_path}" alt="Movie Poster" style="max-width: 200px;">
+        <form th:action="@{/addMovieToList}" method="post">
+            <input type="hidden" name="movieId" th:value="${recommendedMovie.id}"/>
+            <label for="movieListId">Select a list to add:</label>
+            <select name="movieListId" id="movieListId">
+                <option th:each="list : ${movieLists}" th:value="${list.id}" th:text="${list.name}"></option>
+            </select>
+            <button type="submit">Add to List</button>
+        </form>
+    </div>
+</div>
 
 </body>
 </html>

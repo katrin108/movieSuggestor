@@ -1,43 +1,47 @@
 package is.hi.hbv501g.moviesuggestor.Controllers;
 
-import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Movie;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
-import is.hi.hbv501g.moviesuggestor.Services.MovieService;
+import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
+import jakarta.servlet.http.HttpSession; // Import HttpSession
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class HomeController {
 
-    private UserService userService;
-
+    private final UserService userService;
+    private final TmdbService tmdbService;
 
     @Autowired
-    public void setUserService(UserService userService) {
+    public HomeController(UserService userService, TmdbService tmdbService) {
         this.userService = userService;
+        this.tmdbService = tmdbService;
     }
 
     @RequestMapping("/")
-    public String homePage(Model model) {
+    public String homePage(Model model, HttpSession session) { // Add HttpSession as a parameter
+        // random mynd frá tmdb
+        Map<String, Object> randomMovie = tmdbService.getRandomPopularMovie();
+        model.addAttribute("tmdbMovie", randomMovie);
 
-
-
-        List<User> allUsers =userService.findAllUsers();
+        // allir notendur
+        List<User> allUsers = userService.findAllUsers();
         model.addAttribute("users", allUsers);
 
-        //Add some data to the model
+
+        User sessionUser = (User) session.getAttribute("LoggedInUser"); // Retrieve the logged-in user
+        if (sessionUser != null) {
+
+            List<Map<String, Object>> personalizedMovies = userService.moviePreferenceSuggest(sessionUser);
+            model.addAttribute("personalizedMovies", personalizedMovies);
+        }
 
         return "home";
     }
-
-
 }
