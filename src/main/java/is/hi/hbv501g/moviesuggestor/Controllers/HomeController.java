@@ -54,37 +54,47 @@ public class HomeController {
     @PostMapping("/")
     public String getNewMoviePost(HttpSession session,
                               @RequestParam(value = "genres", required = false) List<Genre> selectedGenres
-            , @RequestParam(value = "action") String action, Model model) {
+            , @RequestParam(value = "action") String action,@RequestParam(value = "child_safe",required = false)Boolean child_safe,
+                                  Model model) {
         Map<String, Object> randomMovie=null;
+
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        Boolean child=child_safe !=null ? child_safe : false;
+        if(!child &&sessionUser!=null) {
+            child= Boolean.TRUE.equals(sessionUser.getChild());
+        }
+
+
+
         if("Random Movie".equals(action)) {
-            randomMovie = tmdbService.getRandomPopularMovie();
+            randomMovie = tmdbService.getRandomPopularMovie(child);
         }
         else if("Movie based on selected genres".equals(action)) {
             if (selectedGenres != null) {
-                randomMovie= tmdbService.getRandomPersonalizedMovie(selectedGenres);
+                randomMovie= tmdbService.getRandomPersonalizedMovie(selectedGenres,child);
             }
             else {
-                randomMovie = tmdbService.getRandomPopularMovie();
+                randomMovie = tmdbService.getRandomPopularMovie(child);
             }
             System.out.println("Selected Genres: " + selectedGenres);
         }
         else if("Movie based on saved genres".equals(action)) {
-            User sessionUser = (User) session.getAttribute("LoggedInUser");
+
             if (sessionUser != null) {
-                randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser.getGenres());
+                randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser.getGenres(),child);
             }
             else {
                 return "redirect:/loggedin";
             }
         }
         else {
-            randomMovie = tmdbService.getRandomPopularMovie();
+            randomMovie = tmdbService.getRandomPopularMovie(child);
         }
-        User sessionUser = (User) session.getAttribute("LoggedInUser");
+
         if (sessionUser != null) {
             model.addAttribute("LoggedInUser",sessionUser);
         }
-        model.addAttribute("LoggedInUser",sessionUser);
+        model.addAttribute("child_safe", child);
         model.addAttribute("tmdbMovie", randomMovie);
         model.addAttribute("movieGenre", tmdbService.getGenre(randomMovie));
 

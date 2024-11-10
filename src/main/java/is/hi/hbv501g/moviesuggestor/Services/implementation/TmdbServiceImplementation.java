@@ -1,7 +1,9 @@
 package is.hi.hbv501g.moviesuggestor.Services.implementation;
 
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
+
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Movie;
+
 import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
 import org.apache.catalina.connector.Request;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,8 +72,11 @@ public class TmdbServiceImplementation implements TmdbService {
      *
      * @return A map representing the movie details, or null if not found.
      */
-    public Map<String, Object> getRandomPopularMovie() {
+    public Map<String, Object> getRandomPopularMovie(Boolean child) {
         try {
+            if (child) {
+                return childUser();
+            }
 
             Map<String, Object> initialResponse = webClient.get()
                     .uri(uriBuilder -> uriBuilder
@@ -116,15 +121,77 @@ public class TmdbServiceImplementation implements TmdbService {
         return null;
     }
 
+
+    public Map<String, Object> childUser() {
+        try {
+            ArrayList<Genre>g=new ArrayList<>();
+            g.add(Genre.FAMILY);
+            String genreIds = g.stream()
+                    .map(genre -> String.valueOf(genre.getTmdbId()))
+                    .collect(Collectors.joining(","));
+        Map<String, Object> initialResponse = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/discover/movie")
+                        .queryParam("api_key", apiKey)
+                        .queryParam("language", "en-US")
+                        .queryParam("with_genres",genreIds)
+
+                        .build())
+                .retrieve()
+                .bodyToMono(Map.class)
+                .block();
+
+
+
+
+        Integer totalPages = (Integer) initialResponse.get("total_pages");
+        int maxPages = totalPages != null ? Math.min(totalPages, 500) : 1;
+        final int randomPage = new Random().nextInt(maxPages) + 1;
+
+        Map<String, Object> response = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/discover/movie")
+                        .queryParam("api_key", apiKey)
+                        .queryParam("language", "en-US")
+                        .queryParam("with_genres", genreIds)
+                        .queryParam("page", randomPage)
+                        .build())
+                .retrieve()
+                .bodyToMono(Map.class)
+                .block();
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
+
+        if (results != null && !results.isEmpty()) {
+            return results.get(new Random().nextInt(results.size()));
+        }
+
+        } catch (WebClientResponseException e) {
+            System.err.println("Error fetching personalized movies: " + e.getMessage());
+            } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
+            }
+
+        return null;
+        }
+
+
+
+
     /**
      * Fetches a random movie personalized based on user's preferred genres.
      *
      * @param genres List of user's preferred genres.
      * @return A map representing the movie details, or null if not found.
      */
-    public Map<String, Object> getRandomPersonalizedMovie(List<Genre> genres) {
+
+    public Map<String, Object> getRandomPersonalizedMovie(List<Genre> genres,Boolean child) {
         if (genres == null || genres.isEmpty()) {
-            return getRandomPopularMovie();
+            return getRandomPopularMovie(child);
+        }
+        if (child) {
+            return childUser();
         }
 
         try {
@@ -182,7 +249,7 @@ public class TmdbServiceImplementation implements TmdbService {
      * @param genres List of user's preferred genres.
      * @return A list of maps representing movie details.
      */
-    public List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres) {
+    public List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres, Boolean child) {
         List<Map<String, Object>> allResults = new ArrayList<>();
 
         if (genres == null || genres.isEmpty()) {
@@ -195,16 +262,19 @@ public class TmdbServiceImplementation implements TmdbService {
                     .collect(Collectors.joining(","));
 
 
-            Map<String, Object> initialResponse = webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/discover/movie")
-                            .queryParam("api_key", apiKey)
-                            .queryParam("language", "en-US")
-                            .queryParam("with_genres", genreIds)
-                            .build())
-                    .retrieve()
-                    .bodyToMono(Map.class)
-                    .block();
+            Map<String, Object> initialResponse;
+
+
+                initialResponse = webClient.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/discover/movie")
+                                .queryParam("api_key", apiKey)
+                                .queryParam("language", "en-US")
+                                .queryParam("with_genres", genreIds)
+                                .build())
+                        .retrieve()
+                        .bodyToMono(Map.class)
+                        .block();
 
             Integer totalPages = (Integer) initialResponse.get("total_pages");
             int maxPages = totalPages != null ? Math.min(totalPages, 500) : 1;
@@ -212,18 +282,25 @@ public class TmdbServiceImplementation implements TmdbService {
 
             for (int currentPage = 1; currentPage <= pagesToFetch; currentPage++) {
                 final int page = currentPage; // Declare as final to use inside lambda
+                Map<String, Object> response;
+                if(child){
+                    response=childUser();
+                }
+                else {
+                    response = webClient.get()
+                            .uri(uriBuilder -> uriBuilder
+                                    .path("/discover/movie")
+                                    .queryParam("api_key", apiKey)
+                                    .queryParam("language", "en-US")
+                                    .queryParam("with_genres", genreIds)
+                                    .queryParam("page", page)
+                                    .build())
+                            .retrieve()
+                            .bodyToMono(Map.class)
+                            .block();
+                }
 
-                Map<String, Object> response = webClient.get()
-                        .uri(uriBuilder -> uriBuilder
-                                .path("/discover/movie")
-                                .queryParam("api_key", apiKey)
-                                .queryParam("language", "en-US")
-                                .queryParam("with_genres", genreIds)
-                                .queryParam("page", page)
-                                .build())
-                        .retrieve()
-                        .bodyToMono(Map.class)
-                        .block();
+
 
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
@@ -246,7 +323,7 @@ public class TmdbServiceImplementation implements TmdbService {
      * @param genres List of genres to filter by.
      * @return A list of maps representing movie details.
      */
-    public List<Map<String, Object>> getMoviesByGenres(List<Genre> genres) {
+    public List<Map<String, Object>> getMoviesByGenres(List<Genre> genres, Boolean child) {
         List<Map<String, Object>> allResults = new ArrayList<>();
 
         if (genres == null || genres.isEmpty()) {
@@ -260,15 +337,15 @@ public class TmdbServiceImplementation implements TmdbService {
 
 
             Map<String, Object> initialResponse = webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/discover/movie")
-                            .queryParam("api_key", apiKey)
-                            .queryParam("language", "en-US")
-                            .queryParam("with_genres", genreIds)
-                            .build())
-                    .retrieve()
-                    .bodyToMono(Map.class)
-                    .block();
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/discover/movie")
+                                .queryParam("api_key", apiKey)
+                                .queryParam("language", "en-US")
+                                .queryParam("with_genres", genreIds)
+                                .build())
+                        .retrieve()
+                        .bodyToMono(Map.class)
+                        .block();
 
             Integer totalPages = (Integer) initialResponse.get("total_pages");
             int maxPages = totalPages != null ? Math.min(totalPages, 500) : 1;
@@ -277,17 +354,23 @@ public class TmdbServiceImplementation implements TmdbService {
             for (int currentPage = 1; currentPage <= pagesToFetch; currentPage++) {
                 final int page = currentPage; // Declare as final to use inside lambda
 
-                Map<String, Object> response = webClient.get()
-                        .uri(uriBuilder -> uriBuilder
-                                .path("/discover/movie")
-                                .queryParam("api_key", apiKey)
-                                .queryParam("language", "en-US")
-                                .queryParam("with_genres", genreIds)
-                                .queryParam("page", page)
-                                .build())
-                        .retrieve()
-                        .bodyToMono(Map.class)
-                        .block();
+                Map<String, Object> response ;
+                if(child){
+                    response=childUser();
+                }
+                else {
+                    response = webClient.get()
+                            .uri(uriBuilder -> uriBuilder
+                                    .path("/discover/movie")
+                                    .queryParam("api_key", apiKey)
+                                    .queryParam("language", "en-US")
+                                    .queryParam("with_genres", genreIds)
+                                    .queryParam("page", page)
+                                    .build())
+                            .retrieve()
+                            .bodyToMono(Map.class)
+                            .block();
+                }
 
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
@@ -355,7 +438,7 @@ public class TmdbServiceImplementation implements TmdbService {
         return movieDetailsList;
     }
 
-    public List<String> getRecommendedMovies(String query) {
+    public List<String> getRecommendedMovies(String query,Boolean child) {
         try {
             String cleanedQuery = query.trim().replace(" ", "+");
             if (cleanedQuery.isEmpty()) {
@@ -364,17 +447,22 @@ public class TmdbServiceImplementation implements TmdbService {
 
             String requestUrl = BASE_URL + "/similar?q=" + cleanedQuery + "&type=movie&k=" + API_KEY;
 
-            Map<String, Object> response = webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/similar")
-                            .queryParam("q", cleanedQuery)
-                            .queryParam("type", "movie")
-                            .queryParam("k", API_KEY)
-                            .build())
-                    .retrieve()
-                    .bodyToMono(Map.class)
-                    .block();
-
+            Map<String, Object> response;
+            if (child){
+                response=childUser();
+            }
+            else {
+                response = webClient.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/similar")
+                                .queryParam("q", cleanedQuery)
+                                .queryParam("type", "movie")
+                                .queryParam("k", API_KEY)
+                                .build())
+                        .retrieve()
+                        .bodyToMono(Map.class)
+                        .block();
+            }
             if (response != null && response.containsKey("similar")) {
                 Map<String, Object> similar = (Map<String, Object>) response.get("similar");
                 List<Map<String, String>> results = (List<Map<String, String>>) similar.get("results");
