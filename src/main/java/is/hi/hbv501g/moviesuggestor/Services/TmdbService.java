@@ -13,7 +13,7 @@ public interface TmdbService {
     List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres, Boolean child);
     List<Map<String, Object>> getMoviesByGenres(List<Genre> genres, Boolean child);
     List<Genre> getGenre(Map<String, Object> movie);
-    List<Map<String, Object>> getMovieDetailsFromTitles(List<String> titles, Boolean child);
+    List<Map<String, Object>> getMovieDetailsFromTitles(List<String> titles);
     List<String> getRecommendedMovies(String query, Boolean child);
 
 }

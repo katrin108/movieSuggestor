@@ -54,11 +54,17 @@ public class HomeController {
     @PostMapping("/")
     public String getNewMoviePost(HttpSession session,
                               @RequestParam(value = "genres", required = false) List<Genre> selectedGenres
-            , @RequestParam(value = "action") String action, Model model) {
+            , @RequestParam(value = "action") String action,@RequestParam(value = "child_safe",required = false)Boolean child_safe,
+                                  Model model) {
         Map<String, Object> randomMovie=null;
 
         User sessionUser = (User) session.getAttribute("LoggedInUser");
-        Boolean child=sessionUser != null && Boolean.TRUE.equals(sessionUser.getChild());
+        Boolean child=child_safe !=null ? child_safe : false;
+        if(!child &&sessionUser!=null) {
+            child= Boolean.TRUE.equals(sessionUser.getChild());
+        }
+
+
 
         if("Random Movie".equals(action)) {
             randomMovie = tmdbService.getRandomPopularMovie(child);
@@ -88,7 +94,7 @@ public class HomeController {
         if (sessionUser != null) {
             model.addAttribute("LoggedInUser",sessionUser);
         }
-
+        model.addAttribute("child_safe", child);
         model.addAttribute("tmdbMovie", randomMovie);
         model.addAttribute("movieGenre", tmdbService.getGenre(randomMovie));
 

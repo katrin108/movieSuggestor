@@ -246,7 +246,7 @@ public class UserController {
             List<String> recommendedTitles = tasteDiveService.getRecommendedMovies(query);
 
 
-            List<Map<String, Object>> recommendedMovies = tmdbService.getMovieDetailsFromTitles(recommendedTitles,loggedInUser.getChild());
+            List<Map<String, Object>> recommendedMovies = tmdbService.getMovieDetailsFromTitles(recommendedTitles);
 
             model.addAttribute("recommendedMovies", recommendedMovies);
             model.addAttribute("query", query);

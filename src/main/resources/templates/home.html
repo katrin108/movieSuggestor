@@ -56,6 +56,9 @@
     <div th:if="${LoggedInUser != null}">
         <input type="submit" name = "action" value="Movie based on saved genres">
     </div>
+    <label class="switch">Child-safe mode
+    <input id="childCheckbox" type="checkbox" name="child_safe" th:checked="${child_safe}">
+    </label>
 
 </form>
 <p>*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-</p>
