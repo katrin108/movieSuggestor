@@ -1,5 +1,6 @@
 package is.hi.hbv501g.moviesuggestor.Controllers;
 
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
 import is.hi.hbv501g.moviesuggestor.Services.implementation.TmdbServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class TmdbController {
     }
 
     @GetMapping("/tmdb/random")
-    public Map<String, Object> getRandomMovie() {
-        return tmdbService.getRandomPopularMovie();
+    public Map<String, Object> getRandomMovie(User user) {
+        return tmdbService.getRandomPopularMovie(user);
     }
 }

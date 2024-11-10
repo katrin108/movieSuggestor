@@ -56,35 +56,37 @@ public class HomeController {
                               @RequestParam(value = "genres", required = false) List<Genre> selectedGenres
             , @RequestParam(value = "action") String action, Model model) {
         Map<String, Object> randomMovie=null;
+
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
         if("Random Movie".equals(action)) {
-            randomMovie = tmdbService.getRandomPopularMovie();
+            randomMovie = tmdbService.getRandomPopularMovie(sessionUser);
         }
         else if("Movie based on selected genres".equals(action)) {
             if (selectedGenres != null) {
-                randomMovie= tmdbService.getRandomPersonalizedMovie(selectedGenres);
+                randomMovie= tmdbService.getRandomPersonalizedMovie(selectedGenres,sessionUser);
             }
             else {
-                randomMovie = tmdbService.getRandomPopularMovie();
+                randomMovie = tmdbService.getRandomPopularMovie(sessionUser);
             }
             System.out.println("Selected Genres: " + selectedGenres);
         }
         else if("Movie based on saved genres".equals(action)) {
-            User sessionUser = (User) session.getAttribute("LoggedInUser");
+
             if (sessionUser != null) {
-                randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser.getGenres());
+                randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser.getGenres(),sessionUser);
             }
             else {
                 return "redirect:/loggedin";
             }
         }
         else {
-            randomMovie = tmdbService.getRandomPopularMovie();
+            randomMovie = tmdbService.getRandomPopularMovie(sessionUser);
         }
-        User sessionUser = (User) session.getAttribute("LoggedInUser");
+
         if (sessionUser != null) {
             model.addAttribute("LoggedInUser",sessionUser);
         }
-        model.addAttribute("LoggedInUser",sessionUser);
+
         model.addAttribute("tmdbMovie", randomMovie);
         model.addAttribute("movieGenre", tmdbService.getGenre(randomMovie));
 

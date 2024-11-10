@@ -1,6 +1,7 @@
 package is.hi.hbv501g.moviesuggestor.Services.implementation;
 
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class TmdbServiceImplementation implements TmdbService {
      *
      * @return A map representing the movie details, or null if not found.
      */
-    public Map<String, Object> getRandomPopularMovie() {
+    public Map<String, Object> getRandomPopularMovie(User user) {
         try {
 
             Map<String, Object> initialResponse = webClient.get()
@@ -86,9 +87,9 @@ public class TmdbServiceImplementation implements TmdbService {
      * @param genres List of user's preferred genres.
      * @return A map representing the movie details, or null if not found.
      */
-    public Map<String, Object> getRandomPersonalizedMovie(List<Genre> genres) {
+    public Map<String, Object> getRandomPersonalizedMovie(List<Genre> genres,User user) {
         if (genres == null || genres.isEmpty()) {
-            return getRandomPopularMovie();
+            return getRandomPopularMovie(user);
         }
 
         try {
@@ -146,7 +147,7 @@ public class TmdbServiceImplementation implements TmdbService {
      * @param genres List of user's preferred genres.
      * @return A list of maps representing movie details.
      */
-    public List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres) {
+    public List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres, User user) {
         List<Map<String, Object>> allResults = new ArrayList<>();
 
         if (genres == null || genres.isEmpty()) {
@@ -210,7 +211,7 @@ public class TmdbServiceImplementation implements TmdbService {
      * @param genres List of genres to filter by.
      * @return A list of maps representing movie details.
      */
-    public List<Map<String, Object>> getMoviesByGenres(List<Genre> genres) {
+    public List<Map<String, Object>> getMoviesByGenres(List<Genre> genres, User user) {
         List<Map<String, Object>> allResults = new ArrayList<>();
 
         if (genres == null || genres.isEmpty()) {
@@ -289,7 +290,7 @@ public class TmdbServiceImplementation implements TmdbService {
     }
 
     /* Fetches movie details from TMDB API based on a list of movie titles. */
-    public List<Map<String, Object>> getMovieDetailsFromTitles(List<String> titles) {
+    public List<Map<String, Object>> getMovieDetailsFromTitles(List<String> titles, User user) {
         List<Map<String, Object>> movieDetailsList = new ArrayList<>();
 
         for (String title : titles) {

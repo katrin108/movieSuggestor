@@ -217,9 +217,9 @@ public class UserController {
             List<Genre> userGenres = loggedInUser.getGenres();
             Map<String, Object> recommendedMovie;
             if (userGenres != null && !userGenres.isEmpty()) {
-                recommendedMovie = tmdbService.getRandomPersonalizedMovie(userGenres);
+                recommendedMovie = tmdbService.getRandomPersonalizedMovie(userGenres,loggedInUser);
             } else {
-                recommendedMovie = tmdbService.getRandomPopularMovie();
+                recommendedMovie = tmdbService.getRandomPopularMovie(loggedInUser);
             }
             model.addAttribute("recommendedMovie", recommendedMovie);
             model.addAttribute("hasSuggestedMovie", recommendedMovie != null);
@@ -242,11 +242,11 @@ public class UserController {
     @GetMapping("/api/movies/recommend")
     public String recommendMovies(@RequestParam String query, Model model,HttpSession session) {
         try {
-
+            User loggedInUser = (User) session.getAttribute("LoggedInUser");
             List<String> recommendedTitles = tasteDiveService.getRecommendedMovies(query);
 
 
-            List<Map<String, Object>> recommendedMovies = tmdbService.getMovieDetailsFromTitles(recommendedTitles);
+            List<Map<String, Object>> recommendedMovies = tmdbService.getMovieDetailsFromTitles(recommendedTitles,loggedInUser);
 
             model.addAttribute("recommendedMovies", recommendedMovies);
             model.addAttribute("query", query);
