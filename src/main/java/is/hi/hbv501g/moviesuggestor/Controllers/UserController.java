@@ -217,9 +217,9 @@ public class UserController {
             List<Genre> userGenres = loggedInUser.getGenres();
             Map<String, Object> recommendedMovie;
             if (userGenres != null && !userGenres.isEmpty()) {
-                recommendedMovie = tmdbService.getRandomPersonalizedMovie(userGenres,loggedInUser);
+                recommendedMovie = tmdbService.getRandomPersonalizedMovie(userGenres,loggedInUser.getChild());
             } else {
-                recommendedMovie = tmdbService.getRandomPopularMovie(loggedInUser);
+                recommendedMovie = tmdbService.getRandomPopularMovie(loggedInUser.getChild());
             }
             model.addAttribute("recommendedMovie", recommendedMovie);
             model.addAttribute("hasSuggestedMovie", recommendedMovie != null);
@@ -246,7 +246,7 @@ public class UserController {
             List<String> recommendedTitles = tasteDiveService.getRecommendedMovies(query);
 
 
-            List<Map<String, Object>> recommendedMovies = tmdbService.getMovieDetailsFromTitles(recommendedTitles,loggedInUser);
+            List<Map<String, Object>> recommendedMovies = tmdbService.getMovieDetailsFromTitles(recommendedTitles,loggedInUser.getChild());
 
             model.addAttribute("recommendedMovies", recommendedMovies);
             model.addAttribute("query", query);

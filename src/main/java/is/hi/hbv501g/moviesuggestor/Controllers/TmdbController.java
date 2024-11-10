@@ -21,6 +21,6 @@ public class TmdbController {
 
     @GetMapping("/tmdb/random")
     public Map<String, Object> getRandomMovie(User user) {
-        return tmdbService.getRandomPopularMovie(user);
+        return tmdbService.getRandomPopularMovie(user.getChild());
     }
 }

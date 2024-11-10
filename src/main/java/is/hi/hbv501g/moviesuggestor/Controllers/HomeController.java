@@ -58,29 +58,31 @@ public class HomeController {
         Map<String, Object> randomMovie=null;
 
         User sessionUser = (User) session.getAttribute("LoggedInUser");
+        Boolean child=sessionUser != null && Boolean.TRUE.equals(sessionUser.getChild());
+
         if("Random Movie".equals(action)) {
-            randomMovie = tmdbService.getRandomPopularMovie(sessionUser);
+            randomMovie = tmdbService.getRandomPopularMovie(child);
         }
         else if("Movie based on selected genres".equals(action)) {
             if (selectedGenres != null) {
-                randomMovie= tmdbService.getRandomPersonalizedMovie(selectedGenres,sessionUser);
+                randomMovie= tmdbService.getRandomPersonalizedMovie(selectedGenres,child);
             }
             else {
-                randomMovie = tmdbService.getRandomPopularMovie(sessionUser);
+                randomMovie = tmdbService.getRandomPopularMovie(child);
             }
             System.out.println("Selected Genres: " + selectedGenres);
         }
         else if("Movie based on saved genres".equals(action)) {
 
             if (sessionUser != null) {
-                randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser.getGenres(),sessionUser);
+                randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser.getGenres(),child);
             }
             else {
                 return "redirect:/loggedin";
             }
         }
         else {
-            randomMovie = tmdbService.getRandomPopularMovie(sessionUser);
+            randomMovie = tmdbService.getRandomPopularMovie(child);
         }
 
         if (sessionUser != null) {

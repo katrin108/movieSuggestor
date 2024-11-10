@@ -1,7 +1,7 @@
 package is.hi.hbv501g.moviesuggestor.Services.implementation;
 
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
-import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
+
 import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +25,18 @@ public class TmdbServiceImplementation implements TmdbService {
 
     private static final String API_KEY = "1039593-MovieSug-B6A0F246";
 
+
+    private static Map<String,String> child_safe=Map.of(
+            "US","G",//US
+            "GB","U",//UK
+            "CA","G",//CAN
+            "AU","G", //AUS
+            "JP","G",//JAP
+            "IN","U",//IN
+            "FR","0",//FRA
+            "DE","0"//GER
+
+    );
     public TmdbServiceImplementation(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl("https://api.themoviedb.org/3").build();
     }
@@ -34,7 +46,7 @@ public class TmdbServiceImplementation implements TmdbService {
      *
      * @return A map representing the movie details, or null if not found.
      */
-    public Map<String, Object> getRandomPopularMovie(User user) {
+    public Map<String, Object> getRandomPopularMovie(Boolean child) {
         try {
 
             Map<String, Object> initialResponse = webClient.get()
@@ -87,10 +99,11 @@ public class TmdbServiceImplementation implements TmdbService {
      * @param genres List of user's preferred genres.
      * @return A map representing the movie details, or null if not found.
      */
-    public Map<String, Object> getRandomPersonalizedMovie(List<Genre> genres,User user) {
+    public Map<String, Object> getRandomPersonalizedMovie(List<Genre> genres,Boolean child) {
         if (genres == null || genres.isEmpty()) {
-            return getRandomPopularMovie(user);
+            return getRandomPopularMovie(child);
         }
+
 
         try {
             String genreIds = genres.stream()
@@ -98,16 +111,37 @@ public class TmdbServiceImplementation implements TmdbService {
                     .collect(Collectors.joining(","));
 
 
-            Map<String, Object> initialResponse = webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/discover/movie")
-                            .queryParam("api_key", apiKey)
-                            .queryParam("language", "en-US")
-                            .queryParam("with_genres", genreIds)
-                            .build())
-                    .retrieve()
-                    .bodyToMono(Map.class)
-                    .block();
+            Map<String, Object> initialResponse;
+            if(child){
+                System.out.println("true Child");
+                initialResponse = webClient.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/discover/movie")
+                                .queryParam("api_key", apiKey)
+                                .queryParam("language", "en-US")
+                                .queryParam("with_genres", genreIds)
+                                .queryParam("certification_country", "US")
+                                .queryParam("certification.lte", "G")
+                                .build())
+                        .retrieve()
+                        .bodyToMono(Map.class)
+                        .block();
+            }
+            else {
+                initialResponse = webClient.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/discover/movie")
+                                .queryParam("api_key", apiKey)
+                                .queryParam("language", "en-US")
+                                .queryParam("with_genres", genreIds)
+
+                                .build())
+                        .retrieve()
+                        .bodyToMono(Map.class)
+                        .block();
+            }
+
+
 
             Integer totalPages = (Integer) initialResponse.get("total_pages");
             int maxPages = totalPages != null ? Math.min(totalPages, 500) : 1;
@@ -147,7 +181,7 @@ public class TmdbServiceImplementation implements TmdbService {
      * @param genres List of user's preferred genres.
      * @return A list of maps representing movie details.
      */
-    public List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres, User user) {
+    public List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres, Boolean child) {
         List<Map<String, Object>> allResults = new ArrayList<>();
 
         if (genres == null || genres.isEmpty()) {
@@ -211,7 +245,7 @@ public class TmdbServiceImplementation implements TmdbService {
      * @param genres List of genres to filter by.
      * @return A list of maps representing movie details.
      */
-    public List<Map<String, Object>> getMoviesByGenres(List<Genre> genres, User user) {
+    public List<Map<String, Object>> getMoviesByGenres(List<Genre> genres, Boolean child) {
         List<Map<String, Object>> allResults = new ArrayList<>();
 
         if (genres == null || genres.isEmpty()) {
@@ -290,7 +324,7 @@ public class TmdbServiceImplementation implements TmdbService {
     }
 
     /* Fetches movie details from TMDB API based on a list of movie titles. */
-    public List<Map<String, Object>> getMovieDetailsFromTitles(List<String> titles, User user) {
+    public List<Map<String, Object>> getMovieDetailsFromTitles(List<String> titles, Boolean child) {
         List<Map<String, Object>> movieDetailsList = new ArrayList<>();
 
         for (String title : titles) {
@@ -320,7 +354,7 @@ public class TmdbServiceImplementation implements TmdbService {
         return movieDetailsList;
     }
 
-    public List<String> getRecommendedMovies(String query) {
+    public List<String> getRecommendedMovies(String query,Boolean child) {
         try {
             String cleanedQuery = query.trim().replace(" ", "+");
             if (cleanedQuery.isEmpty()) {
