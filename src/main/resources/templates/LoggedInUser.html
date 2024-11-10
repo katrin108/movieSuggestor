@@ -53,10 +53,10 @@
 
 
 <h2>Your watch history</h2>
-<div th:if="${watched?.movies?.size() == 0}">
+<div th:if="${watched != null and watched.getMovies != null and watched.getMovies.size() == 0}">
     <p>You have no movies in your watch history</p>
 </div>
-<div th:if="${watched?.movies?.size() > 0}">
+<div th:if="${watched != null and watched.getMovies != null and watched.getMovies.size() > 0}">
     <table>
         <thead>
         <tr>
@@ -67,11 +67,16 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="movie : ${watched.movies}">
+        <tr th:each="movie : ${watched.getMovies}">
             <td th:text="${movie.title}"></td>
             <td th:text="${movie.description}"></td>
             <td th:text="${movie.rating}"></td>
-            <td><a th:href="@{/delete/{id}(id=${movie.id})}">Delete</a></td>
+            <td>
+                <form action="#" th:action="@{/deleteMovieFromWatched}" method="post">
+                    <input type="hidden" name="movieId" th:value="${movie.id}" />
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
         </tr>
         </tbody>
     </table>
@@ -84,7 +89,7 @@
     <button type="submit">Add Movie List</button>
 </form>
 
-<div th:if="${movieLists.size() == 0}">
+<div th:if="${movieLists.size() == 0 or movieLists.size() == null}">
     <p>You have no movie lists yet.</p>
 </div>
 
@@ -113,7 +118,13 @@
                         <td th:text="${movie.title}"></td>
                         <td th:text="${movie.description}"></td>
                         <td th:text="${movie.rating}"></td>
-                        <td><a th:href="@{/delete/{id}(id=${movie.id})}">Delete</a></td>
+                        <td>
+                            <form th:action="@{/removeMovieFromList}" method="post">
+                                <input type="hidden" name="movieListId" th:value="${movieList.id}" />
+                                <input type="hidden" name="movieId" th:value="${movie.id}" />
+                                <button type="submit">Delete Movie</button>
+                            </form>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -144,6 +155,15 @@
                 <option th:each="list : ${movieLists}" th:value="${list.id}" th:text="${list.name}"></option>
             </select>
             <button type="submit">Add to List</button>
+
+        </form>
+        <form action="#" th:action="@{/addMovieToWatched}" method="post">
+            <input type="hidden" name="movieId" th:value="${recommendedMovie.id}"/>
+            <input type="hidden" name="movieTitle" th:value="${recommendedMovie.title}"/>
+            <input type="hidden" name="movieGenreIds" th:value="${recommendedMovie.genre_ids}"/>
+            <input type="hidden" name="movieOverview" th:value="${recommendedMovie.overview}"/>
+            <input type="hidden" name="movieReleaseDate" th:value="${recommendedMovie.release_date}"/>
+            <button type="submit">add Movie To Watched</button>
         </form>
     </div>
 </div>

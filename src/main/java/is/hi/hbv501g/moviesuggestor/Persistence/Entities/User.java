@@ -41,7 +41,12 @@ public class User {
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Watched watched;
 
-    public User() {}
+    public User() {
+
+        child=false;
+        movieLists=new ArrayList<>();
+        watched=new Watched();
+    }
 
     public User(String username, String password, String email, List<Genre> genres, Boolean child) {
         this.username = username;
@@ -107,39 +112,13 @@ public class User {
     public void setMovieLists(List<MovieList> movieLists) {
         this.movieLists = movieLists;
     }
+    public void setWatched(Watched watched) {this.watched = watched;}
 
     public Watched getWatched() {
+
         return watched;
     }
 
-    public void setWatched(Watched watched) {
-        this.watched = watched;
-    }
-}
 
-/*
-public User(String username, String password, String email, List<Genre> genres,boolean child) {
-    public User(String username, String password, String email, List<Genre> genres, Boolean child) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.genres =genres != null ? genres : new ArrayList<>();
-        this.child=child;
-    }
-    public List<MovieList> getMovieLists() {
-        return movieLists;
-    }
-    public void setMovieLists(List<MovieList> movieLists) {
-        this.movieLists = movieLists;
-    }
-    public Watched getWatched() { return watched; }
-    public void setWatched(Watched watched) { this.watched = watched; }
-    public List<Genre> getGenres() {
-        return genres;
-    }
-    public void setGenres(List<Genre> genres) {
-        this.genres = genres;
-        this.genres = genres != null ? genres : new ArrayList<>();
-        this.child = child;
-    }
-*/
+
+}

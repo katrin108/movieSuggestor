@@ -28,6 +28,7 @@ public class Movie {
     private String releaseDate;
     private double runtime;
     private double rating;
+    private float TmdbId;
 
 
 
@@ -37,13 +38,15 @@ public class Movie {
     public Movie() {
     }
 
-    public Movie(String title, List<Genre> genre, String description, String releaseDate, double runtime, double rating) {
+    public Movie(float TmdbId,String title, List<Genre> genre, String description, String releaseDate, double runtime, double rating) {
         this.title = title;
         this.genre = genre;
         this.description = description;
         this.releaseDate = releaseDate;
         this.runtime = runtime;
         this.rating = rating;
+
+        this.TmdbId = TmdbId;
 
     }
 

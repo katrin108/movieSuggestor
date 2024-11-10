@@ -1,14 +1,8 @@
 package is.hi.hbv501g.moviesuggestor.Controllers;
 
-import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
-import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Movie;
-import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
-import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
-import is.hi.hbv501g.moviesuggestor.Services.TasteDiveService;
-import is.hi.hbv501g.moviesuggestor.Services.MovieListService;
-import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.*;
+import is.hi.hbv501g.moviesuggestor.Services.*;
 import is.hi.hbv501g.moviesuggestor.Services.implementation.TmdbServiceImplementation;
-import is.hi.hbv501g.moviesuggestor.Services.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,18 +22,23 @@ public class UserController {
     private final TmdbService tmdbService;
     private final TasteDiveService tasteDiveService;
     private final MovieListService movieListService;
+    private final MovieService movieService;
+    private WatchedService watchedService;
 
     @Autowired
-    public UserController(UserService userService, TmdbService tmdbService, TasteDiveService tasteDiveService, MovieListService movieListService) {
+    public UserController(UserService userService, TmdbService tmdbService, TasteDiveService tasteDiveService, MovieListService movieListService, MovieService movieService,WatchedService watchedService) {
 
         this.userService = userService;
         this.tmdbService = tmdbService;
         this.tasteDiveService = tasteDiveService;
         this.movieListService = movieListService;
+        this.movieService = movieService;
+        this.watchedService = watchedService;
     }
 
     @GetMapping("/signup")
     public String signup(Model model) {
+
         model.addAttribute("user", new User());
         model.addAttribute("genres", Genre.values());
         return "signup";
@@ -56,8 +55,8 @@ public class UserController {
         User exists = userService.findUserByUsername(user.getUsername());
         if (exists == null) {
             user.setGenres(selectedGenres != null ? selectedGenres : new ArrayList<>());
-            user.setChild(false);
-            user.setMovieLists(new ArrayList<>());
+
+
 
             userService.saveUser(user);
             session.setAttribute("LoggedInUser", user);
@@ -85,6 +84,10 @@ public class UserController {
         if (exists != null) {
             session.setAttribute("LoggedInUser", exists);
             model.addAttribute("LoggedInUser", exists);
+            Watched watched=watchedService.getWatchedByUserId(exists.getId());
+            exists.setWatched(watched);
+            session.setAttribute("watched", watched);
+
             return "redirect:/loggedin";
         } else {
             model.addAttribute("errorMessage", "Invalid username or password");
@@ -106,6 +109,8 @@ public class UserController {
             model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
 
             model.addAttribute("genres", Genre.values());
+            model.addAttribute("watched",sessionUser.getWatched());
+
             return "loggedInUser";
         }
         return "redirect:/login";
@@ -172,11 +177,98 @@ public class UserController {
             HttpSession session){
         //Map<String, Object> movie = tmdbService.getMovieWithID(movieId);
         List<Genre> genres = getGenres(movieGenreIds);
-        Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
+        Movie movie = new Movie(movieId,movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
         MovieList movieList = movieListService.findMovieListById(listID);
         movieListService.addMovieToList(movieList, movie);
         return "redirect:/loggedin";
     }
+    @PostMapping("/removeMovieFromList")
+    public String removeMovieFromList(
+            @RequestParam("movieListId") long listID,
+            @RequestParam("movieId") long movieId,
+
+            HttpSession session){
+        MovieList movieList = movieListService.findMovieListById(listID);
+
+        if (movieList != null) {
+            List<Movie> movies = movieList.getMovies();
+
+            Movie movieToRemove = movieService.findMovieById(movieId);
+
+            if (movieToRemove != null && movies.contains(movieToRemove)) {
+
+                movies.remove(movieToRemove);
+
+                movieList.setMovies(movies);
+
+                movieListService.saveMovieList(movieList);
+
+                User sessionUser = (User) session.getAttribute("LoggedInUser");
+                if (sessionUser != null) {
+                    session.setAttribute("LoggedInUser", sessionUser);
+                }
+            }
+        }
+
+        return "redirect:/loggedin";
+    }
+
+    @PostMapping("/addMovieToWatched")
+    public String addMovieToWatched(
+            @RequestParam("movieId") long movieId,
+            @RequestParam("movieTitle") String movieTitle,
+            @RequestParam("movieGenreIds") String movieGenreIds,
+            @RequestParam("movieOverview") String movieOverview,
+            @RequestParam("movieReleaseDate") String movieReleaseDate,
+            HttpSession session, Model model) {
+
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        System.out.println(movieGenreIds+"GENRASSAS");
+        if (sessionUser != null) {
+
+            List<Genre> genres = Genre.fromString(movieGenreIds);
+
+            Movie movie = new Movie(movieId, movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
+
+            if (sessionUser.getWatched() == null) {
+                sessionUser.setWatched(new Watched());
+            }
+
+            sessionUser.getWatched().addMovie(movie);
+
+            movieService.saveMovie(movie);
+            watchedService.save(sessionUser.getWatched());
+            userService.saveUser(sessionUser);
+
+            session.setAttribute("LoggedInUser", sessionUser);
+        }
+
+        return "redirect:/loggedin";
+    }
+
+    @PostMapping("/deleteMovieFromWatched")
+    public String deleteMovieFromWatched(HttpSession session,@RequestParam("movieId") long movieId,Model model){
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        System.out.println("step1");
+        if (sessionUser != null) {
+            Movie m=movieService.findMovieById(movieId);
+            System.out.println("step2");
+            if (m!=null) {
+                System.out.println("step3");
+                sessionUser.getWatched().removeMovie(m);
+                watchedService.save(sessionUser.getWatched());
+
+            }
+            session.setAttribute("LoggedInUser", sessionUser);
+
+            System.out.println("movie addded:"+sessionUser.getWatched().getMovies().size());
+        }
+
+
+        return "redirect:/loggedin";
+    }
+
+
 
     @PostMapping("/deleteMovieList")
     public String deleteMovieList(@RequestParam("movieListId") long movieListId, HttpSession session) {
@@ -235,15 +327,16 @@ public class UserController {
             List<Genre> userGenres = loggedInUser.getGenres();
             Map<String, Object> recommendedMovie;
             if (userGenres != null && !userGenres.isEmpty()) {
-                recommendedMovie = tmdbService.getRandomPersonalizedMovie(userGenres,loggedInUser.getChild());
+                recommendedMovie = tmdbService.getRandomPersonalizedMovie(sessionUser,userGenres,loggedInUser.getChild());
             } else {
-                recommendedMovie = tmdbService.getRandomPopularMovie(loggedInUser.getChild());
+                recommendedMovie = tmdbService.getRandomPopularMovie(sessionUser,loggedInUser.getChild());
             }
             model.addAttribute("recommendedMovie", recommendedMovie);
             model.addAttribute("hasSuggestedMovie", recommendedMovie != null);
             model.addAttribute("LoggedInUser", loggedInUser);
             model.addAttribute("genres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
+            model.addAttribute("watched",sessionUser.getWatched());
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
             model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
         }
@@ -275,6 +368,7 @@ public class UserController {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         if (sessionUser != null) {
             model.addAttribute("LoggedInUser",sessionUser);
+            model.addAttribute("watched",sessionUser.getWatched());
         }
         return "home";
     }

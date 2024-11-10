@@ -103,6 +103,6 @@ public class UserServiceImplementation implements UserService {
             return List.of();
         }
 
-        return tmdbService.getMoviesByGenres(user.getGenres(),user.getChild());
+        return tmdbService.getMoviesByGenres(user,user.getGenres(),user.getChild());
     }
 }
