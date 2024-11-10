@@ -6,6 +6,7 @@
 </head>
 <body>
 <h2>You are now logged in</h2>
+<!-- Staða notenda stillingar. Status of user settings.-->
 <p>Your username is: <span th:text="${LoggedInUser.username}"></span></p>
 <p>Your email is: <span th:text="${LoggedInUser.email}"></span></p>
 <p>Child-safe mode: <span th:text="${LoggedInUser.child ? 'on' : 'off'}"></span></p>
@@ -16,14 +17,13 @@
     </li>
 </ul>
 
+<!-- Síðu breytingar takkar. Navigation buttons -->
 <form th:action="@{/}" method="get">
     <button type="submit">Home page</button>
 </form>
-
 <form action="#" th:action="@{/logout}" method="post">
     <button type="submit">Log out</button>
 </form>
-
 <form action="#" th:action="@{/toggleSettings}" method="post">
     <button type="submit" id="Settings">Settings</button>
 </form>
@@ -50,7 +50,6 @@
 </div>
 
 <p><a href="/loggedin/preferences">Update preferences</a></p>
-
 
 <h2>Your watch history</h2>
 <div th:if="${watched?.movies?.size() == 0}">
