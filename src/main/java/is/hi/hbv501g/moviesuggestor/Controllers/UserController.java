@@ -1,6 +1,7 @@
 package is.hi.hbv501g.moviesuggestor.Controllers;
 
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Movie;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 import is.hi.hbv501g.moviesuggestor.Services.TasteDiveService;
@@ -160,6 +161,23 @@ public class UserController {
         return "redirect:/loggedin";
     }
 
+    @PostMapping("/addMovieToList")
+    public String addMovieToList(
+            @RequestParam("movieListId") long listID,
+            @RequestParam("movieId") long movieId,
+            @RequestParam("movieTitle") String movieTitle,
+            @RequestParam("movieGenreIds") List<String> movieGenreIds,
+            @RequestParam("movieOverview") String movieOverview,
+            @RequestParam("movieReleaseDate") String movieReleaseDate,
+            HttpSession session){
+        //Map<String, Object> movie = tmdbService.getMovieWithID(movieId);
+        List<Genre> genres = getGenres(movieGenreIds);
+        Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
+        MovieList movieList = movieListService.findMovieListById(listID);
+        movieListService.addMovieToList(movieList, movie);
+        return "redirect:/loggedin";
+    }
+
     @PostMapping("/deleteMovieList")
     public String deleteMovieList(@RequestParam("movieListId") long movieListId, HttpSession session) {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
@@ -261,4 +279,21 @@ public class UserController {
         return "home";
     }
 
+    public List<Genre> getGenres(List<String> genreIds) {
+        List<Genre> genres = new ArrayList<Genre>();
+
+        if (genreIds != null && !genreIds.isEmpty()) {
+            for (String genreId : genreIds) {
+                try {
+                    Genre genre = Genre.fromTmdbId(Integer.valueOf(genreId));
+                    genres.add(genre);
+                }
+                catch (Exception e){
+                    System.err.println("Unexpected error: " + e.getMessage());
+                }
+            }
+        }
+
+        return genres;
+    }
 }

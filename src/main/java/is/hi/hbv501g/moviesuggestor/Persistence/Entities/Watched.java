@@ -19,7 +19,7 @@ public class Watched {
     private User user;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "movie_list_movies", joinColumns = @JoinColumn(name = "movie_list_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    @JoinTable(name = "watched_movies", joinColumns = @JoinColumn(name = "watched_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
     private List<Movie> movies;
 
     public Watched() { movies = new ArrayList<Movie>(); }

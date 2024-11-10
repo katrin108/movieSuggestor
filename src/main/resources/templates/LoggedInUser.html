@@ -135,6 +135,10 @@
         <img th:src="'https://image.tmdb.org/t/p/w500' + ${recommendedMovie.poster_path}" alt="Movie Poster" style="max-width: 200px;">
         <form th:action="@{/addMovieToList}" method="post">
             <input type="hidden" name="movieId" th:value="${recommendedMovie.id}"/>
+            <input type="hidden" name="movieTitle" th:value="${recommendedMovie.title}"/>
+            <input type="hidden" name="movieGenreIds" th:value="${recommendedMovie.genre_ids}"/>
+            <input type="hidden" name="movieOverview" th:value="${recommendedMovie.overview}"/>
+            <input type="hidden" name="movieReleaseDate" th:value="${recommendedMovie.release_date}"/>
             <label for="movieListId">Select a list to add:</label>
             <select name="movieListId" id="movieListId">
                 <option th:each="list : ${movieLists}" th:value="${list.id}" th:text="${list.name}"></option>

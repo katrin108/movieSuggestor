@@ -2,7 +2,10 @@ package is.hi.hbv501g.moviesuggestor.Services.implementation;
 
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Movie;
+
 import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
+import org.apache.catalina.connector.Request;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,6 +30,41 @@ public class TmdbServiceImplementation implements TmdbService {
 
     public TmdbServiceImplementation(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl("https://api.themoviedb.org/3").build();
+    }
+
+    /**
+     * Calls the TMDB and retrieves details of a movie based on a given ID
+     * @param id
+     * @return
+     */
+    public Map<String,Object> getMovieWithID(long id) {
+        System.out.println("Made it to getMovieWith ID: " + id);
+
+        try {
+            Map<String, Object> response = webClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/movie/" + id)
+                            .queryParam("movie_id", id)
+                            .queryParam("api_key", apiKey)
+                            .queryParam("language", "en-US")
+                            .build())
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+            Map<String, Object> results = (Map<String, Object>) response.get("results");
+            if (results == null) { System.out.println("Result is null"); }
+            if (results != null /*&& !results.isEmpty()*/) {
+                //Map<String, Object> results = results.get(0);
+                for (String key : results.keySet()) {
+                    System.out.println(key);
+                }
+                return results;
+            }
+            } catch (Exception e) {
+                System.err.println("Error fetching details for movie with id: '" + id + "': " + e.getMessage());
+            }
+        return null;
     }
 
     /**
@@ -82,6 +120,7 @@ public class TmdbServiceImplementation implements TmdbService {
 
         return null;
     }
+
 
     public Map<String, Object> childUser() {
         try {

@@ -23,6 +23,7 @@ public class Movie {
     @CollectionTable(name = "movie_genres",joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "genra")
     private List<Genre> genre;
+    @Column(length=1024)
     private String description;
     private String releaseDate;
     private double runtime;
