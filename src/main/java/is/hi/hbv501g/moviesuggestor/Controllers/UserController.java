@@ -175,6 +175,7 @@ public class UserController {
         //List<Genre> genres = getGenres(movieGenreIds);
         List<Genre> genres = new ArrayList<Genre>();
         Movie movie = new Movie(movieTitle, genres, "movieOverview", movieReleaseDate, 0, 0);
+        System.out.println("the movie: "+movie);
         MovieList movieList = movieListService.findMovieListById(listID);
         movieListService.addMovieToList(movieList, movie);
         return "redirect:/loggedin";

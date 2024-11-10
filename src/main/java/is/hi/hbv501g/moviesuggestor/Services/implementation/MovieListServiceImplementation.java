@@ -41,9 +41,10 @@ public class MovieListServiceImplementation implements MovieListService {
     }
 
     @Override
-    public MovieList addMovieToList(MovieList movieList, Movie movie) {
+    public void addMovieToList(MovieList movieList, Movie movie) {
         movieList.getMovies().add(movie);
-        return movieListRepository.save(movieList);
+        movieListRepository.save(movieList);
+        System.out.println("The movies in the movie list"+movieList.getMovies());
     }
 
     @Override
@@ -60,7 +61,15 @@ public class MovieListServiceImplementation implements MovieListService {
 
     @Override
     public MovieList findMovieListById(long id) {
-        return movieListRepository.findMovieListById(id);
+        if(movieListRepository.existsById(id)){
+            System.out.println("Movielist exists");
+            return movieListRepository.findMovieListById(id);
+        }
+        else {
+            System.out.println("Movielist does not exist");
+            return null;
+        }
+
     }
 
     @Override
