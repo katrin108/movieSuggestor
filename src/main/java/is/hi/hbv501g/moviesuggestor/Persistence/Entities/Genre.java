@@ -3,6 +3,9 @@ package is.hi.hbv501g.moviesuggestor.Persistence.Entities;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public enum Genre {
 
     ACTION(28),
@@ -43,5 +46,22 @@ public enum Genre {
             }
         }
         throw new IllegalArgumentException("Invalid tmdbId: " + tmdbId);
+    }
+    public static List<Genre> fromString(String genreIds) {
+
+        String cleanedGenreIds = genreIds.replaceAll("[\\[\\]]", "");
+        String[] genreIdArray = cleanedGenreIds.split(",");
+
+        List<Genre> genres = new ArrayList<>();
+        for (String genreIdStr : genreIdArray) {
+            try {
+                int genreId = Integer.parseInt(genreIdStr.trim());
+                Genre genre = Genre.fromTmdbId(genreId);
+                genres.add(genre);
+            } catch ( IllegalArgumentException e) {
+                System.err.println("Invalid genre ID: " + genreIdStr);
+            }
+        }
+        return genres;
     }
 }

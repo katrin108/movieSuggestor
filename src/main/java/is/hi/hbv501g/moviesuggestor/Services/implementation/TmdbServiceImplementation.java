@@ -4,6 +4,7 @@ import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Movie;
 
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
 import org.apache.catalina.connector.Request;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,7 +73,7 @@ public class TmdbServiceImplementation implements TmdbService {
      *
      * @return A map representing the movie details, or null if not found.
      */
-    public Map<String, Object> getRandomPopularMovie(Boolean child) {
+    public Map<String, Object> getRandomPopularMovie(User user, Boolean child) {
         try {
             if (child) {
                 return childUser();
@@ -186,9 +187,9 @@ public class TmdbServiceImplementation implements TmdbService {
      * @return A map representing the movie details, or null if not found.
      */
 
-    public Map<String, Object> getRandomPersonalizedMovie(List<Genre> genres,Boolean child) {
+    public Map<String, Object> getRandomPersonalizedMovie(User user,List<Genre> genres,Boolean child) {
         if (genres == null || genres.isEmpty()) {
-            return getRandomPopularMovie(child);
+            return getRandomPopularMovie(user,child);
         }
         if (child) {
             return childUser();
@@ -249,7 +250,7 @@ public class TmdbServiceImplementation implements TmdbService {
      * @param genres List of user's preferred genres.
      * @return A list of maps representing movie details.
      */
-    public List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres, Boolean child) {
+    public List<Map<String, Object>> getPersonalizedMovieSuggestions(User user,List<Genre> genres, Boolean child) {
         List<Map<String, Object>> allResults = new ArrayList<>();
 
         if (genres == null || genres.isEmpty()) {
@@ -323,7 +324,7 @@ public class TmdbServiceImplementation implements TmdbService {
      * @param genres List of genres to filter by.
      * @return A list of maps representing movie details.
      */
-    public List<Map<String, Object>> getMoviesByGenres(List<Genre> genres, Boolean child) {
+    public List<Map<String, Object>> getMoviesByGenres(User user,List<Genre> genres, Boolean child) {
         List<Map<String, Object>> allResults = new ArrayList<>();
 
         if (genres == null || genres.isEmpty()) {
@@ -374,8 +375,13 @@ public class TmdbServiceImplementation implements TmdbService {
 
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
+                List<Movie> UserMovies=user.getWatched().getMovies();
                 if (results != null) {
+
+                    System.out.println(results.get(0));
                     allResults.addAll(results);
+
+
                 }
             }
         } catch (WebClientResponseException e) {
@@ -438,7 +444,7 @@ public class TmdbServiceImplementation implements TmdbService {
         return movieDetailsList;
     }
 
-    public List<String> getRecommendedMovies(String query,Boolean child) {
+    public List<String> getRecommendedMovies(User user,String query,Boolean child) {
         try {
             String cleanedQuery = query.trim().replace(" ", "+");
             if (cleanedQuery.isEmpty()) {

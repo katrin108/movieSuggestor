@@ -7,17 +7,17 @@ import java.util.List;
 import java.util.Map;
 
 public interface TmdbService {
-    Map<String,Object> getRandomPopularMovie( Boolean child);
+    Map<String,Object> getRandomPopularMovie(User user, Boolean child);
 
 
-    Map<String,Object> getRandomPersonalizedMovie(List<Genre> genres, Boolean child);
-    List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres, Boolean child);
-    List<Map<String, Object>> getMoviesByGenres(List<Genre> genres, Boolean child);
+    Map<String,Object> getRandomPersonalizedMovie(User user,List<Genre> genres, Boolean child);
+    List<Map<String, Object>> getPersonalizedMovieSuggestions(User user,List<Genre> genres, Boolean child);
+    List<Map<String, Object>> getMoviesByGenres(User user,List<Genre> genres, Boolean child);
 
     Map<String,Object> getMovieWithID(long id);
 
     List<Genre> getGenre(Map<String, Object> movie);
     List<Map<String, Object>> getMovieDetailsFromTitles(List<String> titles);
-    List<String> getRecommendedMovies(String query, Boolean child);
+    List<String> getRecommendedMovies(User user,String query, Boolean child);
 
 }

@@ -67,28 +67,28 @@ public class HomeController {
 
 
         if("Random Movie".equals(action)) {
-            randomMovie = tmdbService.getRandomPopularMovie(child);
+            randomMovie = tmdbService.getRandomPopularMovie(sessionUser,child);
         }
         else if("Movie based on selected genres".equals(action)) {
             if (selectedGenres != null) {
-                randomMovie= tmdbService.getRandomPersonalizedMovie(selectedGenres,child);
+                randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser,selectedGenres,child);
             }
             else {
-                randomMovie = tmdbService.getRandomPopularMovie(child);
+                randomMovie = tmdbService.getRandomPopularMovie(sessionUser,child);
             }
             System.out.println("Selected Genres: " + selectedGenres);
         }
         else if("Movie based on saved genres".equals(action)) {
 
             if (sessionUser != null) {
-                randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser.getGenres(),child);
+                randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser,sessionUser.getGenres(),child);
             }
             else {
                 return "redirect:/loggedin";
             }
         }
         else {
-            randomMovie = tmdbService.getRandomPopularMovie(child);
+            randomMovie = tmdbService.getRandomPopularMovie(sessionUser,child);
         }
 
         if (sessionUser != null) {
