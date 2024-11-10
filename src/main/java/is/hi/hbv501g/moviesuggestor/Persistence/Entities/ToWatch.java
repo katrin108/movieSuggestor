@@ -20,7 +20,6 @@ public class ToWatch {
     public ToWatch(){}
     public ToWatch(User user) {
         this.user = user;
-
     }
 
     private String name;
