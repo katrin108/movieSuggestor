@@ -170,11 +170,9 @@ public class UserController {
             @RequestParam("movieOverview") String movieOverview,
             @RequestParam("movieReleaseDate") String movieReleaseDate,
             HttpSession session){
-        //System.out.println("Made it to add movieToList");
         //Map<String, Object> movie = tmdbService.getMovieWithID(movieId);
-        //List<Genre> genres = getGenres(movieGenreIds);
-        List<Genre> genres = new ArrayList<Genre>();
-        Movie movie = new Movie(movieTitle, genres, "movieOverview", movieReleaseDate, 0, 0);
+        List<Genre> genres = getGenres(movieGenreIds);
+        Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
         MovieList movieList = movieListService.findMovieListById(listID);
         movieListService.addMovieToList(movieList, movie);
         return "redirect:/loggedin";
@@ -281,13 +279,13 @@ public class UserController {
         return "home";
     }
 
-    public List<Genre> getGenres(List<Integer> genreIds) {
+    public List<Genre> getGenres(List<String> genreIds) {
         List<Genre> genres = new ArrayList<Genre>();
 
         if (genreIds != null && !genreIds.isEmpty()) {
-            for (Integer genreId : genreIds) {
+            for (String genreId : genreIds) {
                 try {
-                    Genre genre = Genre.fromTmdbId(genreId);
+                    Genre genre = Genre.fromTmdbId(Integer.valueOf(genreId));
                     genres.add(genre);
                 }
                 catch (Exception e){
