@@ -24,14 +24,10 @@ public class TmdbServiceImplementation implements TmdbService {
     @Value("${tmdb.api.key}")
     private String apiKey;
 
-
-
     private static final String API_KEY = "1039593-MovieSug-B6A0F246";
-
 
     public TmdbServiceImplementation(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl("https://api.themoviedb.org/3").build();
-
     }
 
     /**
@@ -394,5 +390,4 @@ public class TmdbServiceImplementation implements TmdbService {
             return List.of("No recommendations available. Please try again later.");
         }
     }
-
 }

@@ -24,10 +24,9 @@ public class User {
     @Column(nullable = false)
     private String email;
 
-
     @Column(nullable = true)
     private Boolean child;
-    //can add more
+    // can add more
 
     @ElementCollection(targetClass = Genre.class)
     @Enumerated(EnumType.STRING)
@@ -142,4 +141,5 @@ public User(String username, String password, String email, List<Genre> genres,b
         this.genres = genres;
         this.genres = genres != null ? genres : new ArrayList<>();
         this.child = child;
-    }*/
+    }
+*/
