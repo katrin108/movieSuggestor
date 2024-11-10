@@ -8,6 +8,7 @@ import java.util.Map;
 public interface TmdbService {
     Map<String,Object> getRandomPopularMovie();
 
+    Map<String,Object> getMovieWithID(long id);
     Map<String,Object> getRandomPersonalizedMovie(List<Genre> genres);
     List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres);
     List<Map<String, Object>> getMoviesByGenres(List<Genre> genres);
