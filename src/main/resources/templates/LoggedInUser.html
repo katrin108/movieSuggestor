@@ -5,147 +5,171 @@
     <title>Your Profile</title>
 </head>
 <body>
-<h2>You are now logged in</h2>
-<!-- Staða notenda stillingar. Status of user settings.-->
-<p>Your username is: <span th:text="${LoggedInUser.username}"></span></p>
-<p>Your email is: <span th:text="${LoggedInUser.email}"></span></p>
-<p>Child-safe mode: <span th:text="${LoggedInUser.child ? 'on' : 'off'}"></span></p>
-<p>Your preferences are:</p>
-<ul>
-    <li th:each="genre : ${Usergenres}">
-        <span th:text="${genre}"></span>
-    </li>
-</ul>
 
-<!-- Síðu breytingar takkar. Navigation buttons -->
-<form th:action="@{/}" method="get">
-    <button type="submit">Home page</button>
-</form>
-<form action="#" th:action="@{/logout}" method="post">
-    <button type="submit">Log out</button>
-</form>
-<form action="#" th:action="@{/toggleSettings}" method="post">
-    <button type="submit" id="Settings">Settings</button>
-</form>
+<!-- Header -->
+<h1>Welcome, <span th:text="${LoggedInUser.username}"></span>!</h1>
 
-<div th:if="${DivSettings}" id="userSettings">
-    <form action="#" th:action="@{/saveSettings}" method="post">
-        <label for="username">Username
-            <input type="text" name="username" id="username" th:value="${LoggedInUser.username}">
-        </label>
-        <label for="password">Password
-            <input type="password" name="password" id="password" th:value="${LoggedInUser.password}">
-        </label>
-        <label for="email">Email
-            <input type="email" name="email" id="email" th:value="${LoggedInUser.email}">
-        </label>
-        <label class="switch">Child-safe mode
-            <input id="childCheckbox" type="checkbox" name="child" th:checked="${LoggedInUser.child}">
-        </label>
-        <button type="submit">Save changes</button>
+<!-- User Information -->
+<section>
+    <h2>Your Profile Information</h2>
+    <p>Email: <span th:text="${LoggedInUser.email ?: 'Not provided'}"></span></p>
+    <p>Child-safe mode: <span th:text="${LoggedInUser.child ? 'On' : 'Off'}"></span></p>
+    <h3>Your Preferences:</h3>
+    <ul>
+        <li th:each="genre : ${LoggedInUser.genres}">
+            <span th:text="${genre}"></span>
+        </li>
+        <li th:if="${LoggedInUser.genres.size() == 0}">No preferences set.</li>
+    </ul>
+    <p><a href="/loggedin/preferences">Update Preferences</a></p>
+</section>
+
+<!-- Navigation Buttons -->
+<nav>
+    <form th:action="@{/}" method="get" style="display:inline;">
+        <button type="submit">Home Page</button>
     </form>
-    <form action="#" th:action="@{/deleteUser}" method="post" onsubmit="return confirm('Are you sure?')">
+    <form th:action="@{/logout}" method="post" style="display:inline;">
+        <button type="submit">Log Out</button>
+    </form>
+    <form th:action="@{/toggleSettings}" method="post" style="display:inline;">
+        <button type="submit">Settings</button>
+    </form>
+</nav>
+
+<!-- User Settings -->
+<div th:if="${DivSettings}" id="userSettings">
+    <h2>User Settings</h2>
+    <form th:action="@{/saveSettings}" method="post">
+        <label for="username">Username:
+            <input type="text" name="username" id="username" th:value="${LoggedInUser.username}">
+        </label><br/>
+        <label for="password">Password:
+            <input type="password" name="password" id="password" th:value="${LoggedInUser.password}">
+        </label><br/>
+        <label for="email">Email:
+            <input type="email" name="email" id="email" th:value="${LoggedInUser.email}">
+        </label><br/>
+        <label for="child_safe">Child-safe mode:
+            <input type="checkbox" name="child" id="child_safe" th:checked="${LoggedInUser.child}">
+        </label><br/>
+        <button type="submit">Save Changes</button>
+    </form>
+    <form th:action="@{/deleteUser}" method="post" onsubmit="return confirm('Are you sure you want to delete your account?');">
         <button type="submit">Delete Account</button>
     </form>
 </div>
 
-<p><a href="/loggedin/preferences">Update preferences</a></p>
+<!-- Movie Lists -->
+<section>
+    <h2>Your Movie Lists</h2>
+    <form th:action="@{/addMovieList}" method="post">
+        <label for="name">Create New Movie List:</label>
+        <input type="text" id="name" name="name" required />
+        <button type="submit">Add Movie List</button>
+    </form>
 
-<h2>Your watch history</h2>
-<div th:if="${watched?.movies?.size() == 0}">
-    <p>You have no movies in your watch history</p>
-</div>
-<div th:if="${watched?.movies?.size() > 0}">
-    <table>
-        <thead>
-        <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Rating</th>
-            <th>Delete</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="movie : ${watched.movies}">
-            <td th:text="${movie.title}"></td>
-            <td th:text="${movie.description}"></td>
-            <td th:text="${movie.rating}"></td>
-            <td><a th:href="@{/delete/{id}(id=${movie.id})}">Delete</a></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+    <div th:if="${movieLists.size() == 0}">
+        <p>You have no movie lists yet.</p>
+    </div>
 
-<h2>Your movielists</h2>
-<form action="#" th:action="@{/addMovieList}" method="post">
-    <label for="name">Movie List Name:</label>
-    <input type="text" id="name" name="name" required />
-    <button type="submit">Add Movie List</button>
-</form>
+    <div th:if="${movieLists.size() > 0}">
+        <ul>
+            <li th:each="movieList : ${movieLists}">
+                <h3 th:text="${movieList.name}"></h3>
+                <form th:action="@{/deleteMovieList}" method="post" style="display:inline;">
+                    <input type="hidden" name="movieListId" th:value="${movieList.id}"/>
+                    <button type="submit">Delete List</button>
+                </form>
+                <div th:if="${movieList.movies != null}">
+                    <p th:if="${movieList.movies.size() == 0}">No movies in this list.</p>
+                    <table th:if="${movieList.movies.size() > 0}" border="1">
+                        <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Release Date</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="movie : ${movieList.movies}">
+                            <td th:text="${movie.title}"></td>
+                            <td th:text="${movie.description}"></td>
+                            <td th:text="${movie.releaseDate}"></td>
+                            <td>
+                                <!-- You can add actions like delete or view details -->
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </li>
+        </ul>
+    </div>
+</section>
 
-<div th:if="${movieLists.size() == 0}">
-    <p>You have no movie lists yet.</p>
-</div>
+<!-- Movie Recommendation -->
+<section>
+    <h2>Get a Movie Recommendation</h2>
+    <form th:action="@{/getSuggestedMovie}" method="post">
+        <!-- Optional Filters -->
+        <fieldset>
+            <legend>Optional Filters</legend>
 
-<div th:if="${movieLists.size() > 0}">
-    <div th:each="movieList : ${movieLists}">
-        <h3 th:text="${movieList.name}">Movie List Name</h3>
-        <form th:action="@{/deleteMovieList}" method="post">
-            <input type="hidden" name="movieListId" th:value="${movieList.id}"/>
-            <button type="submit">Delete</button>
-        </form>
-        <div th:if="${movieList.movies != null}">
-            <h2 th:if="${movieList.movies.size() == 0}">No movies yet!</h2>
-            <div th:if="${movieList.movies.size() > 0}">
-                <h2>Movies</h2>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Rating</th>
-                        <th>Delete</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="movie : ${movieList.movies}">
-                        <td th:text="${movie.title}"></td>
-                        <td th:text="${movie.description}"></td>
-                        <td th:text="${movie.rating}"></td>
-                        <td><a th:href="@{/delete/{id}(id=${movie.id})}">Delete</a></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+            <label for="minRating">Minimum IMDb Rating:</label>
+            <input type="number" step="0.1" min="0" max="10" name="minRating" id="minRating"><br/>
+
+            <label for="minVotes">Minimum Votes:</label>
+            <input type="number" min="0" name="minVotes" id="minVotes"><br/>
+
+            <label for="certification">Age Rating (e.g., PG-13):</label>
+            <input type="text" name="certification" id="certification"><br/>
+
+            <label for="minRuntime">Minimum Length (minutes):</label>
+            <input type="number" min="0" name="minRuntime" id="minRuntime"><br/>
+
+            <label for="maxRuntime">Maximum Length (minutes):</label>
+            <input type="number" min="0" name="maxRuntime" id="maxRuntime"><br/>
+        </fieldset>
+
+        <!-- Child-Safe Mode -->
+        <label for="child_safe">Child-Safe Mode:</label>
+        <input type="checkbox" name="child_safe" id="child_safe" th:checked="${LoggedInUser.child}"><br/>
+
+        <button type="submit" th:text="${(hasSuggestedMovie ?: false) ? 'Reroll Suggested Movie' : 'Get Suggested Movie'}"></button>
+    </form>
+
+    <!-- Display Recommended Movie -->
+    <div th:if="${hasSuggestedMovie ?: false}">
+        <h3>Recommended Movie</h3>
+        <div th:if="${recommendedMovie != null}">
+            <h4 th:text="${recommendedMovie.title}"></h4>
+            <p th:text="${recommendedMovie.overview}"></p>
+            <img th:if="${recommendedMovie.poster_path != null}" th:src="'https://image.tmdb.org/t/p/w200' + ${recommendedMovie.poster_path}" alt="Movie Poster">
+            <p><strong>Release Date:</strong> <span th:text="${recommendedMovie.release_date}"></span></p>
+            <p><strong>Genres:</strong>
+                <span th:each="genre : ${movieGenre}" th:text="${genre} + ' '"></span>
+            </p>
+            <!-- Add to Movie List -->
+            <form th:action="@{/addMovieToList}" method="post">
+                <input type="hidden" name="movieId" th:value="${recommendedMovie.id}"/>
+                <input type="hidden" name="movieTitle" th:value="${recommendedMovie.title}"/>
+                <input type="hidden" name="movieGenreIds" th:value="${recommendedMovie.genre_ids}"/>
+                <input type="hidden" name="movieOverview" th:value="${recommendedMovie.overview}"/>
+                <input type="hidden" name="movieReleaseDate" th:value="${recommendedMovie.release_date}"/>
+                <label for="movieListId">Add to List:</label>
+                <select name="movieListId" id="movieListId">
+                    <option th:each="list : ${movieLists}" th:value="${list.id}" th:text="${list.name}"></option>
+                </select>
+                <button type="submit">Add to List</button>
+            </form>
+        </div>
+        <div th:if="${recommendedMovie == null}">
+            <p th:text="${errorMessage}"></p>
         </div>
     </div>
-</div>
-
-<h2>Get a Movie Recommendation</h2>
-<form action="#" th:action="@{/getSuggestedMovie}" method="post">
-    <button type="submit" th:text="${(hasSuggestedMovie ?: false) ? 'Reroll Suggested Movie' : 'Get Suggested Movie'}"></button>
-</form>
-
-<div th:if="${hasSuggestedMovie ?: false}">
-    <h2>Recommended Movie</h2>
-    <div th:if="${recommendedMovie != null}">
-        <h3 th:text="${recommendedMovie.title}"></h3>
-        <p th:text="${recommendedMovie.overview}"></p>
-        <img th:src="'https://image.tmdb.org/t/p/w500' + ${recommendedMovie.poster_path}" alt="Movie Poster" style="max-width: 200px;">
-        <form th:action="@{/addMovieToList}" method="post">
-            <input type="hidden" name="movieId" th:value="${recommendedMovie.id}"/>
-            <input type="hidden" name="movieTitle" th:value="${recommendedMovie.title}"/>
-            <input type="hidden" name="movieGenreIds" th:value="${recommendedMovie.genre_ids}"/>
-            <input type="hidden" name="movieOverview" th:value="${recommendedMovie.overview}"/>
-            <input type="hidden" name="movieReleaseDate" th:value="${recommendedMovie.release_date}"/>
-            <label for="movieListId">Select a list to add:</label>
-            <select name="movieListId" id="movieListId">
-                <option th:each="list : ${movieLists}" th:value="${list.id}" th:text="${list.name}"></option>
-            </select>
-            <button type="submit">Add to List</button>
-        </form>
-    </div>
-</div>
+</section>
 
 </body>
 </html>

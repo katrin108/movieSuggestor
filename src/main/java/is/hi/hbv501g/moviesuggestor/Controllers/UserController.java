@@ -7,7 +7,6 @@ import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 import is.hi.hbv501g.moviesuggestor.Services.TasteDiveService;
 import is.hi.hbv501g.moviesuggestor.Services.MovieListService;
 import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
-import is.hi.hbv501g.moviesuggestor.Services.implementation.TmdbServiceImplementation;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,6 @@ public class UserController {
 
     @Autowired
     public UserController(UserService userService, TmdbService tmdbService, TasteDiveService tasteDiveService, MovieListService movieListService) {
-
         this.userService = userService;
         this.tmdbService = tmdbService;
         this.tasteDiveService = tasteDiveService;
@@ -117,7 +115,6 @@ public class UserController {
         return "redirect:/";
     }
 
-
     @GetMapping("/loggedin/preferences")
     public String preferencesGet(HttpSession session, Model model) {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
@@ -134,14 +131,14 @@ public class UserController {
 
     @PostMapping("/loggedin/preferences")
     public String preferencesPost(HttpSession session,
-                                  @RequestParam(value = "genres", required = false) List<Genre> selectedGenres
-    , @RequestParam(value = "action") String action, Model model) {
+                                  @RequestParam(value = "genres", required = false) List<Genre> selectedGenres,
+                                  @RequestParam(value = "action") String action, Model model) {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         if (sessionUser != null) {
-            if("Clear Preferences".equals(action)) {
-                userService.setGenres(sessionUser,new ArrayList<>());
+            if ("Clear Preferences".equals(action)) {
+                userService.setGenres(sessionUser, new ArrayList<>());
             }
-            if("Save Preferences".equals(action)) {
+            if ("Save Preferences".equals(action)) {
                 userService.setGenres(sessionUser, selectedGenres != null ? selectedGenres : new ArrayList<>());
             }
         }
@@ -169,8 +166,8 @@ public class UserController {
             @RequestParam("movieGenreIds") List<String> movieGenreIds,
             @RequestParam("movieOverview") String movieOverview,
             @RequestParam("movieReleaseDate") String movieReleaseDate,
-            HttpSession session){
-        //Map<String, Object> movie = tmdbService.getMovieWithID(movieId);
+            HttpSession session) {
+
         List<Genre> genres = getGenres(movieGenreIds);
         Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
         MovieList movieList = movieListService.findMovieListById(listID);
@@ -225,9 +222,16 @@ public class UserController {
         return "redirect:/";
     }
 
-
     @PostMapping("/getSuggestedMovie")
-    public String getSuggestedMovie(HttpSession session, Model model) {
+    public String getSuggestedMovie(
+            HttpSession session,
+            Model model,
+            @RequestParam(required = false) Double minRating,
+            @RequestParam(required = false) Integer minVotes,
+            @RequestParam(required = false) String certification,
+            @RequestParam(required = false) Integer minRuntime,
+            @RequestParam(required = false) Integer maxRuntime
+    ) {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         if (sessionUser != null) {
             User loggedInUser = userService.findUserById(sessionUser.getId());
@@ -235,12 +239,27 @@ public class UserController {
             List<Genre> userGenres = loggedInUser.getGenres();
             Map<String, Object> recommendedMovie;
             if (userGenres != null && !userGenres.isEmpty()) {
-                recommendedMovie = tmdbService.getRandomPersonalizedMovie(userGenres,loggedInUser.getChild());
+                recommendedMovie = tmdbService.getRandomPersonalizedMovie(
+                        userGenres,
+                        loggedInUser.getChild(),
+                        minRating,
+                        minVotes,
+                        certification,
+                        minRuntime,
+                        maxRuntime
+                );
             } else {
                 recommendedMovie = tmdbService.getRandomPopularMovie(loggedInUser.getChild());
             }
-            model.addAttribute("recommendedMovie", recommendedMovie);
-            model.addAttribute("hasSuggestedMovie", recommendedMovie != null);
+
+            if (recommendedMovie != null) {
+                model.addAttribute("recommendedMovie", recommendedMovie);
+                model.addAttribute("hasSuggestedMovie", true);
+            } else {
+                model.addAttribute("errorMessage", "No movies found matching your preferences.");
+                model.addAttribute("hasSuggestedMovie", false);
+            }
+
             model.addAttribute("LoggedInUser", loggedInUser);
             model.addAttribute("genres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
@@ -258,11 +277,10 @@ public class UserController {
      * @return The name of the Thymeleaf template to render.
      */
     @GetMapping("/api/movies/recommend")
-    public String recommendMovies(@RequestParam String query, Model model,HttpSession session) {
+    public String recommendMovies(@RequestParam String query, Model model, HttpSession session) {
         try {
             User loggedInUser = (User) session.getAttribute("LoggedInUser");
             List<String> recommendedTitles = tasteDiveService.getRecommendedMovies(query);
-
 
             List<Map<String, Object>> recommendedMovies = tmdbService.getMovieDetailsFromTitles(recommendedTitles);
 
@@ -274,21 +292,20 @@ public class UserController {
         }
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         if (sessionUser != null) {
-            model.addAttribute("LoggedInUser",sessionUser);
+            model.addAttribute("LoggedInUser", sessionUser);
         }
         return "home";
     }
 
     public List<Genre> getGenres(List<String> genreIds) {
-        List<Genre> genres = new ArrayList<Genre>();
+        List<Genre> genres = new ArrayList<>();
 
         if (genreIds != null && !genreIds.isEmpty()) {
             for (String genreId : genreIds) {
                 try {
                     Genre genre = Genre.fromTmdbId(Integer.valueOf(genreId));
                     genres.add(genre);
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                     System.err.println("Unexpected error: " + e.getMessage());
                 }
             }

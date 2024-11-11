@@ -2,17 +2,13 @@ package is.hi.hbv501g.moviesuggestor.Controllers;
 
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
-import is.hi.hbv501g.moviesuggestor.Services.implementation.TmdbServiceImplementation;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
-import jakarta.servlet.http.HttpSession; // Import HttpSession
+import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.ArrayList;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
@@ -20,19 +16,17 @@ import java.util.Map;
 public class HomeController {
 
     private final UserService userService;
-    private final TmdbServiceImplementation tmdbService;
+    private final TmdbService tmdbService;
 
     @Autowired
-    public HomeController(UserService userService, TmdbServiceImplementation tmdbService) {
+    public HomeController(UserService userService, TmdbService tmdbService) {
         this.userService = userService;
         this.tmdbService = tmdbService;
     }
 
     @RequestMapping("/")
-    public String homePage(Model model, HttpSession session) { // Add HttpSession as a parameter
-
-
-        // allir notendur
+    public String homePage(Model model, HttpSession session) {
+        // All users
         List<User> allUsers = userService.findAllUsers();
         User sessionUser = (User) session.getAttribute("LoggedInUser");
 
@@ -40,68 +34,85 @@ public class HomeController {
         model.addAttribute("genres", Genre.values());
 
         if (sessionUser != null) {
-            System.out.println(sessionUser+" test");
-            model.addAttribute("LoggedInUser",sessionUser);
+            model.addAttribute("LoggedInUser", sessionUser);
             List<Map<String, Object>> personalizedMovies = userService.moviePreferenceSuggest(sessionUser);
             model.addAttribute("personalizedMovies", personalizedMovies);
-        }
-        else {
-            System.out.println(sessionUser+" test2");
         }
 
         return "home";
     }
+
     @PostMapping("/")
-    public String getNewMoviePost(HttpSession session,
-                              @RequestParam(value = "genres", required = false) List<Genre> selectedGenres
-            , @RequestParam(value = "action") String action,@RequestParam(value = "child_safe",required = false)Boolean child_safe,
-                                  Model model) {
-        Map<String, Object> randomMovie=null;
+    public String getNewMoviePost(
+            HttpSession session,
+            @RequestParam(value = "genres", required = false) List<Genre> selectedGenres,
+            @RequestParam(value = "action") String action,
+            @RequestParam(value = "child_safe", required = false) Boolean child_safe,
+            @RequestParam(required = false) Double minRating,
+            @RequestParam(required = false) Integer minVotes,
+            @RequestParam(required = false) String certification,
+            @RequestParam(required = false) Integer minRuntime,
+            @RequestParam(required = false) Integer maxRuntime,
+            Model model) {
+
+        Map<String, Object> randomMovie = null;
 
         User sessionUser = (User) session.getAttribute("LoggedInUser");
-        Boolean child=child_safe !=null ? child_safe : false;
-        if(!child &&sessionUser!=null) {
-            child= Boolean.TRUE.equals(sessionUser.getChild());
+        Boolean child = child_safe != null ? child_safe : false;
+        if (!child && sessionUser != null) {
+            child = Boolean.TRUE.equals(sessionUser.getChild());
         }
 
-
-
-        if("Random Movie".equals(action)) {
+        if ("Random Movie".equals(action)) {
             randomMovie = tmdbService.getRandomPopularMovie(child);
-        }
-        else if("Movie based on selected genres".equals(action)) {
-            if (selectedGenres != null) {
-                randomMovie= tmdbService.getRandomPersonalizedMovie(selectedGenres,child);
-            }
-            else {
+        } else if ("Movie based on selected genres".equals(action)) {
+            if (selectedGenres != null && !selectedGenres.isEmpty()) {
+                randomMovie = tmdbService.getRandomPersonalizedMovie(
+                        selectedGenres,
+                        child,
+                        minRating,
+                        minVotes,
+                        certification,
+                        minRuntime,
+                        maxRuntime
+                );
+            } else {
                 randomMovie = tmdbService.getRandomPopularMovie(child);
             }
             System.out.println("Selected Genres: " + selectedGenres);
-        }
-        else if("Movie based on saved genres".equals(action)) {
-
-            if (sessionUser != null) {
-                randomMovie= tmdbService.getRandomPersonalizedMovie(sessionUser.getGenres(),child);
+        } else if ("Movie based on saved genres".equals(action)) {
+            if (sessionUser != null && sessionUser.getGenres() != null && !sessionUser.getGenres().isEmpty()) {
+                randomMovie = tmdbService.getRandomPersonalizedMovie(
+                        sessionUser.getGenres(),
+                        child,
+                        minRating,
+                        minVotes,
+                        certification,
+                        minRuntime,
+                        maxRuntime
+                );
+            } else {
+                randomMovie = tmdbService.getRandomPopularMovie(child);
             }
-            else {
-                return "redirect:/loggedin";
-            }
-        }
-        else {
+        } else {
             randomMovie = tmdbService.getRandomPopularMovie(child);
         }
 
         if (sessionUser != null) {
-            model.addAttribute("LoggedInUser",sessionUser);
+            model.addAttribute("LoggedInUser", sessionUser);
         }
         model.addAttribute("child_safe", child);
-        model.addAttribute("tmdbMovie", randomMovie);
-        model.addAttribute("movieGenre", tmdbService.getGenre(randomMovie));
+
+        if (randomMovie != null) {
+            model.addAttribute("tmdbMovie", randomMovie);
+            model.addAttribute("movieGenre", tmdbService.getGenre(randomMovie));
+        } else {
+            model.addAttribute("errorMessage", "No movies found matching your criteria.");
+        }
 
         model.addAttribute("genres", Genre.values());
         model.addAttribute("selectedGenres", selectedGenres);
 
         return "home";
     }
-
 }
