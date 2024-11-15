@@ -41,14 +41,17 @@ public class User {
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Watched watched;
 
-    public User() {}
+    public User() {
+        this.watched = new Watched();
+    }
 
-    public User(String username, String password, String email, List<Genre> genres, Boolean child) {
+    public User(String username, String password, String email, List<Genre> genres, Boolean child, Watched watched) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.genres = genres != null ? genres : new ArrayList<>();
         this.child = child;
+        this.watched = watched != null ? watched : new Watched();
     }
 
     // Getters and Setters

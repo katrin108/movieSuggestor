@@ -6,9 +6,11 @@ import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.MovieRepository;
 import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.WatchedRepository;
 import is.hi.hbv501g.moviesuggestor.Services.WatchedService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class WatchedServiceImplementation implements WatchedService {
 
     @Autowired
@@ -45,7 +47,7 @@ public class WatchedServiceImplementation implements WatchedService {
 
     @Override
     public Watched addMovieToList(Watched watched, Movie movie) {
-        watched.addMovie((movie));
+        watched.addMovie(movie);
         return watchedRepository.save(watched);
     }
     @Override

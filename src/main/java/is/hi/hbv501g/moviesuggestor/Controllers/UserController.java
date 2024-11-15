@@ -1,13 +1,7 @@
 package is.hi.hbv501g.moviesuggestor.Controllers;
 
-import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
-import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Movie;
-import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
-import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
-import is.hi.hbv501g.moviesuggestor.Services.TasteDiveService;
-import is.hi.hbv501g.moviesuggestor.Services.MovieListService;
-import is.hi.hbv501g.moviesuggestor.Services.TmdbService;
-import is.hi.hbv501g.moviesuggestor.Services.UserService;
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.*;
+import is.hi.hbv501g.moviesuggestor.Services.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,13 +21,15 @@ public class UserController {
     private final TmdbService tmdbService;
     private final TasteDiveService tasteDiveService;
     private final MovieListService movieListService;
+    private final WatchedService watchedService;
 
     @Autowired
-    public UserController(UserService userService, TmdbService tmdbService, TasteDiveService tasteDiveService, MovieListService movieListService) {
+    public UserController(UserService userService, TmdbService tmdbService, TasteDiveService tasteDiveService, MovieListService movieListService, WatchedService watchedService) {
         this.userService = userService;
         this.tmdbService = tmdbService;
         this.tasteDiveService = tasteDiveService;
         this.movieListService = movieListService;
+        this.watchedService = watchedService;
     }
 
     @GetMapping("/signup")
@@ -98,6 +94,7 @@ public class UserController {
             model.addAttribute("LoggedInUser", loggedInUser);
             model.addAttribute("Usergenres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
+            model.addAttribute("watchedMovies", loggedInUser.getWatched());
             model.addAttribute("recommendedMovie", null);
             model.addAttribute("hasSuggestedMovie", false);
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
@@ -158,16 +155,35 @@ public class UserController {
         return "redirect:/loggedin";
     }
 
-    @PostMapping("/addMovieToList")
-    public String addMovieToList(
-            @RequestParam("movieListId") long listID,
-            @RequestParam("movieId") long movieId,
+    @PostMapping("/addMovieToWatched")
+    public String addMovieToWatched(
+            @RequestParam("userId") long userId,
             @RequestParam("movieTitle") String movieTitle,
             @RequestParam("movieGenreIds") List<String> movieGenreIds,
             @RequestParam("movieOverview") String movieOverview,
             @RequestParam("movieReleaseDate") String movieReleaseDate,
             HttpSession session) {
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        List<Genre> genres = getGenres(movieGenreIds);
+        Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
+        User user = userService.findUserById(userId);
+        Watched watched = user.getWatched() != null ? user.getWatched() : new Watched();
+        watchedService.addMovieToList(watched, movie);
+        user.setWatched(watched);
+        userService.saveUser(user);
+        return "redirect:/loggedin";
+    }
 
+    @PostMapping("/addMovieToList")
+    public String addMovieToList(
+            @RequestParam("movieListId") long listID,
+            //@RequestParam("movieId") long movieId,
+            @RequestParam("movieTitle") String movieTitle,
+            @RequestParam("movieGenreIds") List<String> movieGenreIds,
+            @RequestParam("movieOverview") String movieOverview,
+            @RequestParam("movieReleaseDate") String movieReleaseDate,
+            HttpSession session) {
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
         List<Genre> genres = getGenres(movieGenreIds);
         Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
         MovieList movieList = movieListService.findMovieListById(listID);
@@ -263,6 +279,7 @@ public class UserController {
             model.addAttribute("LoggedInUser", loggedInUser);
             model.addAttribute("genres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
+            model.addAttribute("watchedMovies", loggedInUser.getWatched());
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
             model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
         }
