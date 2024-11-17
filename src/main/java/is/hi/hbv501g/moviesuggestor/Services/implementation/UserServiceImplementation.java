@@ -5,8 +5,10 @@ import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
 import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.MovieListRepository;
 import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.UserRepository;
+import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.WatchedRepository;
 import is.hi.hbv501g.moviesuggestor.Services.MovieListService;
 import is.hi.hbv501g.moviesuggestor.Services.UserService;
+import is.hi.hbv501g.moviesuggestor.Services.WatchedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,16 +20,22 @@ public class UserServiceImplementation implements UserService {
     private final UserRepository userRepository;
     private final MovieListRepository movieListRepository;
     private final MovieListService movieListService;
+    private final WatchedRepository watchedRepository;
+    private final WatchedService watchedService;
     private final TmdbServiceImplementation tmdbService;
 
     @Autowired
     public UserServiceImplementation(UserRepository userRepository,
                                      MovieListRepository movieListRepository,
                                      MovieListService movieListService,
+                                     WatchedRepository watchedRepository,
+                                     WatchedService watchedService,
                                      TmdbServiceImplementation tmdbService) {
         this.userRepository = userRepository;
         this.movieListRepository = movieListRepository;
         this.movieListService = movieListService;
+        this.watchedRepository = watchedRepository;
+        this.watchedService = watchedService;
         this.tmdbService = tmdbService;
     }
 
