@@ -143,24 +143,18 @@ public class HomeController {
             model.addAttribute("errorMessage", "No movies found matching your criteria.");
         }
 
+        if(sessionUser!=null) {
+            model.addAttribute("movieLists", sessionUser.getMovieLists());
+        }
+
+
         model.addAttribute("genres", Genre.values());
         model.addAttribute("selectedGenres", selectedGenres);
 
         return "home";
     }
 
-    @PostMapping("/addMovieList")
-    public String addMovieList(@RequestParam("name") String name, HttpSession session) {
-        User sessionUser = (User) session.getAttribute("LoggedInUser");
-        if (sessionUser != null) {
-            MovieList newMovieList = new MovieList();
-            newMovieList.setName(name);
-            newMovieList.setUser(sessionUser);
-            movieListService.saveMovieList(newMovieList);
-            sessionUser.getMovieLists().add(newMovieList);
-        }
-        return "home";
-    }
+
 
     @PostMapping("/addMovieToWatched")
     public String addMovieToWatched(
@@ -193,4 +187,29 @@ public class HomeController {
         model.addAttribute("watched",watched);
         return "home";
     }
+
+
+    @PostMapping("/addMovieToList")
+    public String addMovieToList(
+            @RequestParam("movieListId") long listID,
+            //@RequestParam("movieId") long movieId,
+            @RequestParam("movieTitle") String movieTitle,
+            @RequestParam("movieGenreIds") List<String> movieGenreIds,
+            @RequestParam("movieOverview") String movieOverview,
+            @RequestParam("movieReleaseDate") String movieReleaseDate,
+            HttpSession session,Model model) {
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
+        Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
+        MovieList movieList = movieListService.findMovieListById(listID);
+        movieListService.addMovieToList(movieList, movie);
+
+        model.addAttribute("LoggedInUser", sessionUser);
+
+        return "home";
+    }
+
+
+
+
 }

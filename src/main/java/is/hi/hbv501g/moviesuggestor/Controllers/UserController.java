@@ -207,8 +207,18 @@ public class UserController {
     }
 
 
-
-
+    @PostMapping("/addMovieList")
+    public String addMovieList(@RequestParam("name") String name, HttpSession session) {
+        User sessionUser = (User) session.getAttribute("LoggedInUser");
+        if (sessionUser != null) {
+            MovieList newMovieList = new MovieList();
+            newMovieList.setName(name);
+            newMovieList.setUser(sessionUser);
+            movieListService.saveMovieList(newMovieList);
+            sessionUser.getMovieLists().add(newMovieList);
+        }
+        return "redirect:/loggedin";
+    }
 
 
 
