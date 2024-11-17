@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Controller
 public class UserController {
@@ -110,6 +111,8 @@ public class UserController {
             model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
 
             model.addAttribute("genres", Genre.values());
+            model.addAttribute("totalTime",loggedInUser.getTotalTime());
+
             return "loggedInUser";
         }
         return "redirect:/login";
@@ -176,6 +179,7 @@ public class UserController {
             userService.saveUser(user);
 
         }
+
         model.addAttribute("LoggedInUser", user);
         model.addAttribute("watchedMovies", watched.getMovies());
         model.addAttribute("watched",watched);
@@ -259,6 +263,27 @@ public class UserController {
         model.addAttribute("LoggedInUser", user);
         model.addAttribute("movieList", movieList);
         return "movieList";
+    }
+
+    @PostMapping("/getAMovieFromMovieList")
+    public String getAMovieFromMovieList(@RequestParam("movieListId") long ListId, HttpSession session, Model model){
+        User user = (User) session.getAttribute("LoggedInUser");
+        if(user==null) {
+            return "redirect:/loggedin";
+        }
+        MovieList movieList=user.getMovieList(ListId);
+        if(movieList==null||movieList.getMovies().isEmpty()) {
+            return "redirect:/loggedin";
+        }
+        Random random=new Random();
+
+        Movie movie=movieList.getMovies().get(random.nextInt(movieList.getMovies().size()));
+        System.out.println("The movie"+movie.getTitle());
+        model.addAttribute("movie", movie);
+        model.addAttribute("LoggedInUser", user);
+        model.addAttribute("movieList", movieList);
+        return "movieList";
+
     }
 
     @PostMapping("/moveAMovieFromMovieList")
@@ -393,6 +418,8 @@ public class UserController {
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
             Watched watched=loggedInUser.getWatched();
             model.addAttribute("watchedMovies", watched.getMovies());
+            model.addAttribute("totalTime",loggedInUser.getTotalTime());
+
 
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
             model.addAttribute("DivSettings", showSettings != null ? showSettings : false);

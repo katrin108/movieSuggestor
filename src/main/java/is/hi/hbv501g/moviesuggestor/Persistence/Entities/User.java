@@ -5,7 +5,9 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "users")
@@ -128,6 +130,22 @@ public class User {
 
     public void setWatched(Watched watched) {
         this.watched = watched;
+    }
+    public List<Double> getTotalTime(){
+        List<Double> Time= new ArrayList<>();
+        double totalTime = 0;
+
+        for(Movie m: watched.getMovies()){
+            if(m.getRuntime()>0){
+                totalTime+=m.getRuntime();
+            }
+        }
+        double hours = Math.floor(totalTime / 60);
+        double minutes = totalTime % 60;
+        Time.add(hours);
+        Time.add(minutes);
+
+        return Time;
     }
 
 }
