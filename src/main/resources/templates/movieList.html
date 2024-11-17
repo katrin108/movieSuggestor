@@ -40,7 +40,18 @@
             </td>
         </tr>
         </tbody>
+
     </table>
+    <form th:action="@{/getAMovieFromMovieList}" method="post">
+        <input type="hidden" th:value="${movieList.id}" name="movieListId" />
+        <button type="submit">Get a Random Movie</button>
+    </form>
+    <div th:if="${movie != null}">
+        <h3>Random Movie from MovieList:</h3>
+        <p><strong>Title:</strong> <span th:text="${movie.title}"></span></p>
+        <p><strong>Description:</strong> <span th:text="${movie.description}"></span></p>
+        <p><strong>Release Date:</strong> <span th:text="${movie.releaseDate}"></span></p>
+    </div>
 </div>
 
 </body>
