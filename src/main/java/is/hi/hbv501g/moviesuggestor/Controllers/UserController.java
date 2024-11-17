@@ -52,9 +52,19 @@ public class UserController {
             user.setGenres(selectedGenres != null ? selectedGenres : new ArrayList<>());
             user.setChild(false);
             user.setMovieLists(new ArrayList<>());
+            Watched watched = new Watched();
+
+
+            watched.addMovie(new Movie("movieTitle", null , "movieOverview", null, 0, 0));
+            watched.setUser(user);
+            user.setWatched(watched);
+
 
             userService.saveUser(user);
             session.setAttribute("LoggedInUser", user);
+
+            model.addAttribute("watchedMovies", user.getWatched().getMovies());
+
             model.addAttribute("LoggedInUser", user);
             return "redirect:/loggedin";
         } else {
@@ -94,7 +104,7 @@ public class UserController {
             model.addAttribute("LoggedInUser", loggedInUser);
             model.addAttribute("Usergenres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
-            model.addAttribute("watchedMovies", loggedInUser.getWatched());
+            model.addAttribute("watchedMovies", loggedInUser.getWatched().getMovies());
             model.addAttribute("recommendedMovie", null);
             model.addAttribute("hasSuggestedMovie", false);
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
@@ -162,15 +172,29 @@ public class UserController {
             @RequestParam("movieGenreIds") List<String> movieGenreIds,
             @RequestParam("movieOverview") String movieOverview,
             @RequestParam("movieReleaseDate") String movieReleaseDate,
-            HttpSession session) {
-        User sessionUser = (User) session.getAttribute("LoggedInUser");
-        List<Genre> genres = getGenres(movieGenreIds);
+            HttpSession session,Model model) {
+
+        List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
         Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
         User user = userService.findUserById(userId);
-        Watched watched = user.getWatched() != null ? user.getWatched() : new Watched();
-        watchedService.addMovieToList(watched, movie);
-        user.setWatched(watched);
+        System.out.println("user is "+user.getUsername());
+        Watched watched=user.getWatched();
+        System.out.println("watched is "+watched);
+        if(watched==null) {
+            watched=new Watched();
+            user.setWatched(watched);
+        }
+        watched.addMovie(movie);
+
+
         userService.saveUser(user);
+
+        watched=user.getWatched();
+
+
+        model.addAttribute("LoggedInUser", user);
+        model.addAttribute("watchedMovies", watched.getMovies());
+        System.out.println("teste "+ user.getWatched().getMovies().size());
         return "redirect:/loggedin";
     }
 
@@ -233,6 +257,7 @@ public class UserController {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         if (sessionUser != null) {
             userService.deleteUser(sessionUser);
+
             session.invalidate();
         }
         return "redirect:/";
@@ -279,7 +304,9 @@ public class UserController {
             model.addAttribute("LoggedInUser", loggedInUser);
             model.addAttribute("genres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
-            model.addAttribute("watchedMovies", loggedInUser.getWatched());
+            Watched watched=loggedInUser.getWatched();
+            model.addAttribute("watchedMovies", watched.getMovies());
+
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
             model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
         }

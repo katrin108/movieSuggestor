@@ -15,11 +15,13 @@ public class Watched {
     private long id;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id",unique = true)
     private User user;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "watched_movies", joinColumns = @JoinColumn(name = "watched_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    @JoinTable(name = "watched_movies",
+            joinColumns = @JoinColumn(name = "watched_id"),
+            inverseJoinColumns = @JoinColumn(name = "movie_id"))
     private List<Movie> movies;
 
     public Watched() {
@@ -27,7 +29,7 @@ public class Watched {
     }
     public Watched(User user,List<Movie> movies) {
         this.user = user;
-        this.movies = movies;
+        this.movies = movies !=null?movies:new ArrayList<>();
     }
 
 

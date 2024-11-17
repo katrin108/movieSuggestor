@@ -67,11 +67,11 @@
         You have no watch history
     </div>
     <div th:if="${watchedMovies != null}">
-        <div th:if="${watchedMovies.size() == 0}">
+        <div th:if="${#lists.isEmpty(watchedMovies)}">
             <p>Your watch history is empty</p>
         </div>
-        <div th:if="${watchedMovies.size() > 0}">
-            <table th:if="${movieList.movies.size() > 0}" border="1">
+        <div th:if="${not #lists.isEmpty(watchedMovies)}">
+            <table border="1">
                 <thead>
                 <tr>
                     <th>Title</th>

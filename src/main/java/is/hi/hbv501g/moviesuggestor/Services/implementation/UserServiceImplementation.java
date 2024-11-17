@@ -3,6 +3,7 @@ package is.hi.hbv501g.moviesuggestor.Services.implementation;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Watched;
 import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.MovieListRepository;
 import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.UserRepository;
 import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.WatchedRepository;
@@ -100,17 +101,13 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
+    public Watched saveWatched(Watched watched){
+        return watchedRepository.save(watched);
+    }
+
+    @Override
     public void deleteMovieList(MovieList movieList) {
         movieListService.deleteMovieList(movieList);
     }
 
-    @Override
-    public List<Map<String, Object>> moviePreferenceSuggest(User user) {
-
-        if (user.getGenres() == null || user.getGenres().isEmpty()) {
-            return List.of();
-        }
-
-        return tmdbService.getMoviesByGenres(user,user.getGenres(),user.getChild());
-    }
 }

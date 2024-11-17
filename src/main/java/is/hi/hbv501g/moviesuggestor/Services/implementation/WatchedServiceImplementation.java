@@ -1,6 +1,7 @@
 package is.hi.hbv501g.moviesuggestor.Services.implementation;
 
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Movie;
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Watched;
 import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.MovieRepository;
 import is.hi.hbv501g.moviesuggestor.Persistence.Repositories.WatchedRepository;
@@ -24,20 +25,15 @@ public class WatchedServiceImplementation implements WatchedService {
     }
 
     @Override
-    public Movie saveMovie(Movie movie) { return movieRepository.save(movie); }
+    public Movie addMovie(Movie movie) { return movieRepository.save(movie); }
     @Override
     public void deleteMovie(Movie movie) { movieRepository.delete(movie); }
-    @Override
-    public Movie findMovieById(long id) { return movieRepository.findAllById(id); }
+
+
+
 
     @Override
-    public Watched saveWatched(Watched watched) { return watchedRepository.save(watched); }
-    @Override
-    public void deleteWatched(Watched watched) {
-        watchedRepository.delete(watched);
-    }
-    @Override
-    public List<Watched> findAllWatchedLists() {
+    public List<Watched> findAll() {
         return watchedRepository.findAll();
     }
     @Override
@@ -47,13 +43,26 @@ public class WatchedServiceImplementation implements WatchedService {
 
     @Override
     public Watched addMovieToList(Watched watched, Movie movie) {
-        watched.addMovie(movie);
+        watched.getMovies().add(movie);
         return watchedRepository.save(watched);
     }
+
     @Override
-    public Watched removeMovieFromList(Watched watched, Movie movie) {
-        watched.removeMovie(movie);
+    public Watched saveWatched(Watched watched) {
         return watchedRepository.save(watched);
     }
+
+    @Override
+    public void deleteWatched(Watched watched) {
+
+        watchedRepository.delete(watched);
+    }
+
+
+
+
+
+
+
 
 }

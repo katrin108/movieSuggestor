@@ -35,7 +35,8 @@ public class HomeController {
 
         if (sessionUser != null) {
             model.addAttribute("LoggedInUser", sessionUser);
-            List<Map<String, Object>> personalizedMovies = userService.moviePreferenceSuggest(sessionUser);
+            List<Map<String, Object>> personalizedMovies = tmdbService.getMoviesByGenres(sessionUser.getGenres(),sessionUser.getChild());
+            
             model.addAttribute("personalizedMovies", personalizedMovies);
         }
 
