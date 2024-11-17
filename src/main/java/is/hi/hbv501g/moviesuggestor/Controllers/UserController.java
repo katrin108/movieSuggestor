@@ -111,6 +111,8 @@ public class UserController {
             model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
 
             model.addAttribute("genres", Genre.values());
+            model.addAttribute("totalTime",loggedInUser.getTotalTime());
+
             return "loggedInUser";
         }
         return "redirect:/login";
@@ -194,6 +196,8 @@ public class UserController {
         model.addAttribute("LoggedInUser", user);
         model.addAttribute("watchedMovies", watched.getMovies());
         model.addAttribute("watched",watched);
+        model.addAttribute("totalTime",user.getTotalTime());
+
         return "redirect:/loggedin";
     }
 
@@ -222,6 +226,7 @@ public class UserController {
             userService.saveUser(user);
 
         }
+
         model.addAttribute("LoggedInUser", user);
         model.addAttribute("watchedMovies", watched.getMovies());
         model.addAttribute("watched",watched);
@@ -483,6 +488,8 @@ public String viewMoviesList(@RequestParam("listId") long listId,HttpSession ses
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
             Watched watched=loggedInUser.getWatched();
             model.addAttribute("watchedMovies", watched.getMovies());
+            model.addAttribute("totalTime",loggedInUser.getTotalTime());
+
 
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
             model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
