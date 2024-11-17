@@ -3,6 +3,7 @@ package is.hi.hbv501g.moviesuggestor.Services;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Genre;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.MovieList;
 import is.hi.hbv501g.moviesuggestor.Persistence.Entities.User;
+import is.hi.hbv501g.moviesuggestor.Persistence.Entities.Watched;
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ public interface UserService {
     MovieList findMovieListById(long id);
     MovieList findMoveListByTitle(String name);
     MovieList saveMovieList(MovieList movieList);
+    Watched saveWatched(Watched watched);
     void deleteMovieList(MovieList movieList);
-    List<Map<String, Object>> moviePreferenceSuggest(User user);
+
 }

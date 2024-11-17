@@ -15,37 +15,51 @@ public class Watched {
     private long id;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id",unique = true)
     private User user;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "watched_movies", joinColumns = @JoinColumn(name = "watched_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    @JoinTable(name = "watched_movies",
+            joinColumns = @JoinColumn(name = "watched_id"),
+            inverseJoinColumns = @JoinColumn(name = "movie_id"))
     private List<Movie> movies;
 
-    public Watched() { movies = new ArrayList<Movie>(); }
+    public Watched() {
+        this.movies = new ArrayList<>();
+    }
+    public Watched(User user,List<Movie> movies) {
+        this.user = user;
+        this.movies = movies !=null?movies:new ArrayList<>();
+    }
 
-    public Watched(List<Movie> movies) { this.movies = movies; }
 
-    public long getID() { return id; }
-    public void setID(long id) { this.id = id; }
+    public long getId() {
+        return id;
+    }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public void setId(long id) {
+        this.id = id;
+    }
 
-    public List<Movie> getMovies() { return movies; }
-    public void setMovies(List<Movie> movies) { this.movies = movies; }
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<Movie> getMovies() {
+        return movies;
+    }
 
     public void addMovie(Movie movie) {
-        if (!movies.contains(movie)) {
-            movies.add(movie);
-        }
+        this.movies.add(movie);
     }
-
     public void removeMovie(Movie movie) {
-        if (movies.contains(movie)) {
-            movies.remove(movie);
+        if (this.movies != null) {
+            System.out.println("delete movie");
+            this.movies.remove(movie);
         }
     }
-
-
 }

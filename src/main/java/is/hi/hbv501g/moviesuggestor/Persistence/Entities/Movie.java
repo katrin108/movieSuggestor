@@ -31,6 +31,7 @@ public class Movie {
 
 
 
+
     @ManyToMany(mappedBy = "movies",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<MovieList> MovieLists =new ArrayList<>();
 
@@ -44,6 +45,8 @@ public class Movie {
         this.releaseDate = releaseDate;
         this.runtime = runtime;
         this.rating = rating;
+
+
 
     }
 

@@ -67,11 +67,11 @@
         You have no watch history
     </div>
     <div th:if="${watchedMovies != null}">
-        <div th:if="${watchedMovies.size() == 0}">
+        <div th:if="${#lists.isEmpty(watchedMovies)}">
             <p>Your watch history is empty</p>
         </div>
-        <div th:if="${watchedMovies.size() > 0}">
-            <table th:if="${movieList.movies.size() > 0}" border="1">
+        <div th:if="${not #lists.isEmpty(watchedMovies)}">
+            <table border="1">
                 <thead>
                 <tr>
                     <th>Title</th>
@@ -86,6 +86,11 @@
                     <td th:text="${movie.description}"></td>
                     <td th:text="${movie.releaseDate}"></td>
                     <td>
+                        <form th:action="@{/removeAMovieFromWatched}" method="post">
+                            <input type="hidden" th:value="${movie.id}" name="movieId" />
+                            <input type="hidden" th:value="${LoggedInUser.id}" name="userId" />
+                            <button type="submit">Remove</button>
+                        </form>
                         <!-- You can add actions like delete or view details -->
                     </td>
                 </tr>
@@ -132,6 +137,12 @@
                             <td th:text="${movie.description}"></td>
                             <td th:text="${movie.releaseDate}"></td>
                             <td>
+                                <form th:action="@{/removeAMovieFromMovieList}" method="post">
+                                    <input type="hidden" th:value="${movie.id}" name="movieId" />
+                                    <input type="hidden" th:value="${movieList.id}" name="movieListId" />
+                                    <input type="hidden" th:value="${LoggedInUser.id}" name="userId" />
+                                    <button type="submit">Remove</button>
+                                </form>
                                 <!-- You can add actions like delete or view details -->
                             </td>
                         </tr>

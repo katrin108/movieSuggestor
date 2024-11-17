@@ -52,9 +52,18 @@ public class UserController {
             user.setGenres(selectedGenres != null ? selectedGenres : new ArrayList<>());
             user.setChild(false);
             user.setMovieLists(new ArrayList<>());
+            Watched watched = new Watched();
+
+
+            watched.setUser(user);
+            user.setWatched(watched);
+
 
             userService.saveUser(user);
             session.setAttribute("LoggedInUser", user);
+
+            model.addAttribute("watchedMovies", user.getWatched().getMovies());
+
             model.addAttribute("LoggedInUser", user);
             return "redirect:/loggedin";
         } else {
@@ -94,7 +103,7 @@ public class UserController {
             model.addAttribute("LoggedInUser", loggedInUser);
             model.addAttribute("Usergenres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
-            model.addAttribute("watchedMovies", loggedInUser.getWatched());
+            model.addAttribute("watchedMovies", loggedInUser.getWatched().getMovies());
             model.addAttribute("recommendedMovie", null);
             model.addAttribute("hasSuggestedMovie", false);
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
@@ -162,17 +171,61 @@ public class UserController {
             @RequestParam("movieGenreIds") List<String> movieGenreIds,
             @RequestParam("movieOverview") String movieOverview,
             @RequestParam("movieReleaseDate") String movieReleaseDate,
-            HttpSession session) {
-        User sessionUser = (User) session.getAttribute("LoggedInUser");
-        List<Genre> genres = getGenres(movieGenreIds);
+            HttpSession session,Model model) {
+
+        List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
         Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
         User user = userService.findUserById(userId);
-        Watched watched = user.getWatched() != null ? user.getWatched() : new Watched();
-        watchedService.addMovieToList(watched, movie);
-        user.setWatched(watched);
+        Watched watched=user.getWatched();
+        if(watched==null) {
+            watched=new Watched();
+            user.setWatched(watched);
+        }
+        watched.addMovie(movie);
+
+
         userService.saveUser(user);
+
+        watched=user.getWatched();
+
+
+        model.addAttribute("LoggedInUser", user);
+        model.addAttribute("watchedMovies", watched.getMovies());
         return "redirect:/loggedin";
     }
+
+    @PostMapping("/removeAMovieFromWatched")
+    public String removeAMovieFromWatched(@RequestParam("movieId") long movieId, @RequestParam("userId") long userId, Model model){
+        User user = userService.findUserById(userId);
+        Watched watched=user.getWatched();
+
+        if(watched==null) {
+            return "redirect:/loggedin";
+        }
+
+        Movie movie=null;
+
+
+        for(Movie m:watched.getMovies()) {
+            if(m.getId()==movieId) {
+                movie=m;
+
+                break;
+            }
+        }
+
+        if(movie!=null) {
+            watched.getMovies().remove(movie);
+            userService.saveUser(user);
+
+        }
+        model.addAttribute("LoggedInUser", user);
+        model.addAttribute("watchedMovies", watched.getMovies());
+        return "redirect:/loggedin";
+    }
+
+
+
 
     @PostMapping("/addMovieToList")
     public String addMovieToList(
@@ -184,12 +237,44 @@ public class UserController {
             @RequestParam("movieReleaseDate") String movieReleaseDate,
             HttpSession session) {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
-        List<Genre> genres = getGenres(movieGenreIds);
+        List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
         Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
         MovieList movieList = movieListService.findMovieListById(listID);
         movieListService.addMovieToList(movieList, movie);
         return "redirect:/loggedin";
     }
+
+    @PostMapping("/removeAMovieFromMovieList")
+    public String removeAMovieFromMovieList(@RequestParam("movieId") long movieId,@RequestParam("movieListId") long ListId, @RequestParam("userId") long userId, Model model){
+        User user = userService.findUserById(userId);
+        MovieList movieList=user.getMovieList(ListId);
+
+        if(movieList==null) {
+            return "redirect:/loggedin";
+        }
+
+        Movie movie=null;
+
+
+        for(Movie m:movieList.getMovies()) {
+            if(m.getId()==movieId) {
+                movie=m;
+
+                break;
+            }
+        }
+
+        if(movie!=null) {
+            movieList.getMovies().remove(movie);
+            userService.saveUser(user);
+
+        }
+        model.addAttribute("LoggedInUser", user);
+        model.addAttribute("watchedMovies", movieList.getMovies());
+        return "redirect:/loggedin";
+    }
+
+
 
     @PostMapping("/deleteMovieList")
     public String deleteMovieList(@RequestParam("movieListId") long movieListId, HttpSession session) {
@@ -233,6 +318,7 @@ public class UserController {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         if (sessionUser != null) {
             userService.deleteUser(sessionUser);
+
             session.invalidate();
         }
         return "redirect:/";
@@ -279,7 +365,9 @@ public class UserController {
             model.addAttribute("LoggedInUser", loggedInUser);
             model.addAttribute("genres", loggedInUser.getGenres());
             model.addAttribute("movieLists", loggedInUser.getMovieLists());
-            model.addAttribute("watchedMovies", loggedInUser.getWatched());
+            Watched watched=loggedInUser.getWatched();
+            model.addAttribute("watchedMovies", watched.getMovies());
+
             Boolean showSettings = (Boolean) session.getAttribute("DivSettings");
             model.addAttribute("DivSettings", showSettings != null ? showSettings : false);
         }
