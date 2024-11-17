@@ -185,6 +185,120 @@ public class TmdbServiceImplementation implements TmdbService {
     }
 
     /**
+     * Fetches a list of movies personalized based on user's preferred genres and optional filters.
+     *
+     * @param genres        List of user's preferred genres.
+     * @param child         Child-safe mode.
+     * @param minRating     Minimum IMDb rating.
+     * @param minVotes      Minimum number of votes.
+     * @param certification Age rating (e.g., "PG-13").
+     * @param minRuntime    Minimum runtime in minutes.
+     * @param maxRuntime    Maximum runtime in minutes.
+     * @return A map representing the movie details, or null if not found.
+     */
+    @Override
+    public List<Map<String, Object>> getPersonalizedMovies(
+            List<Genre> genres,
+            Boolean child,
+            Double minRating,
+            Integer minVotes,
+            String certification,
+            Integer minRuntime,
+            Integer maxRuntime
+    ) {
+        if (genres == null || genres.isEmpty()) {
+            List<Map<String, Object>> result = new ArrayList<>();
+            result.add(getRandomPopularMovie(child));
+            return result;
+        }
+
+        try {
+            String genreIds = genres.stream()
+                    .map(genre -> String.valueOf(genre.getTmdbId()))
+                    .collect(Collectors.joining(","));
+
+            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath("/discover/movie")
+                    .queryParam("api_key", apiKey)
+                    .queryParam("language", "en-US")
+                    .queryParam("with_genres", genreIds);
+
+            // Add optional filters if they are provided
+            if (minRating != null) {
+                uriBuilder.queryParam("vote_average.gte", minRating);
+            }
+            if (minVotes != null) {
+                uriBuilder.queryParam("vote_count.gte", minVotes);
+            }
+            if (certification != null && !certification.isEmpty()) {
+                uriBuilder.queryParam("certification_country", "US")
+                        .queryParam("certification.lte", certification);
+            }
+            if (minRuntime != null) {
+                uriBuilder.queryParam("with_runtime.gte", minRuntime);
+            }
+            if (maxRuntime != null) {
+                uriBuilder.queryParam("with_runtime.lte", maxRuntime);
+            }
+            if (Boolean.TRUE.equals(child)) {
+                uriBuilder.queryParam("certification_country", "US")
+                        .queryParam("certification.lte", "PG");
+            }
+
+            // Build the URI string
+            String uriString = uriBuilder.toUriString();
+
+            // Fetch the initial response to get total pages
+            Map<String, Object> initialResponse = webClient.get()
+                    .uri(uriString)
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+            if (initialResponse == null || initialResponse.isEmpty()) {
+                System.err.println("TMDB API returned an empty or null response.");
+                return null;
+            }
+
+            Integer totalPages = (Integer) initialResponse.get("total_pages");
+            if (totalPages == null || totalPages == 0) {
+                System.err.println("No pages found for the given filters.");
+                return null;
+            }
+
+            int maxPages = Math.min(totalPages, 500);
+            final int randomPage = new Random().nextInt(maxPages) + 1;
+
+            // Update the URI with the random page
+            uriBuilder.replaceQueryParam("page", randomPage);
+            uriString = uriBuilder.toUriString();
+
+            System.out.println("Requesting URI: " + uriString);
+
+            Map<String, Object> response = webClient.get()
+                    .uri(uriString)
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
+
+            if (results != null && !results.isEmpty()) {
+                return results;
+            } else {
+                System.err.println("No movies found for the given filters.");
+            }
+        } catch (WebClientResponseException e) {
+            System.err.println("Error fetching personalized movies: " + e.getMessage());
+            System.err.println("Response body: " + e.getResponseBodyAsString());
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    /**
      * Fetches a random movie personalized based on user's preferred genres and optional filters.
      *
      * @param genres        List of user's preferred genres.
@@ -296,73 +410,7 @@ public class TmdbServiceImplementation implements TmdbService {
         return null;
     }
 
-    /**
-     * Fetches personalized movie suggestions based on user's preferred genres.
-     *
-     * @param genres List of user's preferred genres.
-     * @param child  Child-safe mode.
-     * @return A list of maps representing movie details.
-     */
-    @Override
-    public List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres, Boolean child) {
-        List<Map<String, Object>> allResults = new ArrayList<>();
 
-        if (genres == null || genres.isEmpty()) {
-            return allResults;
-        }
-
-        try {
-            String genreIds = genres.stream()
-                    .map(genre -> String.valueOf(genre.getTmdbId()))
-                    .collect(Collectors.joining(","));
-
-            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath("/discover/movie")
-                    .queryParam("api_key", apiKey)
-                    .queryParam("language", "en-US")
-                    .queryParam("with_genres", genreIds);
-
-            if (Boolean.TRUE.equals(child)) {
-                uriBuilder.queryParam("certification_country", "US")
-                        .queryParam("certification.lte", "PG");
-            }
-
-            String uriString = uriBuilder.toUriString();
-
-            Map<String, Object> initialResponse = webClient.get()
-                    .uri(uriString)
-                    .retrieve()
-                    .bodyToMono(Map.class)
-                    .block();
-
-            Integer totalPages = (Integer) initialResponse.get("total_pages");
-            int maxPages = totalPages != null ? Math.min(totalPages, 500) : 1;
-            int pagesToFetch = Math.min(maxPages, 5); // Limit to first 5 pages
-
-            for (int currentPage = 1; currentPage <= pagesToFetch; currentPage++) {
-                uriBuilder.replaceQueryParam("page", currentPage);
-                uriString = uriBuilder.toUriString();
-
-                Map<String, Object> response = webClient.get()
-                        .uri(uriString)
-                        .retrieve()
-                        .bodyToMono(Map.class)
-                        .block();
-
-                @SuppressWarnings("unchecked")
-                List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
-                if (results != null) {
-                    allResults.addAll(results);
-                }
-            }
-        } catch (WebClientResponseException e) {
-            System.err.println("Error fetching movie suggestions: " + e.getMessage());
-            System.err.println("Response body: " + e.getResponseBodyAsString());
-        } catch (Exception e) {
-            System.err.println("Unexpected error: " + e.getMessage());
-        }
-
-        return allResults;
-    }
 
     /**
      * Fetches movies by genres, retrieving multiple pages of results.
