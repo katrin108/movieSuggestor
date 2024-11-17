@@ -166,16 +166,17 @@ public class UserController {
 
     @PostMapping("/addMovieToWatched")
     public String addMovieToWatched(
-            @RequestParam("userId") long userId,
             @RequestParam("movieTitle") String movieTitle,
             @RequestParam("movieGenreIds") List<String> movieGenreIds,
             @RequestParam("movieOverview") String movieOverview,
             @RequestParam("movieReleaseDate") String movieReleaseDate,
             HttpSession session,Model model) {
-
+        User user = (User) session.getAttribute("LoggedInUser");
+        if(user==null) {
+            return "redirect:/loggedin";
+        }
         List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
         Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
-        User user = userService.findUserById(userId);
         Watched watched=user.getWatched();
         if(watched==null) {
             watched=new Watched();
@@ -191,6 +192,7 @@ public class UserController {
 
         model.addAttribute("LoggedInUser", user);
         model.addAttribute("watchedMovies", watched.getMovies());
+        model.addAttribute("watched",watched);
         return "redirect:/loggedin";
     }
 
@@ -221,10 +223,53 @@ public class UserController {
         }
         model.addAttribute("LoggedInUser", user);
         model.addAttribute("watchedMovies", watched.getMovies());
-        return "redirect:/loggedin";
+        model.addAttribute("watched",watched);
+        return "watched";
+    }
+
+    @GetMapping("/loggedIn/watched")
+    public String viewWatched(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("LoggedInUser");
+        if(user==null) {
+            return "redirect:/loggedin";
+        }
+
+        Watched watched=user.getWatched();
+
+        if(watched==null) {
+            return "redirect:/loggedin";
+        }
+
+        model.addAttribute("LoggedInUser", user);
+        model.addAttribute("watchedMovies", watched.getMovies());
+        model.addAttribute("watched",watched);
+
+        return "watched";
     }
 
 
+
+
+
+
+
+@GetMapping("/loggedIn/movieList")
+public String viewMoviesList(@RequestParam("listId") long listId,HttpSession session, Model model) {
+    User user = (User) session.getAttribute("LoggedInUser");
+    if(user==null) {
+        return "redirect:/loggedin";
+    }
+        MovieList movieList=movieListService.findMovieListById(listId);
+
+        if(movieList==null) {
+            return "redirect:/loggedin";
+        }
+
+        model.addAttribute("LoggedInUser", user);
+        model.addAttribute("movieList", movieList);
+        return "movieList";
+
+}
 
 
     @PostMapping("/addMovieToList")
@@ -245,8 +290,11 @@ public class UserController {
     }
 
     @PostMapping("/removeAMovieFromMovieList")
-    public String removeAMovieFromMovieList(@RequestParam("movieId") long movieId,@RequestParam("movieListId") long ListId, @RequestParam("userId") long userId, Model model){
-        User user = userService.findUserById(userId);
+    public String removeAMovieFromMovieList(@RequestParam("movieId") long movieId,@RequestParam("movieListId") long ListId, HttpSession session, Model model){
+        User user = (User) session.getAttribute("LoggedInUser");
+        if(user==null) {
+            return "redirect:/loggedin";
+        }
         MovieList movieList=user.getMovieList(ListId);
 
         if(movieList==null) {
@@ -269,9 +317,51 @@ public class UserController {
             userService.saveUser(user);
 
         }
+        if(movieList.getMovies().isEmpty()) {
+            return "redirect:/loggedin";
+        }
         model.addAttribute("LoggedInUser", user);
-        model.addAttribute("watchedMovies", movieList.getMovies());
-        return "redirect:/loggedin";
+        model.addAttribute("movieList", movieList);
+        return "movieList";
+    }
+    @PostMapping("/moveAMovieFromMovieList")
+    public String moveAMovieFromMovieList(@RequestParam("movieId") long movieId,@RequestParam("movieListId") long ListId, HttpSession session, Model model){
+        User user = (User) session.getAttribute("LoggedInUser");
+        if(user==null) {
+            return "redirect:/loggedin";
+        }
+        System.out.println("tsesa"+user+"user");
+        MovieList movieList=user.getMovieList(ListId);
+
+        if(movieList==null) {
+            System.out.println("NULL????"+user+"user");
+            return "redirect:/loggedin";
+        }
+
+        Movie movie=null;
+
+
+        for(Movie m:movieList.getMovies()) {
+            if(m.getId()==movieId) {
+                movie=m;
+
+                break;
+            }
+        }
+
+        if(movie!=null) {
+            movieList.getMovies().remove(movie);
+            Watched watched=user.getWatched();
+            watched.addMovie(movie);
+            userService.saveUser(user);
+
+        }
+        if(movieList.getMovies().isEmpty()) {
+            return "redirect:/loggedin";
+        }
+        model.addAttribute("LoggedInUser", user);
+        model.addAttribute("movieList", movieList);
+        return "movieList";
     }
 
 

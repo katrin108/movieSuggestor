@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Watched</title>
+</head>
+
+<body>
+<a th:href="@{/loggedin}">Back to Dashboard</a>
+
+<section>
+    <h2>Your watched movies</h2>
+    <div th:if="${watchedMovies == null}">
+        You have no watch history
+    </div>
+    <div th:if="${watchedMovies != null}">
+        <div th:if="${#lists.isEmpty(watchedMovies)}">
+            <p>Your watch history is empty</p>
+        </div>
+        <div th:if="${not #lists.isEmpty(watchedMovies)}">
+            <table border="1">
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Release Date</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="movie : ${watchedMovies}">
+                    <td th:text="${movie.title}"></td>
+                    <td th:text="${movie.description}"></td>
+                    <td th:text="${movie.releaseDate}"></td>
+                    <td>
+                        <form th:action="@{/removeAMovieFromWatched}" method="post">
+                            <input type="hidden" th:value="${movie.id}" name="movieId" />
+                            <input type="hidden" th:value="${LoggedInUser.id}" name="userId" />
+                            <button type="submit">Remove</button>
+                        </form>
+
+                        <!-- You can add actions like delete or view details -->
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>
