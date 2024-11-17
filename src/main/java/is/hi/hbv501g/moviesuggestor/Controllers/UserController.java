@@ -55,7 +55,6 @@ public class UserController {
             Watched watched = new Watched();
 
 
-            watched.addMovie(new Movie("movieTitle", null , "movieOverview", null, 0, 0));
             watched.setUser(user);
             user.setWatched(watched);
 
@@ -177,9 +176,7 @@ public class UserController {
         List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
         Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
         User user = userService.findUserById(userId);
-        System.out.println("user is "+user.getUsername());
         Watched watched=user.getWatched();
-        System.out.println("watched is "+watched);
         if(watched==null) {
             watched=new Watched();
             user.setWatched(watched);
@@ -194,9 +191,41 @@ public class UserController {
 
         model.addAttribute("LoggedInUser", user);
         model.addAttribute("watchedMovies", watched.getMovies());
-        System.out.println("teste "+ user.getWatched().getMovies().size());
         return "redirect:/loggedin";
     }
+
+    @PostMapping("/removeAMovieFromWatched")
+    public String removeAMovieFromWatched(@RequestParam("movieId") long movieId, @RequestParam("userId") long userId, Model model){
+        User user = userService.findUserById(userId);
+        Watched watched=user.getWatched();
+
+        if(watched==null) {
+            return "redirect:/loggedin";
+        }
+
+        Movie movie=null;
+
+
+        for(Movie m:watched.getMovies()) {
+            if(m.getId()==movieId) {
+                movie=m;
+
+                break;
+            }
+        }
+
+        if(movie!=null) {
+            watched.getMovies().remove(movie);
+            userService.saveUser(user);
+
+        }
+        model.addAttribute("LoggedInUser", user);
+        model.addAttribute("watchedMovies", watched.getMovies());
+        return "redirect:/loggedin";
+    }
+
+
+
 
     @PostMapping("/addMovieToList")
     public String addMovieToList(
