@@ -137,7 +137,12 @@
                             <td th:text="${movie.description}"></td>
                             <td th:text="${movie.releaseDate}"></td>
                             <td>
-
+                                <form th:action="@{/removeAMovieFromMovieList}" method="post">
+                                    <input type="hidden" th:value="${movie.id}" name="movieId" />
+                                    <input type="hidden" th:value="${movieList.id}" name="movieListId" />
+                                    <input type="hidden" th:value="${LoggedInUser.id}" name="userId" />
+                                    <button type="submit">Remove</button>
+                                </form>
                                 <!-- You can add actions like delete or view details -->
                             </td>
                         </tr>

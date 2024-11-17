@@ -237,12 +237,44 @@ public class UserController {
             @RequestParam("movieReleaseDate") String movieReleaseDate,
             HttpSession session) {
         User sessionUser = (User) session.getAttribute("LoggedInUser");
-        List<Genre> genres = getGenres(movieGenreIds);
+        List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
         Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
         MovieList movieList = movieListService.findMovieListById(listID);
         movieListService.addMovieToList(movieList, movie);
         return "redirect:/loggedin";
     }
+
+    @PostMapping("/removeAMovieFromMovieList")
+    public String removeAMovieFromMovieList(@RequestParam("movieId") long movieId,@RequestParam("movieListId") long ListId, @RequestParam("userId") long userId, Model model){
+        User user = userService.findUserById(userId);
+        MovieList movieList=user.getMovieList(ListId);
+
+        if(movieList==null) {
+            return "redirect:/loggedin";
+        }
+
+        Movie movie=null;
+
+
+        for(Movie m:movieList.getMovies()) {
+            if(m.getId()==movieId) {
+                movie=m;
+
+                break;
+            }
+        }
+
+        if(movie!=null) {
+            movieList.getMovies().remove(movie);
+            userService.saveUser(user);
+
+        }
+        model.addAttribute("LoggedInUser", user);
+        model.addAttribute("watchedMovies", movieList.getMovies());
+        return "redirect:/loggedin";
+    }
+
+
 
     @PostMapping("/deleteMovieList")
     public String deleteMovieList(@RequestParam("movieListId") long movieListId, HttpSession session) {

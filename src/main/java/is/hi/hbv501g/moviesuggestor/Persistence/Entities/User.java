@@ -114,6 +114,10 @@ public class User {
         return movieLists;
     }
 
+    public MovieList getMovieList(long id) {
+        return movieLists.stream().filter(movieList -> movieList.getId() == id).findFirst().get();
+    }
+
     public void setMovieLists(List<MovieList> movieLists) {
         this.movieLists = movieLists;
     }
@@ -125,5 +129,6 @@ public class User {
     public void setWatched(Watched watched) {
         this.watched = watched;
     }
+
 }
 
