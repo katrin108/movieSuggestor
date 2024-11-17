@@ -96,6 +96,7 @@
             <button type="submit" name="action" value="Movie based on selected genres">Movie Based on Selected Genres</button>
             <div th:if="${LoggedInUser != null}">
                 <button type="submit" name="action" value="Movie based on saved genres">Movie Based on Saved Genres</button>
+				<button type="submit" name="action" value="Movies based on saved genres">Movies based on saved Genres</button>
             </div>
         </div>
     </form>
@@ -119,7 +120,7 @@
 </section>
 
 <!-- Search Results -->
-<section th:if="${query != null}">
+<!--<section th:if="${query != null}">
     <h2>Results for: <span th:text="${query}"></span></h2>
     <div th:if="${recommendedMovies != null}">
         <div th:if="${recommendedMovies.isEmpty()}">
@@ -136,6 +137,25 @@
                 </p>
                 <hr/>
             </div>
+        </div>
+    </div>
+</section>-->
+<!-- Suggestions -->
+<section th:if="${recommendedMovies != null}">
+    <h2 th:if="${query != null}">Results for: <span th:text="${query}"></span></h2>
+    <div th:if="${recommendedMovies.isEmpty()}">
+        <p>No movies found for your search query.</p>
+    </div>
+    <div th:if="${!recommendedMovies.isEmpty()}">
+        <h3>Recommended Movies</h3>
+        <div th:each="movie : ${recommendedMovies}">
+            <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster_path}" alt="Movie Poster" style="max-width: 200px;">
+            <h4 th:text="${movie.title}"></h4>
+            <p th:text="${movie.overview}"></p>
+            <p>
+                <a th:href="'https://www.themoviedb.org/movie/' + ${movie.id}" target="_blank">View on TMDB</a>
+            </p>
+            <hr/>
         </div>
     </div>
 </section>

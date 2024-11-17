@@ -17,7 +17,15 @@ public interface TmdbService {
             Integer maxRuntime
     );
 
-    List<Map<String, Object>> getPersonalizedMovieSuggestions(List<Genre> genres, Boolean child);
+    List<Map<String, Object>> getPersonalizedMovies(
+            List<Genre> genres,
+            Boolean child,
+            Double minRating,
+            Integer minVotes,
+            String certification,
+            Integer minRuntime,
+            Integer maxRuntime
+    );
 
     List<Map<String, Object>> getMoviesByGenres(List<Genre> genres, Boolean child);
 

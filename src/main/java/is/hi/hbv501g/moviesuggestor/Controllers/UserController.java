@@ -151,51 +151,6 @@ public class UserController {
         return "redirect:/loggedin";
     }
 
-    @PostMapping("/addMovieList")
-    public String addMovieList(@RequestParam("name") String name, HttpSession session) {
-        User sessionUser = (User) session.getAttribute("LoggedInUser");
-        if (sessionUser != null) {
-            MovieList newMovieList = new MovieList();
-            newMovieList.setName(name);
-            newMovieList.setUser(sessionUser);
-            movieListService.saveMovieList(newMovieList);
-            sessionUser.getMovieLists().add(newMovieList);
-        }
-        return "redirect:/loggedin";
-    }
-
-    @PostMapping("/addMovieToWatched")
-    public String addMovieToWatched(
-            @RequestParam("movieTitle") String movieTitle,
-            @RequestParam("movieGenreIds") List<String> movieGenreIds,
-            @RequestParam("movieOverview") String movieOverview,
-            @RequestParam("movieReleaseDate") String movieReleaseDate,
-            HttpSession session,Model model) {
-        User user = (User) session.getAttribute("LoggedInUser");
-        if(user==null) {
-            return "redirect:/loggedin";
-        }
-        List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
-        Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
-        Watched watched=user.getWatched();
-        if(watched==null) {
-            watched=new Watched();
-            user.setWatched(watched);
-        }
-        watched.addMovie(movie);
-
-
-        userService.saveUser(user);
-
-        watched=user.getWatched();
-
-
-        model.addAttribute("LoggedInUser", user);
-        model.addAttribute("watchedMovies", watched.getMovies());
-        model.addAttribute("watched",watched);
-        return "redirect:/loggedin";
-    }
-
     @PostMapping("/removeAMovieFromWatched")
     public String removeAMovieFromWatched(@RequestParam("movieId") long movieId, @RequestParam("userId") long userId, Model model){
         User user = userService.findUserById(userId);
@@ -253,12 +208,12 @@ public class UserController {
 
 
 
-@GetMapping("/loggedIn/movieList")
-public String viewMoviesList(@RequestParam("listId") long listId,HttpSession session, Model model) {
-    User user = (User) session.getAttribute("LoggedInUser");
-    if(user==null) {
-        return "redirect:/loggedin";
-    }
+    @GetMapping("/loggedIn/movieList")
+    public String viewMoviesList(@RequestParam("listId") long listId,HttpSession session, Model model) {
+        User user = (User) session.getAttribute("LoggedInUser");
+        if(user==null) {
+            return "redirect:/loggedin";
+        }
         MovieList movieList=movieListService.findMovieListById(listId);
 
         if(movieList==null) {
@@ -268,25 +223,6 @@ public String viewMoviesList(@RequestParam("listId") long listId,HttpSession ses
         model.addAttribute("LoggedInUser", user);
         model.addAttribute("movieList", movieList);
         return "movieList";
-
-}
-
-
-    @PostMapping("/addMovieToList")
-    public String addMovieToList(
-            @RequestParam("movieListId") long listID,
-            //@RequestParam("movieId") long movieId,
-            @RequestParam("movieTitle") String movieTitle,
-            @RequestParam("movieGenreIds") List<String> movieGenreIds,
-            @RequestParam("movieOverview") String movieOverview,
-            @RequestParam("movieReleaseDate") String movieReleaseDate,
-            HttpSession session) {
-        User sessionUser = (User) session.getAttribute("LoggedInUser");
-        List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
-        Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
-        MovieList movieList = movieListService.findMovieListById(listID);
-        movieListService.addMovieToList(movieList, movie);
-        return "redirect:/loggedin";
     }
 
     @PostMapping("/removeAMovieFromMovieList")
@@ -324,6 +260,7 @@ public String viewMoviesList(@RequestParam("listId") long listId,HttpSession ses
         model.addAttribute("movieList", movieList);
         return "movieList";
     }
+
     @PostMapping("/moveAMovieFromMovieList")
     public String moveAMovieFromMovieList(@RequestParam("movieId") long movieId,@RequestParam("movieListId") long ListId, HttpSession session, Model model){
         User user = (User) session.getAttribute("LoggedInUser");
@@ -363,8 +300,6 @@ public String viewMoviesList(@RequestParam("listId") long listId,HttpSession ses
         model.addAttribute("movieList", movieList);
         return "movieList";
     }
-
-
 
     @PostMapping("/deleteMovieList")
     public String deleteMovieList(@RequestParam("movieListId") long movieListId, HttpSession session) {
@@ -430,6 +365,7 @@ public String viewMoviesList(@RequestParam("listId") long listId,HttpSession ses
 
             List<Genre> userGenres = loggedInUser.getGenres();
             Map<String, Object> recommendedMovie;
+            List<Map<String, Object>> recommendedMovies;
             if (userGenres != null && !userGenres.isEmpty()) {
                 recommendedMovie = tmdbService.getRandomPersonalizedMovie(
                         userGenres,
@@ -463,6 +399,7 @@ public String viewMoviesList(@RequestParam("listId") long listId,HttpSession ses
         }
         return "loggedInUser";
     }
+
 
     /**
      * Endpoint to handle movie recommendations based on a user-input sentence.
