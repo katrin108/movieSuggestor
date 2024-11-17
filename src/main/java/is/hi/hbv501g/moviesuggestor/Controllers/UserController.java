@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Controller
 public class UserController {
@@ -324,6 +325,31 @@ public String viewMoviesList(@RequestParam("listId") long listId,HttpSession ses
         model.addAttribute("movieList", movieList);
         return "movieList";
     }
+
+    @PostMapping("/getAMovieFromMovieList")
+    public String getAMovieFromMovieList(@RequestParam("movieListId") long ListId, HttpSession session, Model model){
+        User user = (User) session.getAttribute("LoggedInUser");
+        if(user==null) {
+            return "redirect:/loggedin";
+        }
+        MovieList movieList=user.getMovieList(ListId);
+        if(movieList==null||movieList.getMovies().isEmpty()) {
+            return "redirect:/loggedin";
+        }
+        Random random=new Random();
+
+        Movie movie=movieList.getMovies().get(random.nextInt(movieList.getMovies().size()));
+        System.out.println("The movie"+movie.getTitle());
+        model.addAttribute("movie", movie);
+        model.addAttribute("LoggedInUser", user);
+        model.addAttribute("movieList", movieList);
+        return "movieList";
+
+    }
+
+
+
+
     @PostMapping("/moveAMovieFromMovieList")
     public String moveAMovieFromMovieList(@RequestParam("movieId") long movieId,@RequestParam("movieListId") long ListId, HttpSession session, Model model){
         User user = (User) session.getAttribute("LoggedInUser");
