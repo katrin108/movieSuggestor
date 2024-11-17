@@ -61,6 +61,7 @@
 </div>
 
 <!-- Watched movies -->
+<!-- Watched movies -->
 <section>
     <h2>Your watched movies</h2>
     <div th:if="${watchedMovies == null}">
@@ -71,31 +72,8 @@
             <p>Your watch history is empty</p>
         </div>
         <div th:if="${not #lists.isEmpty(watchedMovies)}">
-            <table border="1">
-                <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Release Date</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="movie : ${watchedMovies}">
-                    <td th:text="${movie.title}"></td>
-                    <td th:text="${movie.description}"></td>
-                    <td th:text="${movie.releaseDate}"></td>
-                    <td>
-                        <form th:action="@{/removeAMovieFromWatched}" method="post">
-                            <input type="hidden" th:value="${movie.id}" name="movieId" />
-                            <input type="hidden" th:value="${LoggedInUser.id}" name="userId" />
-                            <button type="submit">Remove</button>
-                        </form>
-                        <!-- You can add actions like delete or view details -->
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+            <a th:href="@{/loggedIn/watched}">View Watched Movies</a>
+
         </div>
     </div>
 </section>
@@ -122,31 +100,15 @@
                 </form>
                 <div th:if="${movieList.movies != null}">
                     <p th:if="${movieList.movies.size() == 0}">No movies in this list.</p>
+                    <h4 th:text="'This list contains: ' + ${movieList.movies.size()} + ' movies.'"></h4>
+
                     <table th:if="${movieList.movies.size() > 0}" border="1">
-                        <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>Release Date</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="movie : ${movieList.movies}">
-                            <td th:text="${movie.title}"></td>
-                            <td th:text="${movie.description}"></td>
-                            <td th:text="${movie.releaseDate}"></td>
-                            <td>
-                                <form th:action="@{/removeAMovieFromMovieList}" method="post">
-                                    <input type="hidden" th:value="${movie.id}" name="movieId" />
-                                    <input type="hidden" th:value="${movieList.id}" name="movieListId" />
-                                    <input type="hidden" th:value="${LoggedInUser.id}" name="userId" />
-                                    <button type="submit">Remove</button>
-                                </form>
-                                <!-- You can add actions like delete or view details -->
-                            </td>
-                        </tr>
-                        </tbody>
+
+
+                        <form th:action="@{/loggedIn/movieList}" method="get" style="display:inline;">
+                            <input type="hidden" th:value="${movieList.id}" name="listId" />
+                            <button type="submit">See All Movies</button>
+                        </form>
                     </table>
                 </div>
             </li>

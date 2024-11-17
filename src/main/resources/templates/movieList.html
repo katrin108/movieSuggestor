@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Movie List</title>
+</head>
+
+<body>
+<h1 th:text="${movieList.name} "></h1>
+<a th:href="@{/loggedin}">Back to Dashboard</a>
+
+<div th:if="${movieList.movies != null}">
+    <p th:if="${movieList.movies.size() == 0}">No movies in this list.</p>
+    <table th:if="${movieList.movies.size() > 0}" border="1">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Release Date</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="movie : ${movieList.movies}">
+            <td th:text="${movie.title}"></td>
+            <td th:text="${movie.description}"></td>
+            <td th:text="${movie.releaseDate}"></td>
+            <td>
+                <form th:action="@{/removeAMovieFromMovieList}" method="post">
+                    <input type="hidden" th:value="${movie.id}" name="movieId" />
+                    <input type="hidden" th:value="${movieList.id}" name="movieListId" />
+                    <button type="submit">Remove</button>
+                </form>
+                <form th:action="@{/moveAMovieFromMovieList}" method="post">
+                    <input type="hidden" th:value="${movie.id}" name="movieId" />
+                    <input type="hidden" th:value="${movieList.id}" name="movieListId" />
+                    <button type="submit">Move to Watched</button>
+                </form>
+                <!-- You can add actions like delete or view details -->
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
