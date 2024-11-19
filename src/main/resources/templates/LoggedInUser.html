@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Your Profile</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
 
 <!-- Header -->
-<h1>Welcome, <span th:text="${LoggedInUser.username}"></span>!</h1>
+<h1>Welcome, <span th:text="${LoggedInUser.username}"></span> !</h1>
 
 <!-- User Information -->
-<section>
+<section id="UserInformation">
     <h2>Your Profile Information</h2>
     <p>Email: <span th:text="${LoggedInUser.email ?: 'Not provided'}"></span></p>
     <p>Child-safe mode: <span th:text="${LoggedInUser.child ? 'On' : 'Off'}"></span></p>
@@ -42,13 +43,13 @@
     <h2>User Settings</h2>
     <form th:action="@{/saveSettings}" method="post">
         <label for="username">Username:
-            <input type="text" name="username" id="username" th:value="${LoggedInUser.username}">
+            <input type="text" name="username" id="username" th:value="${LoggedInUser.username}" class="search-input">
         </label><br/>
         <label for="password">Password:
-            <input type="password" name="password" id="password" th:value="${LoggedInUser.password}">
+            <input type="password" name="password" id="password" th:value="${LoggedInUser.password}" class="search-input">
         </label><br/>
         <label for="email">Email:
-            <input type="email" name="email" id="email" th:value="${LoggedInUser.email}">
+            <input type="email" name="email" id="email" th:value="${LoggedInUser.email}" class="search-input">
         </label><br/>
         <label for="child_safe">Child-safe mode:
             <input type="checkbox" name="child" id="child_safe" th:checked="${LoggedInUser.child}">
@@ -82,7 +83,7 @@
     <h2>Your Movie Lists</h2>
     <form th:action="@{/addMovieList}" method="post">
         <label for="name">Create New Movie List:</label>
-        <input type="text" id="name" name="name" required />
+        <input type="text" id="name" name="name" required class="search-input"/>
         <button type="submit">Add Movie List</button>
     </form>
 
@@ -136,43 +137,48 @@
         <p>No movies where found</p>
     </div>
     <div th:if="${!recommendedMovies.isEmpty()}">
+
         <h3>Movies found: </h3>
+        <div id="recommendedMovies">
 
+            <div id="recommendedMovie" th:each="movie : ${recommendedMovies}" >
+                <div id="info">
+                <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster_path}"
+                     alt="Movie Poster" style="max-width: 200px;">
+                <h4 th:text="${movie.title}"></h4>
+                <p th:text="${movie.overview}"></p>
+                <p>
+                    <a th:href="'https://www.themoviedb.org/movie/' + ${movie.id}"
+                       target="_blank">View on TMDB</a>
+                </p>
+            </div>
+                <div id="options">
+                    <!-- Add to Movie List -->
+                    <form th:action="@{/addMovieToListUser}" method="post">
+                        <input type="hidden" name="userId" th:value="${movie.id}"/>
+                        <input type="hidden" name="movieTitle" th:value="${movie.title}"/>
+                        <input type="hidden" name="movieGenreIds" th:value="${movie.genre_ids}"/>
+                        <input type="hidden" name="movieOverview" th:value="${movie.overview}"/>
+                        <input type="hidden" name="movieReleaseDate" th:value="${movie.release_date}"/>
+                        <label for="movieListId">Add to List:</label>
+                        <select name="movieListId" id="movieListId">
+                            <option th:each="list : ${movieLists}" th:value="${list.id}" th:text="${list.name}"></option>
+                        </select>
+                        <button type="submit">Add to List</button>
+                    </form>
+                    <!-- Add to Watched  -->
+                    <form th:action="@{/addMovieToWatchedUser}" method="post">
+                        <input type="hidden" name="userId" th:value="${movie.id}"/>
+                        <input type="hidden" name="movieTitle" th:value="${movie.title}"/>
+                        <input type="hidden" name="movieGenreIds" th:value="${movie.genre_ids}"/>
+                        <input type="hidden" name="movieOverview" th:value="${movie.overview}"/>
+                        <input type="hidden" name="movieReleaseDate" th:value="${movie.release_date}"/>
 
-        <div th:each="movie : ${recommendedMovies}">
-            <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster_path}"
-                 alt="Movie Poster" style="max-width: 200px;">
-            <h4 th:text="${movie.title}"></h4>
-            <p th:text="${movie.overview}"></p>
-            <p>
-                <a th:href="'https://www.themoviedb.org/movie/' + ${movie.id}"
-                   target="_blank">View on TMDB</a>
-            </p>
-            <hr/>
-            <!-- Add to Movie List -->
-            <form th:action="@{/addMovieToListUser}" method="post">
-                <input type="hidden" name="userId" th:value="${movie.id}"/>
-                <input type="hidden" name="movieTitle" th:value="${movie.title}"/>
-                <input type="hidden" name="movieGenreIds" th:value="${movie.genre_ids}"/>
-                <input type="hidden" name="movieOverview" th:value="${movie.overview}"/>
-                <input type="hidden" name="movieReleaseDate" th:value="${movie.release_date}"/>
-                <label for="movieListId">Add to List:</label>
-                <select name="movieListId" id="movieListId">
-                    <option th:each="list : ${movieLists}" th:value="${list.id}" th:text="${list.name}"></option>
-                </select>
-                <button type="submit">Add to List</button>
-            </form>
-            <!-- Add to Watched  -->
-            <form th:action="@{/addMovieToWatchedUser}" method="post">
-                <input type="hidden" name="userId" th:value="${movie.id}"/>
-                <input type="hidden" name="movieTitle" th:value="${movie.title}"/>
-                <input type="hidden" name="movieGenreIds" th:value="${movie.genre_ids}"/>
-                <input type="hidden" name="movieOverview" th:value="${movie.overview}"/>
-                <input type="hidden" name="movieReleaseDate" th:value="${movie.release_date}"/>
+                        <button type="submit">Add to watch history</button>
+                    </form>
+                </div>
 
-                <button type="submit">Add to watch history</button>
-            </form>
-
+            </div>
         </div>
 
     </div>
