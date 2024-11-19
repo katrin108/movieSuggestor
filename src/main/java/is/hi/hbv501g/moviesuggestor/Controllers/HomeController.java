@@ -92,6 +92,19 @@ public class HomeController {
                 movies = null;
             }
         }
+        else if ("Movies based on selected genres".equals(action)) {
+            if (selectedGenres != null && !selectedGenres.isEmpty()) {
+                movies = tmdbService.getPersonalizedMovies(
+                        selectedGenres,
+                        child,
+                        minRating,
+                        minVotes,
+                        certification,
+                        minRuntime,
+                        maxRuntime
+                );
+            }
+        }
         else if ("Movie based on saved genres".equals(action)) {
             if (sessionUser != null && sessionUser.getGenres() != null && !sessionUser.getGenres().isEmpty()) {
                 randomMovie = tmdbService.getRandomPersonalizedMovie(
@@ -119,8 +132,10 @@ public class HomeController {
                         minRuntime,
                         maxRuntime
                 );
-                for(Map<String, Object> m:movies){
+                if (movies != null) {
+                    for(Map<String, Object> m:movies){
 
+                    }
                 }
                 randomMovie = null;
             }
