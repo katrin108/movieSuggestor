@@ -9,10 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 @Controller
 public class UserController {
@@ -66,6 +63,9 @@ public class UserController {
             model.addAttribute("watchedMovies", user.getWatched().getMovies());
 
             model.addAttribute("LoggedInUser", user);
+
+            model.addAttribute("recommendedMovies", new ArrayList<>());
+
             return "redirect:/loggedin";
         } else {
             model.addAttribute("errorMessage", "Username already exists");
@@ -113,6 +113,8 @@ public class UserController {
             model.addAttribute("genres", Genre.values());
             model.addAttribute("totalTime",loggedInUser.getTotalTime());
 
+            model.addAttribute("recommendedMovies", new ArrayList<>());
+
             return "loggedInUser";
         }
         return "redirect:/login";
@@ -155,34 +157,27 @@ public class UserController {
     }
 
     @PostMapping("/removeAMovieFromWatched")
-    public String removeAMovieFromWatched(@RequestParam("movieId") long movieId, @RequestParam("userId") long userId, Model model){
-        User user = userService.findUserById(userId);
-        Watched watched=user.getWatched();
-
-        if(watched==null) {
+    public String removeAMovieFromWatched(@RequestParam("movieId") long movieId,
+                                          @RequestParam("userId") long userId,
+                                          Model model, HttpSession session) {
+        User loggedInUser = userService.findUserById(userId);
+        Watched watched=loggedInUser.getWatched();
+        if(watched == null||loggedInUser==null) {
             return "redirect:/loggedin";
         }
 
-        Movie movie=null;
-
-
         for(Movie m:watched.getMovies()) {
             if(m.getId()==movieId) {
-                movie=m;
-
+                watched.removeMovie(m);
+                watchedService.saveWatched(watched);
+                session.setAttribute("LoggedInUser", userService.findUserById(loggedInUser.getId()));
+                model.addAttribute("LoggedInUser", loggedInUser);
+                model.addAttribute("watchedMovies", watched.getMovies());
+                model.addAttribute("watched",watched);
                 break;
             }
         }
 
-        if(movie!=null) {
-            watched.getMovies().remove(movie);
-            userService.saveUser(user);
-
-        }
-
-        model.addAttribute("LoggedInUser", user);
-        model.addAttribute("watchedMovies", watched.getMovies());
-        model.addAttribute("watched",watched);
         return "watched";
     }
 
@@ -241,36 +236,26 @@ public class UserController {
 
     @PostMapping("/removeAMovieFromMovieList")
     public String removeAMovieFromMovieList(@RequestParam("movieId") long movieId,@RequestParam("movieListId") long ListId, HttpSession session, Model model){
-        User user = (User) session.getAttribute("LoggedInUser");
-        if(user==null) {
+        User loggedInUser = (User) session.getAttribute("LoggedInUser");
+        MovieList movieList=loggedInUser.getMovieList(ListId);
+
+        if(loggedInUser==null||movieList==null) {
             return "redirect:/loggedin";
         }
-        MovieList movieList=user.getMovieList(ListId);
-
-        if(movieList==null) {
-            return "redirect:/loggedin";
-        }
-
-        Movie movie=null;
-
-
-        for(Movie m:movieList.getMovies()) {
-            if(m.getId()==movieId) {
-                movie=m;
-
+        for (Movie m:movieList.getMovies()) {
+            if (m.getId() == movieId) {
+                movieList.getMovies().remove(m);
+                movieListService.saveMovieList(movieList);
                 break;
             }
         }
 
-        if(movie!=null) {
-            movieList.getMovies().remove(movie);
-            userService.saveUser(user);
-
-        }
         if(movieList.getMovies().isEmpty()) {
             return "redirect:/loggedin";
         }
-        model.addAttribute("LoggedInUser", user);
+
+        session.setAttribute("LoggedInUser", userService.findUserById(loggedInUser.getId()));
+        model.addAttribute("LoggedInUser", loggedInUser);
         model.addAttribute("movieList", movieList);
         return "movieList";
     }
@@ -297,7 +282,9 @@ public class UserController {
     }
 
     @PostMapping("/moveAMovieFromMovieList")
-    public String moveAMovieFromMovieList(@RequestParam("movieId") long movieId,@RequestParam("movieListId") long ListId, HttpSession session, Model model){
+    public String moveAMovieFromMovieList(@RequestParam("movieId") long movieId,
+                                          @RequestParam("movieListId") long ListId,
+                                          HttpSession session, Model model){
         User user = (User) session.getAttribute("LoggedInUser");
         if(user==null) {
             return "redirect:/loggedin";
@@ -310,24 +297,19 @@ public class UserController {
             return "redirect:/loggedin";
         }
 
-        Movie movie=null;
-
-
-        for(Movie m:movieList.getMovies()) {
+        List<Movie> movies=movieList.getMovies();
+        for(Movie m:movies) {
             if(m.getId()==movieId) {
-                movie=m;
-
+                movies.remove(m);
+                movieList.setMovies(movies);
+                movieListService.saveMovieList(movieList);
+                Watched watched=user.getWatched();
+                watched.addMovie(m);
+                watchedService.saveWatched(watched);
                 break;
             }
         }
 
-        if(movie!=null) {
-            movieList.getMovies().remove(movie);
-            Watched watched=user.getWatched();
-            watched.addMovie(movie);
-            userService.saveUser(user);
-
-        }
         if(movieList.getMovies().isEmpty()) {
             return "redirect:/loggedin";
         }
@@ -445,25 +427,114 @@ public class UserController {
      * @param model The model to pass data to the Thymeleaf template.
      * @return The name of the Thymeleaf template to render.
      */
-    @GetMapping("/api/movies/recommend")
-    public String recommendMovies(@RequestParam String query, Model model, HttpSession session) {
+    @GetMapping("/GetMoviesByTitle")
+    public String getMovieDetailsFromTitles(@RequestParam String query, Model model, HttpSession session) {
         try {
             User loggedInUser = (User) session.getAttribute("LoggedInUser");
-            List<String> recommendedTitles = tasteDiveService.getRecommendedMovies(query);
+            if(!query.isEmpty()&&loggedInUser!=null) {
+                query = query.toLowerCase();
+                query = query.replace(" ", "+");
+                List<Map<String, Object>> recommendedMovies = tmdbService.getMoviesFromTitles(Collections.singletonList(query.trim()));
+                model.addAttribute("recommendedMovies", recommendedMovies);
+                model.addAttribute("query", query);
+                model.addAttribute("LoggedInUser", loggedInUser);
+                model.addAttribute("movieLists", loggedInUser.getMovieLists());
+                model.addAttribute("watchedMovies", loggedInUser.getWatched().getMovies());
+                model.addAttribute("totalTime",loggedInUser.getTotalTime());
 
-            List<Map<String, Object>> recommendedMovies = tmdbService.getMovieDetailsFromTitles(recommendedTitles);
 
-            model.addAttribute("recommendedMovies", recommendedMovies);
-            model.addAttribute("query", query);
+                return "loggedInUser";
+            }
+
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Failed to fetch recommendations. Please try again later.");
             e.printStackTrace();
         }
-        User sessionUser = (User) session.getAttribute("LoggedInUser");
-        if (sessionUser != null) {
-            model.addAttribute("LoggedInUser", sessionUser);
+        return "redirect:/loggedin";
+    }
+    @PostMapping("/addMovieToWatchedUser")
+    public String addMovieToWatchedUser(
+            @RequestParam("movieTitle") String movieTitle,
+            @RequestParam("movieGenreIds") List<String> movieGenreIds,
+            @RequestParam("movieOverview") String movieOverview,
+            @RequestParam("movieReleaseDate") String movieReleaseDate,
+            HttpSession session,Model model) {
+        User loggedInUser = (User) session.getAttribute("LoggedInUser");
+        if(loggedInUser==null) {
+            return "redirect:/loggedin";
         }
-        return "home";
+
+        Watched watched=loggedInUser.getWatched();
+        if(watched==null) {
+            watched=new Watched();
+            loggedInUser.setWatched(watched);
+        }
+
+
+        List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
+        Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
+
+        //if movie is in watched
+        for(Movie m:watched.getMovies()) {
+            if(m.getTitle().equals(movieTitle)&&m.getReleaseDate().equals(movieReleaseDate)) {
+                return "redirect:/GetMoviesByTitle?query=" + movieTitle;
+
+            }
+        }
+        watched.addMovie(movie);
+        watchedService.saveWatched(watched);
+
+
+        session.setAttribute("LoggedInUser", userService.findUserById(loggedInUser.getId()));
+        model.addAttribute("LoggedInUser", loggedInUser);
+        model.addAttribute("movieLists", loggedInUser.getMovieLists());
+        model.addAttribute("watchedMovies", loggedInUser.getWatched().getMovies());
+        model.addAttribute("totalTime",loggedInUser.getTotalTime());
+        return "redirect:/GetMoviesByTitle?query=" + movieTitle;
+    }
+
+
+    @PostMapping("/addMovieToListUser")
+    public String addMovieToListUser(
+            @RequestParam(value = "movieListId",required = false) Long listID ,
+            //@RequestParam("movieId") long movieId,
+            @RequestParam("movieTitle") String movieTitle,
+            @RequestParam("movieGenreIds") List<String> movieGenreIds,
+            @RequestParam("movieOverview") String movieOverview,
+            @RequestParam("movieReleaseDate") String movieReleaseDate,
+
+            HttpSession session,Model model) {
+
+        User loggedInUser = (User) session.getAttribute("LoggedInUser");
+        MovieList movieList = movieListService.findMovieListById(listID);
+
+
+        List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
+        Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
+
+
+        List<Movie> MoviesInList=movieList.getMovies();
+        if(loggedInUser==null|| MoviesInList==null) {
+            return "redirect:/loggedin";
+        }
+        //ef myndinn er þegar í listanum
+        for(Movie m:MoviesInList) {
+            if(m.getTitle().equals(movieTitle)&&m.getReleaseDate().equals(movieReleaseDate)) {
+                return "redirect:/GetMoviesByTitle?query=" + movieTitle;
+
+            }
+        }
+        movieList.getMovies().add(movie);
+        movieListService.saveMovieList(movieList);
+
+        session.setAttribute("LoggedInUser", userService.findUserById(loggedInUser.getId()));
+        model.addAttribute("LoggedInUser", loggedInUser);
+        model.addAttribute("movieLists", loggedInUser.getMovieLists());
+        model.addAttribute("watchedMovies", loggedInUser.getWatched().getMovies());
+        model.addAttribute("totalTime",loggedInUser.getTotalTime());
+
+
+        return "redirect:/GetMoviesByTitle?query=" + movieTitle;
     }
 
     public List<Genre> getGenres(List<String> genreIds) {

@@ -68,13 +68,14 @@
                 </select>
                 <button type="submit">Add to List</button>
             </form>
+            <!-- Add to Watched  -->
             <form th:action="@{/addMovieToWatched}" method="post">
                 <input type="hidden" name="userId" th:value="${LoggedInUser.id}"/>
                 <input type="hidden" name="movieTitle" th:value="${tmdbMovie.title}"/>
                 <input type="hidden" name="movieGenreIds" th:value="${tmdbMovie.genre_ids}"/>
                 <input type="hidden" name="movieOverview" th:value="${tmdbMovie.overview}"/>
                 <input type="hidden" name="movieReleaseDate" th:value="${tmdbMovie.release_date}"/>
-                <!--<label for="movieListId">Add to List:</label>-->
+
                 <button type="submit">Add to watch history</button>
             </form>
         </div>

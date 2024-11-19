@@ -33,7 +33,7 @@ public interface TmdbService {
 
     List<Genre> getGenre(Map<String, Object> movie);
 
-    List<Map<String, Object>> getMovieDetailsFromTitles(List<String> titles);
+    List<Map<String, Object>> getMoviesFromTitles(List<String> titles);
 
     List<String> getRecommendedMovies(String query, Boolean child);
 }

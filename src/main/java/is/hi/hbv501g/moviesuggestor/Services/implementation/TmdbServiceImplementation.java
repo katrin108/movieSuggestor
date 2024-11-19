@@ -206,11 +206,6 @@ public class TmdbServiceImplementation implements TmdbService {
             Integer minRuntime,
             Integer maxRuntime
     ) {
-        if (genres == null || genres.isEmpty()) {
-            List<Map<String, Object>> result = new ArrayList<>();
-            result.add(getRandomPopularMovie(child));
-            return result;
-        }
 
         try {
             String genreIds = genres.stream()
@@ -239,6 +234,7 @@ public class TmdbServiceImplementation implements TmdbService {
             if (maxRuntime != null) {
                 uriBuilder.queryParam("with_runtime.lte", maxRuntime);
             }
+
             if (Boolean.TRUE.equals(child)) {
                 uriBuilder.queryParam("certification_country", "US")
                         .queryParam("certification.lte", "PG");
@@ -334,7 +330,6 @@ public class TmdbServiceImplementation implements TmdbService {
                     .queryParam("language", "en-US")
                     .queryParam("with_genres", genreIds);
 
-            // Add optional filters if they are provided
             if (minRating != null) {
                 uriBuilder.queryParam("vote_average.gte", minRating);
             }
@@ -356,10 +351,8 @@ public class TmdbServiceImplementation implements TmdbService {
                         .queryParam("certification.lte", "PG");
             }
 
-            // Build the URI string
             String uriString = uriBuilder.toUriString();
 
-            // Fetch the initial response to get total pages
             Map<String, Object> initialResponse = webClient.get()
                     .uri(uriString)
                     .retrieve()
@@ -380,7 +373,6 @@ public class TmdbServiceImplementation implements TmdbService {
             int maxPages = Math.min(totalPages, 500);
             final int randomPage = new Random().nextInt(maxPages) + 1;
 
-            // Update the URI with the random page
             uriBuilder.replaceQueryParam("page", randomPage);
             uriString = uriBuilder.toUriString();
 
@@ -507,7 +499,6 @@ public class TmdbServiceImplementation implements TmdbService {
                 }
             }
         } else {
-            // For detailed movie data, genres might be a list of maps
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> genreMaps = (List<Map<String, Object>>) movie.get("genres");
             if (genreMaps != null && !genreMaps.isEmpty()) {
@@ -532,12 +523,12 @@ public class TmdbServiceImplementation implements TmdbService {
      * @return List of movie details.
      */
     @Override
-    public List<Map<String, Object>> getMovieDetailsFromTitles(List<String> titles) {
+    public List<Map<String, Object>> getMoviesFromTitles(List<String> titles) {
         List<Map<String, Object>> movieDetailsList = new ArrayList<>();
 
         for (String title : titles) {
             try {
-                String uriString = UriComponentsBuilder.fromPath("/search/movie")
+                String uriString = UriComponentsBuilder.fromHttpUrl("https://api.themoviedb.org/3/search/movie")
                         .queryParam("api_key", apiKey)
                         .queryParam("language", "en-US")
                         .queryParam("query", title)
@@ -553,7 +544,10 @@ public class TmdbServiceImplementation implements TmdbService {
                 List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
 
                 if (results != null && !results.isEmpty()) {
-                    movieDetailsList.add(results.get(0));
+                    for (int i = 0; i < Math.min(results.size(), 10); i++) {
+                        movieDetailsList.add(results.get(i));
+                    }
+
                 }
             } catch (Exception e) {
                 System.err.println("Error fetching details for title '" + title + "': " + e.getMessage());
@@ -581,9 +575,7 @@ public class TmdbServiceImplementation implements TmdbService {
             Map<String, Object> response;
 
             if (Boolean.TRUE.equals(child)) {
-                // Implement child-safe logic if needed
                 Map<String, Object> movie = childUser();
-                // Since childUser returns a random movie, adjust logic accordingly
                 if (movie != null && movie.containsKey("title")) {
                     String title = (String) movie.get("title");
                     return List.of(title);
