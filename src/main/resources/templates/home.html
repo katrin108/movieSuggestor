@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Movie Suggestor</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
 
@@ -31,7 +32,7 @@
 <!-- Featured Movie -->
 <section>
     <h2>Featured Movie</h2>
-    <div th:if="${tmdbMovie != null}">
+    <div id="recommendedMovie" th:if="${tmdbMovie != null}">
         <img th:src="'https://image.tmdb.org/t/p/w500' + ${tmdbMovie.poster_path}" alt="Movie Poster" style="max-width: 200px;">
         <h3 th:text="${tmdbMovie.title}"></h3>
         <p th:text="${tmdbMovie.overview}"></p>
@@ -63,7 +64,7 @@
                 <input type="hidden" name="movieOverview" th:value="${tmdbMovie.overview}"/>
                 <input type="hidden" name="movieReleaseDate" th:value="${tmdbMovie.release_date}"/>
                 <label for="movieListId">Add to List:</label>
-                <select name="movieListId" id="movieListId">
+                <select id="movieListId" name="movieListId" >
                     <option th:each="list : ${movieLists}" th:value="${list.id}" th:text="${list.name}"></option>
                 </select>
                 <button type="submit">Add to List</button>
@@ -165,7 +166,8 @@
     </div>
     <div th:if="${!recommendedMovies.isEmpty()}">
         <h3>Recommended Movies</h3>
-        <div th:each="movie : ${recommendedMovies}">
+        <div id="recommendedMovies">
+        <div id="recommendedMovie" th:each="movie : ${recommendedMovies}">
             <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster_path}" alt="Movie Poster" style="max-width: 200px;">
             <h4 th:text="${movie.title}"></h4>
             <p th:text="${movie.overview}"></p>
@@ -195,6 +197,7 @@
                 </form>
             </div>
             <hr/>
+        </div>
         </div>
     </div>
 </section>

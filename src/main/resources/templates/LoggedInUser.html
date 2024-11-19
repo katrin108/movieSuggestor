@@ -161,7 +161,7 @@
                         <input type="hidden" name="movieOverview" th:value="${movie.overview}"/>
                         <input type="hidden" name="movieReleaseDate" th:value="${movie.release_date}"/>
                         <label for="movieListId">Add to List:</label>
-                        <select name="movieListId" id="movieListId">
+                        <select  name="movieListId" id="movieListId">
                             <option th:each="list : ${movieLists}" th:value="${list.id}" th:text="${list.name}"></option>
                         </select>
                         <button type="submit">Add to List</button>
