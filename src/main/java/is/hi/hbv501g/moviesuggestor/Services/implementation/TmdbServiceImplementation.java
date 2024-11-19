@@ -217,6 +217,7 @@ public class TmdbServiceImplementation implements TmdbService {
                     .queryParam("language", "en-US")
                     .queryParam("with_genres", genreIds);
 
+
             // Add optional filters if they are provided
             if (minRating != null) {
                 uriBuilder.queryParam("vote_average.gte", minRating);
@@ -316,6 +317,7 @@ public class TmdbServiceImplementation implements TmdbService {
             Integer minRuntime,
             Integer maxRuntime
     ) {
+        System.out.println(minVotes);
         if (genres == null || genres.isEmpty()) {
             return getRandomPopularMovie(child);
         }
