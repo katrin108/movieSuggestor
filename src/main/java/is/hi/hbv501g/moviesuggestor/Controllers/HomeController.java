@@ -32,17 +32,17 @@ public class HomeController {
 
     @RequestMapping("/")
     public String homePage(Model model, HttpSession session) {
-        // All users
+        boolean searchPerformed = false;
         List<User> allUsers = userService.findAllUsers();
         User sessionUser = (User) session.getAttribute("LoggedInUser");
 
         model.addAttribute("users", allUsers);
         model.addAttribute("genres", Genre.values());
+        model.addAttribute("searchPerformed", searchPerformed);
 
         if (sessionUser != null) {
             model.addAttribute("LoggedInUser", sessionUser);
-            List<Map<String, Object>> personalizedMovies = tmdbService.getMoviesByGenres(sessionUser.getGenres(),sessionUser.getChild());
-            
+            List<Map<String, Object>> personalizedMovies = tmdbService.getMoviesByGenres(sessionUser.getGenres(), sessionUser.getChild());
             model.addAttribute("personalizedMovies", personalizedMovies);
         }
 
@@ -64,6 +64,7 @@ public class HomeController {
 
         Map<String, Object> randomMovie = null;
         List<Map<String, Object>> movies = null;
+        boolean searchPerformed = false;
 
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         Boolean child = child_safe != null ? child_safe : false;
@@ -73,6 +74,7 @@ public class HomeController {
 
         if ("Random Movie".equals(action)) {
             randomMovie = tmdbService.getRandomPopularMovie(child);
+            searchPerformed = true;
         }
         else if ("Movie based on selected genres".equals(action)) {
             if (selectedGenres != null && !selectedGenres.isEmpty()) {
@@ -85,12 +87,12 @@ public class HomeController {
                         minRuntime,
                         maxRuntime
                 );
-                movies = null;
+                searchPerformed = true;
             }
             else {
                 randomMovie = tmdbService.getRandomPopularMovie(child);
-                movies = null;
             }
+            searchPerformed = true;
         }
         else if ("Movies based on selected genres".equals(action)) {
             if (selectedGenres != null && !selectedGenres.isEmpty()) {
@@ -103,46 +105,37 @@ public class HomeController {
                         minRuntime,
                         maxRuntime
                 );
+                searchPerformed = true;
             }
         }
-        else if ("Movie based on saved genres".equals(action)) {
+        else if ("Movie based on saved genres".equals(action) || "Movies based on saved genres".equals(action)) {
             if (sessionUser != null && sessionUser.getGenres() != null && !sessionUser.getGenres().isEmpty()) {
-                randomMovie = tmdbService.getRandomPersonalizedMovie(
-                        sessionUser.getGenres(),
-                        child,
-                        minRating,
-                        minVotes,
-                        certification,
-                        minRuntime,
-                        maxRuntime
-                );
-            } else {
-                randomMovie = tmdbService.getRandomPopularMovie(child);
-                movies = null;
-            }
-        }
-        else if ("Movies based on saved genres".equals(action)) {
-            if (sessionUser != null && sessionUser.getGenres() != null && !sessionUser.getGenres().isEmpty()) {
-                movies = tmdbService.getPersonalizedMovies(
-                        sessionUser.getGenres(),
-                        child,
-                        minRating,
-                        minVotes,
-                        certification,
-                        minRuntime,
-                        maxRuntime
-                );
-                if (movies != null) {
-                    for(Map<String, Object> m:movies){
-
-                    }
+                if (action.equals("Movie based on saved genres")) {
+                    randomMovie = tmdbService.getRandomPersonalizedMovie(
+                            sessionUser.getGenres(),
+                            child,
+                            minRating,
+                            minVotes,
+                            certification,
+                            minRuntime,
+                            maxRuntime
+                    );
+                } else {
+                    movies = tmdbService.getPersonalizedMovies(
+                            sessionUser.getGenres(),
+                            child,
+                            minRating,
+                            minVotes,
+                            certification,
+                            minRuntime,
+                            maxRuntime
+                    );
                 }
-                randomMovie = null;
+                searchPerformed = true;
             }
         }
         else {
             randomMovie = tmdbService.getRandomPopularMovie(child);
-            movies = null;
         }
 
         if (sessionUser != null) {
@@ -160,11 +153,11 @@ public class HomeController {
             model.addAttribute("errorMessage", "No movies found matching your criteria.");
         }
 
-        if(sessionUser!=null) {
+        if(sessionUser != null) {
             model.addAttribute("movieLists", sessionUser.getMovieLists());
         }
 
-
+        model.addAttribute("searchPerformed", searchPerformed);
         model.addAttribute("genres", Genre.values());
         model.addAttribute("selectedGenres", selectedGenres);
 

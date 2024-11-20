@@ -82,8 +82,8 @@
             </form>
         </div>
     </div>
-    <div th:if="${tmdbMovie == null}">
-        <p>No featured movie available at the moment.</p>
+    <div th:if="${searchPerformed and tmdbMovie == null}">
+        <p>No featured movie available at the moment OR no movie found that fits search parameters .</p>
     </div>
 </section>
 
