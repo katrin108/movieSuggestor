@@ -81,3 +81,10 @@ h1,h2{
     align-items: center;
 
 }
+
+.link_box {
+    border: 2px solid green;
+    padding: 3px;
+    background-color: beige;
+    text-align: center;
+}

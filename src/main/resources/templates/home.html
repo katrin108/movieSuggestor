@@ -13,16 +13,16 @@
     <!-- Login and Signup Links -->
     <div>
         <div th:if="${LoggedInUser != null}">
-            <a href="/loggedin">My Profile</a>
+            <a href="/loggedin"><button type="submit">My Profile</button></a>
             |
             <form th:action="@{/logout}" method="post" style="display:inline;">
                 <button type="submit">Log out</button>
             </form>
         </div>
         <div th:if="${LoggedInUser == null}">
-            <a href="/login">Log in</a>
+            <a href="/login"><button type="submit">Log in</button></a>
             |
-            <a href="/signup">Sign up</a>
+            <a href="/signup"><button type="submit">Sign up</button></a>
         </div>
     </div>
 </header>
@@ -43,7 +43,7 @@
             </ul>
         </div>
         <p>
-            <a th:href="'https://www.themoviedb.org/movie/' + ${tmdbMovie.id}" target="_blank">View on TMDB</a>
+            <a class="link_box" th:href="'https://www.themoviedb.org/movie/' + ${tmdbMovie.id}" target="_blank">View on TMDB</a>
         </p>
 
         <div th:if="${LoggedInUser != null}">
