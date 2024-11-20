@@ -88,3 +88,23 @@ h1,h2{
     background-color: beige;
     text-align: center;
 }
+
+/* User name header í  home */
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-right: 20px;
+}
+
+.user-name {
+    background-color: var(--light-color);
+    color: var(--secondary-color);
+    padding: 5px 10px;
+    border-radius: 10px;
+    margin-left: 10px;
+}
+
+.user-icon {
+    font-size: 24px;
+}
