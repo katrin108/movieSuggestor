@@ -88,3 +88,9 @@ h1,h2{
     background-color: beige;
     text-align: center;
 }
+
+.pad_list {
+    padding: 12px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
