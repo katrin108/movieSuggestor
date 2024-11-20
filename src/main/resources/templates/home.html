@@ -107,7 +107,7 @@
         <!-- Optional Filters -->
         <fieldset class="pad_list">
             <legend>Optional Filters</legend>
-            <label for="minRating">Minimum IMDb Rating:</label>
+            <label for="minRating">Minimum TMDb Rating:</label>
             <input type="number" step="0.1" min="0" max="10" name="minRating" id="minRating"><br/>
 
             <label for="minVotes">Minimum Votes:</label>
@@ -127,15 +127,32 @@
         <label for="child_safe">Child-Safe Mode:</label>
         <input type="checkbox" name="child_safe" id="child_safe" th:checked="${child_safe}"><br/>
 
-        <!-- Action Buttons -->
-        <div>
-            <button type="submit" name="action" value="Random Movie">Random Movie</button>
-            <button type="submit" name="action" value="Movie based on selected genres">Movie Based on Selected Genres</button>
-			<button type="submit" name="action" value="Movies based on selected genres">Movies Based on Selected Genres</button>
-            <div th:if="${LoggedInUser != null}">
-                <button type="submit" name="action" value="Movie based on saved genres">Movie Based on Saved Genres</button>
-				<button type="submit" name="action" value="Movies based on saved genres">Movies based on saved Genres</button>
+
+        <!-- Action Buttons Section -->
+        <div class="action-section">
+            <!-- Random Movie -->
+            <div class="action-group">
+                <h3>Random Movie</h3>
+                <button type="submit" name="action" value="Random Movie">Random Movie</button>
             </div>
+
+            <!-- Selected Genres -->
+            <div class="action-group">
+                <h3>Selected Genres</h3>
+                <button type="submit" name="action" value="Movie based on selected genres">Single Movie</button>
+                <button type="submit" name="action" value="Movies based on selected genres">Multiple Movies</button>
+            </div>
+
+            <!-- Saved Preferences  -->
+            <div class="action-group" th:if="${LoggedInUser != null}">
+                <h3>Saved User Preferences</h3>
+                <button type="submit" name="action" value="Movie based on saved genres">Single Movie</button>
+                <button type="submit" name="action" value="Movies based on saved genres">Multiple Movies</button>
+            </div>
+        </div>
+
+        </div>
+
 
 
         </div>
