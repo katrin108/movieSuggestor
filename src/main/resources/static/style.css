@@ -104,3 +104,9 @@ h1, h2 {
     border-radius: 5px; /
 
 }
+
+.pad_list {
+    padding: 12px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
