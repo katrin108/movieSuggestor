@@ -10,18 +10,20 @@
 <!-- Header -->
 <header style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
     <h1>Movie Suggestor</h1>
-    <div id="UserInformation" style="display: flex; align-items: center;">
-        <div th:if="${LoggedInUser != null}" style="text-align: right; display: flex; align-items: center;">
-            <span style="font-size: 24px; vertical-align: middle;">👤</span>
-            <span th:text="${LoggedInUser.username}" style="padding-right: 10px; margin-right: 10px;"></span>
-            <a href="/loggedin" style="margin-right: 10px;"><button type="submit">My Profile</button></a>
-            <form th:action="@{/logout}" method="post" style="display: inline;">
-                <button type="submit">Log out</button>
-            </form>
-        </div>
+    <div style="display: flex; align-items: center;">
         <div th:if="${LoggedInUser == null}">
             <a href="/login"><button type="submit">Log in</button></a>
             <a href="/signup"><button type="submit">Sign up</button></a>
+        </div>
+        <div th:if="${LoggedInUser != null}" style="display: flex; align-items: center;">
+            <a href="/loggedin"><button type="submit">My Profile</button></a>
+            <form th:action="@{/logout}" method="post" style="display: inline; margin-left: 10px;">
+                <button type="submit">Log out</button>
+            </form>
+            <div class="user-info" style="margin-left: 20px; display: flex; align-items: center;">
+                <span class="user-icon" style="font-size: 24px;">👤</span>
+                <span class="user-name" th:text="${LoggedInUser.username}" style="margin-left: 10px;"></span>
+            </div>
         </div>
     </div>
 </header>
@@ -92,7 +94,7 @@
     <h2>Find a Movie</h2>
     <form th:action="@{/}" method="post">
         <!-- Genre Selection -->
-        <fieldset>
+        <fieldset class="pad_list">
             <legend>Select Genres</legend>
             <div th:each="genre : ${genres}">
                 <label>
@@ -103,7 +105,7 @@
         </fieldset>
 
         <!-- Optional Filters -->
-        <fieldset>
+        <fieldset class="pad_list">
             <legend>Optional Filters</legend>
             <label for="minRating">Minimum IMDb Rating:</label>
             <input type="number" step="0.1" min="0" max="10" name="minRating" id="minRating"><br/>

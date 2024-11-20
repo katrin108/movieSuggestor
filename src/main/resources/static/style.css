@@ -89,13 +89,19 @@ h1,h2{
     text-align: center;
 }
 
-/* User name header í  home */
+.pad_list {
+    padding: 12px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
 .user-info {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     margin-right: 20px;
 }
+
 
 .user-name {
     background-color: var(--light-color);
@@ -104,6 +110,7 @@ h1,h2{
     border-radius: 10px;
     margin-left: 10px;
 }
+
 
 .user-icon {
     font-size: 24px;
