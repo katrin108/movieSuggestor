@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>preferences</title>
+  <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
   <form action="#" th:action="@{/loggedin/preferences}" method="post">
@@ -14,10 +15,14 @@
         <span th:text="${genre}">Genre Name</span>
       </label>
     </div>
-    <input type="submit" name = "action" value="Clear Preferences">
-    <input type="submit" name = "action" value="Save Preferences">
+      <Button type="submit" name = "action" value="Clear Preferences">Clear Preferences</Button>
+      <Button type="submit" name = "action" value="Save Preferences" >Save Preferences</Button>
   </form>
-  <p><a href="#" th:href="@{/loggedin}"> Cancel</a></p>
+
+  <button class="movie-search-button">
+    <a href="#" th:href="@{/loggedin}"> Cancel</a>
+  </button>
+
 
 </body>
 </html>
