@@ -49,6 +49,10 @@ public class HomeController {
         log.debug("[DEBUG] LoggedInUser from session: {}", sessionUser != null ? sessionUser.getUsername() : "No user logged in");
 
         model.addAttribute("LoggedInUser", sessionUser);
+        if(sessionUser != null) {
+            model.addAttribute("movieLists", sessionUser.getMovieLists());
+            model.addAttribute("watchedMovies", sessionUser.getWatched().getMovies());
+        }
         model.addAttribute("genres", Genre.values());
         model.addAttribute("searchPerformed", false);
 
@@ -86,6 +90,11 @@ public class HomeController {
 
         User sessionUser = (User) session.getAttribute("LoggedInUser");
         log.debug("[DEBUG] LoggedInUser from session: {}", sessionUser != null ? sessionUser.getUsername() : "No user logged in");
+        if(sessionUser != null) {
+            model.addAttribute("movieLists", sessionUser.getMovieLists());
+            model.addAttribute("watchedMovies", sessionUser.getWatched().getMovies());
+        }
+
 
         model.addAttribute("LoggedInUser", sessionUser);
         model.addAttribute("genres", Genre.values());
@@ -163,6 +172,11 @@ public class HomeController {
 
         model.addAttribute("LoggedInUser", sessionUser);
         model.addAttribute("child_safe", child);
+        if(sessionUser!=null){
+            model.addAttribute("movieLists", sessionUser.getMovieLists());
+            model.addAttribute("watchedMovies", sessionUser.getWatched().getMovies());
+        }
+
 
         if (randomMovie != null) {
             model.addAttribute("tmdbMovie", randomMovie);
@@ -181,4 +195,92 @@ public class HomeController {
         log.debug("[DEBUG] Returning view: home");
         return "home";
     }
+
+    @PostMapping("/addMovieToWatched")
+    public String addMovieToWatched(
+            @RequestParam("movieTitle") String movieTitle,
+            @RequestParam("movieGenreIds") List<String> movieGenreIds,
+            @RequestParam("movieOverview") String movieOverview,
+            @RequestParam("movieReleaseDate") String movieReleaseDate,
+            HttpSession session,Model model) {
+        User loggedInUser = (User) session.getAttribute("LoggedInUser");
+        if(loggedInUser==null) {
+            return "home";
+        }
+
+        Watched watched=loggedInUser.getWatched();
+        if(watched==null) {
+            watched=new Watched();
+            loggedInUser.setWatched(watched);
+        }
+
+
+        List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
+        Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
+
+        //if movie is in watched
+        for(Movie m:watched.getMovies()) {
+            if(m.getTitle().equals(movieTitle)&&m.getReleaseDate().equals(movieReleaseDate)) {
+                return "home";
+
+            }
+        }
+        watched.addMovie(movie);
+        watchedService.saveWatched(watched);
+
+        session.setAttribute("LoggedInUser", userService.findUserById(loggedInUser.getId()));
+
+        model.addAttribute("LoggedInUser", loggedInUser);
+        model.addAttribute("watchedMovies", watched.getMovies());
+        model.addAttribute("watched",watched);
+
+        return "home";
+    }
+
+
+    @PostMapping("/addMovieToList")
+    public String addMovieToList(
+            @RequestParam("movieListId") Long listID,
+            //@RequestParam("movieId") long movieId,
+            @RequestParam("movieTitle") String movieTitle,
+            @RequestParam("movieGenreIds") List<String> movieGenreIds,
+            @RequestParam("movieOverview") String movieOverview,
+            @RequestParam("movieReleaseDate") String movieReleaseDate,
+            HttpSession session,Model model) {
+
+        User loggedInUser = (User) session.getAttribute("LoggedInUser");
+        MovieList movieList = movieListService.findMovieListById(listID);
+
+
+        List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
+        Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
+
+
+        List<Movie> MoviesInList=movieList.getMovies();
+        if(loggedInUser==null|| MoviesInList==null) {
+            return "home";
+        }
+        //ef myndinn er þegar í listanum
+        for(Movie m:MoviesInList) {
+            if(m.getTitle().equals(movieTitle)&&m.getReleaseDate().equals(movieReleaseDate)) {
+                return "home";
+
+            }
+        }
+        movieList.getMovies().add(movie);
+        movieListService.saveMovieList(movieList);
+
+        session.setAttribute("LoggedInUser", userService.findUserById(loggedInUser.getId()));
+        model.addAttribute("LoggedInUser", loggedInUser);
+        model.addAttribute("movieLists", loggedInUser.getMovieLists());
+        model.addAttribute("watchedMovies", loggedInUser.getWatched().getMovies());
+        model.addAttribute("totalTime",loggedInUser.getTotalTime());
+
+
+        return "home";
+    }
+
+
+
+
 }

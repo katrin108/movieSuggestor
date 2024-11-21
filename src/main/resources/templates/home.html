@@ -233,12 +233,12 @@
                     <input type="hidden" name="movieOverview" th:value="${movie.overview}"/>
                     <input type="hidden" name="movieReleaseDate" th:value="${movie.release_date}"/>
                     <label for="movieListId">Add to List:</label>
-                    <select name="movieListId" id="movieListId">
+                    <select name="movieListId" >
                         <option th:each="list : ${movieLists}" th:value="${list.id}" th:text="${list.name}"></option>
                     </select>
                     <button type="submit">Add to List</button>
                 </form>
-                <form th:action="@{/addMovieWatched}" method="post">
+                <form th:action="@{/addMovieToWatched}" method="post">
                     <input type="hidden" name="userId" th:value="${LoggedInUser.id}"/>
                     <input type="hidden" name="movieTitle" th:value="${movie.title}"/>
                     <input type="hidden" name="movieGenreIds" th:value="${movie.genre_ids}"/>

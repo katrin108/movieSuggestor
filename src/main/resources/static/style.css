@@ -176,6 +176,13 @@ h2 {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-bottom: 15px;
+
+}
+.movie-search-button a {
+    color: #fff;
+    text-decoration: none;
+
 }
 
 .movie-search-button:hover {

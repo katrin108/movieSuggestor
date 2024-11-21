@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
 <h2>Log in to your account</h2>
-<p><a href="#" th:href="@{/}"> home</a></p>
+<button class="movie-search-button">
+    <a href="#" th:href="@{/}">Home</a>
+</button>
 <form action="#" th:action ="@{login}" th:object="${user}" method="post">
-    <label for="username">Username</label>
-    <input type="text" name="username" id="username" th:field="*{username}">
+    <label for="username" >Username</label>
+    <input type="text" name="username" id="username" th:field="*{username}" class="search-input">
     <label for="password">Password</label>
-    <input type="text" name="password" id="password" th:field="*{password}">
-    <input type="submit" value="Login"/>
+    <input type="text" name="password" id="password" th:field="*{password}" class="search-input">
+    <input type="submit" value="Login" class="movie-search-button"/>
 </form>
 
 </body>

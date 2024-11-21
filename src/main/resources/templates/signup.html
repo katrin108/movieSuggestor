@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>Signup</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
 <h2>Create new account</h2>
-<p><a href="#" th:href="@{/}"> home</a></p>
+<button class="movie-search-button">
+    <a href="#" th:href="@{/}">Home</a>
+</button>
 <form action="#" th:action ="@{/signup}" th:object="${user}" method="post">
     <label for="username">Username</label>
-    <input type="text" name="username" id="username" th:field="*{username}">
+    <input type="text" name="username" id="username" th:field="*{username}" class="search-input">
     <label for="password">Password</label>
-    <input type="text" name="password" id="password" th:value="*{password}">
+    <input type="text" name="password" id="password" th:value="*{password}" class="search-input">
     <label for="email">Email</label>
-    <input type="text" name="email" id="email" th:value="*{email}">
+    <input type="text" name="email" id="email" th:value="*{email}" class="search-input">
     <h3>Your preferences</h3>
     <div th:each="genre : ${genres}">
         <label>
@@ -21,7 +24,7 @@
             <span th:text="${genre}">Genre Name</span>
         </label>
     </div>
-    <input type="submit" value="Sign up"/>
+    <input type="submit" value="Sign up" class="movie-search-button"/>
 </form>
 
 </body>

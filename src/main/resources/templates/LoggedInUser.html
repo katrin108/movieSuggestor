@@ -74,7 +74,6 @@
         </div>
         <div th:if="${not #lists.isEmpty(watchedMovies)}">
             <a th:href="@{/loggedIn/watched}">View Watched Movies</a>
-            <p th:text="'Total time watched: ' + ${totalTime[0]} + ' hours ' + ${totalTime[1]} + ' minutes'"></p>
         </div>
     </div>
 </section>
