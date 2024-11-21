@@ -174,6 +174,7 @@ public class UserController {
                 model.addAttribute("LoggedInUser", loggedInUser);
                 model.addAttribute("watchedMovies", watched.getMovies());
                 model.addAttribute("watched",watched);
+                model.addAttribute("movieLists",loggedInUser.getMovieLists());
                 break;
             }
         }
@@ -197,6 +198,7 @@ public class UserController {
         model.addAttribute("LoggedInUser", user);
         model.addAttribute("watchedMovies", watched.getMovies());
         model.addAttribute("watched",watched);
+        model.addAttribute("movieLists",user.getMovieLists());
 
         return "watched";
     }
@@ -531,6 +533,7 @@ public class UserController {
         model.addAttribute("LoggedInUser", loggedInUser);
         model.addAttribute("movieLists", loggedInUser.getMovieLists());
         model.addAttribute("watchedMovies", loggedInUser.getWatched().getMovies());
+        model.addAttribute("movieLists",loggedInUser.getMovieLists());
         model.addAttribute("totalTime",loggedInUser.getTotalTime());
 
 

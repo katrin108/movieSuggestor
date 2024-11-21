@@ -52,6 +52,7 @@ public class HomeController {
         if(sessionUser != null) {
             model.addAttribute("movieLists", sessionUser.getMovieLists());
             model.addAttribute("watchedMovies", sessionUser.getWatched().getMovies());
+            model.addAttribute("movieLists",sessionUser.getMovieLists());
         }
         model.addAttribute("genres", Genre.values());
         model.addAttribute("searchPerformed", false);
@@ -93,6 +94,7 @@ public class HomeController {
         if(sessionUser != null) {
             model.addAttribute("movieLists", sessionUser.getMovieLists());
             model.addAttribute("watchedMovies", sessionUser.getWatched().getMovies());
+            model.addAttribute("movieLists",sessionUser.getMovieLists());
         }
 
 
@@ -175,6 +177,7 @@ public class HomeController {
         if(sessionUser!=null){
             model.addAttribute("movieLists", sessionUser.getMovieLists());
             model.addAttribute("watchedMovies", sessionUser.getWatched().getMovies());
+            model.addAttribute("movieLists",sessionUser.getMovieLists());
         }
 
 
@@ -232,6 +235,7 @@ public class HomeController {
 
         model.addAttribute("LoggedInUser", loggedInUser);
         model.addAttribute("watchedMovies", watched.getMovies());
+        model.addAttribute("movieLists",loggedInUser.getMovieLists());
         model.addAttribute("watched",watched);
 
         return "home";
@@ -249,19 +253,21 @@ public class HomeController {
             HttpSession session,Model model) {
 
         User loggedInUser = (User) session.getAttribute("LoggedInUser");
+
+        if(loggedInUser==null) {
+            return "home";
+        }
+        if(listID==null){
+            return "home";
+        }
+
         MovieList movieList = movieListService.findMovieListById(listID);
-
-
         List<Genre> genres = Genre.fromString(String.valueOf(movieGenreIds));
         Movie movie = new Movie(movieTitle, genres, movieOverview, movieReleaseDate, 0, 0);
 
 
-        List<Movie> MoviesInList=movieList.getMovies();
-        if(loggedInUser==null|| MoviesInList==null) {
-            return "home";
-        }
         //ef myndinn er þegar í listanum
-        for(Movie m:MoviesInList) {
+        for(Movie m:movieList.getMovies()) {
             if(m.getTitle().equals(movieTitle)&&m.getReleaseDate().equals(movieReleaseDate)) {
                 return "home";
 
@@ -274,6 +280,7 @@ public class HomeController {
         model.addAttribute("LoggedInUser", loggedInUser);
         model.addAttribute("movieLists", loggedInUser.getMovieLists());
         model.addAttribute("watchedMovies", loggedInUser.getWatched().getMovies());
+        model.addAttribute("movieLists",loggedInUser.getMovieLists());
         model.addAttribute("totalTime",loggedInUser.getTotalTime());
 
 
