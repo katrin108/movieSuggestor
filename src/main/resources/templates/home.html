@@ -43,6 +43,12 @@
                 <li th:each="genre : ${movieGenre}" th:text="${genre}"></li>
             </ul>
         </div>
+        <div>
+            <strong>TMDB Rating:</strong> <span th:text="${tmdbMovie.vote_average}"></span>
+        </div>
+        <div>
+            <strong>Number of Votes:</strong> <span th:text="${tmdbMovie.vote_count}"></span>
+        </div>
         <p>
             <a class="link_box" th:href="'https://www.themoviedb.org/movie/' + ${tmdbMovie.id}" target="_blank">View on TMDB</a>
         </p>
@@ -82,8 +88,8 @@
             </form>
         </div>
     </div>
-    <div th:if="${searchPerformed and tmdbMovie == null}">
-        <p>No featured movie available at the moment OR no movie found that fits search parameters .</p>
+    <div th:if="${searchPerformed ?: false} and ${tmdbMovie == null}">
+        <p>No featured movie available at the moment OR no movie found that fits search parameters.</p>
     </div>
 </section>
 
@@ -161,20 +167,45 @@
 
 <hr/>
 
-<!-- Sentence-Based Movie Search -->
-<section>
-    <h2>Describe the Movie You Want</h2>
-    <form th:action="@{/api/movies/recommend}" method="get">
-        <label for="query">Describe the type of movie you want:</label><br/>
-        <input
-                type="text"
-                id="query"
-                name="query"
-                th:placeholder="${query == null ? 'e.g., a thrilling sci-fi movie about space exploration' : query}"
-                required>
-        <button type="submit">Search</button>
+<!-- Sentence-Based Movie Search using TasteDive -->
+<section class="movie-search-section">
+    <h2>Find Your Next Movie</h2>
+    <H4>Uses Tastedive api</H4>
+    <form th:action="@{/tastedive}" method="get" class="movie-search-form">
+        <label for="query" class="movie-search-label">Describe the type of movie you want:</label>
+        <div class="movie-search-input-container">
+            <input
+                    type="text"
+                    id="query"
+                    name="query"
+                    class="movie-search-input"
+                    th:placeholder="${query == null ? 'e.g., a thrilling sci-fi movie about space exploration' : query}"
+                    required>
+            <button type="submit" class="movie-search-button">Search</button>
+        </div>
     </form>
 </section>
+
+<section>
+    <!-- Results Section -->
+    <div th:if="${searchPerformed}">
+        <h2>Results for: <span th:text="${query}"></span></h2>
+
+        <!-- Check if recommendations are available -->
+        <div th:if="${recommendations != null and !recommendations.isEmpty()}">
+            <h3>Recommended Movies</h3>
+            <ul>
+                <li th:each="recommendation : ${recommendations}" th:text="${recommendation}"></li>
+            </ul>
+        </div>
+
+        <!-- No recommendations available -->
+        <div th:if="${recommendations == null or recommendations.isEmpty()}">
+            <p>No recommendations available. Please try again later or try simplifying your search .</p>
+        </div>
+    </div>
+</section>
+
 
 <!-- Suggestions and search results -->
 <section th:if="${recommendedMovies != null}">
@@ -189,6 +220,8 @@
             <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster_path}" alt="Movie Poster" style="max-width: 200px;">
             <h4 th:text="${movie.title}"></h4>
             <p th:text="${movie.overview}"></p>
+            <strong>TMDB Rating:</strong> <span th:text="${movie.vote_average}"></span>
+            <strong>Number of Votes:</strong> <span th:text="${movie.vote_count}"></span>
             <p>
                 <a th:href="'https://www.themoviedb.org/movie/' + ${movie.id}" target="_blank">View on TMDB</a>
             </p>
