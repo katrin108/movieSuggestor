@@ -237,7 +237,7 @@ public class HomeController {
         model.addAttribute("watchedMovies", watched.getMovies());
         model.addAttribute("movieLists",loggedInUser.getMovieLists());
         model.addAttribute("watched",watched);
-
+        model.addAttribute("genres", Genre.values());
         return "home";
     }
 
@@ -282,7 +282,7 @@ public class HomeController {
         model.addAttribute("watchedMovies", loggedInUser.getWatched().getMovies());
         model.addAttribute("movieLists",loggedInUser.getMovieLists());
         model.addAttribute("totalTime",loggedInUser.getTotalTime());
-
+        model.addAttribute("genres", Genre.values());
 
         return "home";
     }
